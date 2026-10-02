@@ -18,3 +18,15 @@ Object.assign(PANES,{
     return `<p class="lead">Your tenants, ${HH} households each.</p>`+(rows||'<p class="lead">You have no tenants. The estate may offer you homes.</p>');
   },
 });
+
+// the partner's Career tab
+PANES.career=function(){
+  const p=G.pt,h=p.history.at(-1);
+  return `<p class="lead">Each bar is a year of what you’re worth. At $${PT.rate.toLocaleString('en-GB')} an hour, a billion would take you <b>${Math.round(yearsToBillion())} years</b>.</p><canvas id="chart"></canvas>
+    <div class="stats" style="margin-top:8px"><div>Worth<b>${money(ptWorth())}</b></div><div>Hours a week<b>${p.hours}</b></div>
+    <div>Earned last year<b>${h?money(h.earned):'–'}</b></div><div>Burnout<b>${Math.round(p.burn*100)}%</b></div>
+    <div>Home<b>${p.home==='own'?'Your own':'Rented from Agnes'}</b></div><div>Partner share<b>${p.partnerShare>1?'Equity':'Salaried'}</b></div>
+    <div>Loopholes written<b>${p.loopholes}</b></div><div>Evictions fought free<b>${p.proBono}</b></div>
+    <div>Agnes’s retainers<b>${p.evictionWork}</b></div><div>The mill’s union<b>${{mill:'Against it',union:'For it',none:'Stayed out'}[p.unionSide]||'–'}</b></div>
+    <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>`;
+};

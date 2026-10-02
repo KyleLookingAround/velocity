@@ -18,7 +18,7 @@ function economyWeek(){
   const res=G.res,gifts=G.gifts;
   for(const r of res){r.income=0;r.spent=0}
   // the mill sells outside town and pays its six; whatever's left goes to its owners elsewhere
-  for(const r of millStaff())r.income+=pay('mill','r'+res.indexOf(r),wageFor(r,T.wage*grow(0.02)),'wage');
+  for(const r of millStaff())r.income+=pay('mill','r'+res.indexOf(r),wageFor(r,T.wage*grow(0.02)*(G.millMul||1)),'wage');
   // your workshops do the same: each worker's output sells outside town, and the profit comes to you
   G.workshops.forEach((w,i)=>{
     let paid=0,n=0;
@@ -56,6 +56,8 @@ function economyWeek(){
         if(mine){G.ll.year.rent+=rent;if(r.owed>0){const p=Math.min(r.owed,Math.max(0,(r.cash-rent)*0.2));r.cash-=p;r.owed-=p;res[0].income+=pay(id,'r0',p,'rent')}}}
       // your own tenants who fall six weeks behind come to you as a card; one you've given time builds up what it owes
       else if(mine){G.ll.year.lost+=rent;if(r.grace>G.week)r.owed=(r.owed||0)+rent;else{r.arrears++;if(r.arrears>=6&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}}
+      // (as the partner: Agnes evicts when the computer says so, sooner if you work for her, and the tenant may ask you first)
+      else if(isPartner()&&r.homeOwner==='local'){r.arrears++;if(r.arrears>=Math.max(4,G.aiLandlord.evictAt-2*G.pt.evictionWork)&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}
       else{r.arrears++;if(r.arrears>=6)evict(r)}
     }
     if(r.debt>0){if(gifts.medical){giveOut(r.debt,'medical',i);r.debt=0}else{const p=Math.min(r.debt,T.medicalPay,Math.max(0,r.cash*0.5));r.debt-=p;r.cash-=pay(id,'out',p,'debt')}}
@@ -72,6 +74,7 @@ function economyWeek(){
       ll.cash-=s;ll.spent=s+fix;for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],ll['to_'+c]=s*CAT_SHARE[c];spendBy.goods+=fix;ll.to_goods+=fix}
     else{s=res[0].income*T.mpc.high+Math.max(0,ll.cash-200000*HH)*0.004;ll.cash-=s;ll.spent=s;
       for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],ll['to_'+c]=s*CAT_SHARE[c]}}
+  if(isPartner()){const s=partnerWeek();for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c]}
   // spending reaches the shops, or leaks to the megastore
   for(const c of CATS){
     const si=G.shops.findIndex(s=>s.cat===c),s=G.shops[si];

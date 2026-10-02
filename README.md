@@ -24,7 +24,8 @@ tents in the park, shutters coming down, strikes and marches, kids at the nurser
 
 ## The ladder
 
-The game is a ladder of roles, one per rung: down by money, back up by votes. Two rungs are built.
+The game is a ladder of roles, one per rung: down by money, back up by votes. Three rungs are built; each starts in
+the town the last one left.
 
 - **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
@@ -34,6 +35,11 @@ The game is a ladder of roles, one per rung: down by money, back up by votes. Tw
   do about each tenant who falls six weeks behind, repairs, buying homes from the estate, and the tenants' union. Home
   prices follow rents and the town's mood, and the bank calls the loan if it outgrows the homes. Endings: **fair**,
   **rentier**, or **bankrupt**.
+- **The law firm partner** (20 years): you play Theo, on $2,400 an hour, the top of the video's pay table (a billion
+  takes about 200 years). Agnes runs the homes the way you did. Each year you set your hours, and burnout follows
+  them. The rich pay best: loopholes for the estate (which starve the town's public works), Agnes's evictions, the
+  mill against its union. The town can't pay: a tenant facing eviction, the union itself. Endings: **hired gun**,
+  **counsel for the town**, or **burnt out**.
 
 ## Building and checking
 
@@ -42,7 +48,9 @@ The game is a ladder of roles, one per rung: down by money, back up by votes. Tw
 - `npm run bot` plays whole lives headless on seeds 1–3, answering every card by a strategy, and checks each reaches
   its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its means → hero and still
   richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair and a gouging landlord
-  in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair.
+  in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair. Then
+  three partners in the towns those landlords leave: always the accountant → hired gun, always the town → counsel,
+  75-hour weeks → burnt out.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, and the landlord.
 - `npm run check` runs all three.

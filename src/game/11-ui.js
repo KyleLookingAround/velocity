@@ -11,7 +11,7 @@ function buildChrome(){
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
-  const tabs=isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  const tabs=isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
@@ -19,7 +19,12 @@ const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
-  if(isLandlord()){
+  if(isPartner()){
+    const p=G.pt;$('#nw').textContent=money(ptWorth());
+    $('#growth').innerHTML=`<b>$${PT.rate.toLocaleString('en-GB')}</b> an hour · ${p.hours} hours a week`;
+    $('#clock').innerHTML=`<b>Theo, ${age()}</b><br>Year ${yearNo()} of ${PT.years}`;
+    setMeter(1,'Burnout',Math.round(p.burn*100)+'%');setMeter(2,'A billion in',Math.round(yearsToBillion())+' years');
+  }else if(isLandlord()){
     $('#nw').textContent=money(equity());
     $('#growth').innerHTML=`rent roll <b>${money(rentRoll())}</b> a year · loan ${money(G.ll.loan)}`;
     $('#clock').innerHTML=`<b>Agnes, ${age()}</b><br>Year ${yearNo()} of ${LL.years}`;
@@ -41,12 +46,12 @@ function renderPane(force){
   $('#sheet').classList.toggle('deciding',!!G.card);
   for(const b of $('#tabs').children)b.classList.toggle('on',!G.card&&b.dataset.t===R.tab);
   const html=G.card?cardHTML():PANES[R.tab]();
-  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').scrollTop=0;if(R.tab==='fortune'||R.tab==='books')drawChart()}
+  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').scrollTop=0;if(['fortune','books','career'].includes(R.tab))drawChart()}
 }
 // the decision card: what's happened, and each option's cost to you and to the town
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
-  return `<div class="decide"><div class="kicker">A decision · ${isLandlord()?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
+  return `<div class="decide"><div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
     c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>Your accountant’s pick</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
@@ -82,7 +87,7 @@ const PANES={
     const list=G.choices.slice().reverse().slice(0,30);
     return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes the way that makes the most money, without asking you.</small></div>
       <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
@@ -95,14 +100,14 @@ function onPaneClick(e){
 function drawChart(){
   const el=$('#chart');if(!el)return;const r=el.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);
   el.width=r.width*d;el.height=r.height*d;const c=el.getContext('2d');c.scale(d,d);
-  const L=isLandlord(),n=L?LL.years+1:41,W=r.width,H=r.height-18,bw=W/n;
-  const rows=L?G.ll.history.map(y=>({v:y.equity})).concat([{v:equity()}]):G.history.map(y=>({v:y.nw,g:y.given})).concat([{v:netWorth(),g:G.year.given}]);
-  const max=Math.max(L?G.ll.startEquity:START_FORTUNE*1.2,...rows.map(y=>Math.abs(y.v)),1);
+  const L=isLandlord(),P=isPartner(),n=L||P?21:41,W=r.width,H=r.height-18,bw=W/n;
+  const rows=P?G.pt.history.map(y=>({v:y.worth})).concat([{v:ptWorth()}]):L?G.ll.history.map(y=>({v:y.equity})).concat([{v:equity()}]):G.history.map(y=>({v:y.nw,g:y.given})).concat([{v:netWorth(),g:G.year.given}]);
+  const max=Math.max(P?1e6:L?G.ll.startEquity:START_FORTUNE*1.2,...rows.map(y=>Math.abs(y.v)),1);
   c.fillStyle='#888';c.font='11px system-ui';c.textAlign='left';c.fillText(money(max),2,10);
   rows.forEach((y,i)=>{const bh=Math.max(1,(Math.max(0,y.v)/max)*(H-14));for(let k=0;k<bh;k+=4){c.fillStyle=k%8?'#5aa86b':'#4c9a5d';c.fillRect(i*bw+1,H-k-3,bw-2,3)}
     if(y.g>0){c.fillStyle='#235f33';c.fillRect(i*bw+1,H+2,bw-2,Math.min(12,2+y.g/max*400))}});
   if(L){const y0=H-(G.ll.startEquity/max)*(H-14);c.strokeStyle='#999';c.setLineDash([4,4]);c.beginPath();c.moveTo(0,y0);c.lineTo(W,y0);c.stroke();c.setLineDash([])}
-  c.fillStyle='#666';c.textAlign='center';c.fillText(L?'year 1':'age 40',bw*2.5,H+16);c.fillText(L?'20':'80',W-bw,H+16);
+  c.fillStyle='#666';c.textAlign='center';c.fillText(L||P?'year 1':'age 40',bw*2.5,H+16);c.fillText(L||P?'20':'80',W-bw,H+16);
 }
 
 // the cards that open and close a rung
@@ -124,17 +129,36 @@ function showLandlordIntro(){
     <p>A fair landlord keeps rent under about a third of income, keeps the homes up and puts nobody on the street. The bank takes everything if you can't pay the loan.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${LL.years} years.</small></button></div>`);
 }
+function showPartnerIntro(){
+  const from=G.ladder.fromLandlord;
+  showModal(`<h2>Step down: the law firm partner</h2><p>You are Theo. You bill <b>$${PT.rate.toLocaleString('en-GB')} an hour</b>, the top of the pay table. At that rate a billion takes about 200 years.</p>
+    <p>Agnes still owns the homes, and runs them the way you did: ${from==='fair'?'fairly':'hard'}. You rent from her.</p>
+    <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
+}
 function showEnding(){
   const e=G.ending;
+  if(e.rung==='partner'){
+    const T0={hiredgun:['A hired gun','You were very good at helping the rich keep their money. They paid you well for it.'],
+      counsel:['Counsel for the town','You took the cases that couldn’t pay, and turned down the ones that hurt the town.'],
+      burnout:['Burnt out','The hours caught up with you.']}[e.kind];
+    return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.worth)}</div>
+      <p>After ${Math.max(1,Math.round(e.week/WEEKS))} years at $${PT.rate.toLocaleString('en-GB')} an hour. At that rate a billion would take you <b>${Math.round(e.years)} years</b>.</p>
+      <p>${e.loopholes?e.loopholes+' loophole'+(e.loopholes>1?'s':'')+' for the estate. ':''}${e.proBono?e.proBono+' eviction'+(e.proBono>1?'s':'')+' fought for free.':''}</p>
+      <p>Next rung: <b>Shop owner</b>. It isn’t built yet.</p>
+      <div class="opts"><button class="main" data-replay2="1"><b>Be the partner again</b><small>The same town, as Agnes left it</small></button>
+      <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
+  }
   if(e.rung==='landlord'){
     const T0={fair:['A fair landlord','Rents your tenants could pay, homes kept up, and nobody on the street.'],
       rentier:['A rentier','You did well out of the town. The town did less well out of you.'],
       bankrupt:['Bankrupt','The bank has taken the homes. You fall to the bottom of the ladder.']}[e.kind];
-    const next=e.kind==='bankrupt'?'Next: <b>Out of work</b>, the bottom rung. It isn’t built yet.':'Next rung: <b>Law firm partner</b>. It isn’t built yet.';
+    const next=e.kind==='bankrupt'?'Next: <b>Out of work</b>, the bottom rung. It isn’t built yet.':'';
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.equity)}</div>
       <p>Equity after ${Math.max(1,Math.round(e.week/WEEKS))} years, from ${money(e.start)}. Your tenants paid ${Math.round((e.burden||0)*100)}% of their income in rent, and your homes were ${Math.round(e.cond*100)}% kept up.</p>
       ${e.kind!=='fair'?'<p>A fair landlord keeps rent under about 36% of income, homes at least 65% kept up, and nobody sleeping rough.</p>':''}<p>${next}</p>
-      <div class="opts"><button class="main" data-replay="1"><b>Be the landlord again</b><small>The same town, as the billionaire left it</small></button>
+      <div class="opts">${e.kind!=='bankrupt'?'<button class="main" data-rung="partner"><b>Step down: the law firm partner</b><small>Play Theo, in the town Agnes leaves behind</small></button>':''}
+      <button class="${e.kind==='bankrupt'?'main':''}" data-replay="1"><b>Be the landlord again</b><small>The same town, as the billionaire left it</small></button>
       <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   const share=e.gains>0?Math.round(e.given/e.gains*100):0;
@@ -149,9 +173,11 @@ function showEnding(){
 }
 $('#box').addEventListener('click',e=>{
   const s=e.target.closest('[data-start]'),a=e.target.closest('[data-again]'),g=e.target.closest('[data-rung]'),rr=e.target.closest('[data-replay]');
-  if(s){G.seen.intro=true;if(isLandlord())G.seen.landlord=true;hideModal();save()}
+  if(s){G.seen.intro=true;if(isLandlord())G.seen.landlord=true;if(isPartner())G.seen.partner=true;hideModal();save()}
   if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true)} // cosmetic
-  if(g){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
+  if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
+  if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
+  if(e.target.closest('[data-replay2]')){restartPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
   if(rr){restartLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
 });
 function showToasts(){

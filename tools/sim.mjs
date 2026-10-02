@@ -9,7 +9,7 @@ export const simFiles=()=>readdirSync(join(root,'src/game')).filter(f=>/^0\d-.*\
 export function loadSim(seed=1){
   const code=simFiles().map(f=>readFileSync(join(root,'src/game',f),'utf8')).join('\n')+
     '\n;globalThis.S={get G(){return G},R,T,step,newGame,doMove,canMove,movePrice,setGift,answerTax,netWorth,homesOwned,shopsOwned,jobless,WEEKS,LIFE_WEEKS,unrestLevel,giftCosts,GIFTS,START_FORTUNE,'+
-    'startLandlord,restartLandlord,setRentChange,setRepairs,answerCard,cardOptions,giftEstimate,tenantShare,buyFromEstate,sellToEstate,canBuyFromEstate,equity,myHomes,LL,rentRoll,isLandlord,landlordVerdict,homeValue};';
+    'startLandlord,restartLandlord,setRentChange,setRepairs,answerCard,cardOptions,giftEstimate,tenantShare,startPartner,restartPartner,ptWorth,yearsToBillion,partnerVerdict,PT,buyFromEstate,sellToEstate,canBuyFromEstate,equity,myHomes,LL,rentRoll,isLandlord,landlordVerdict,homeValue};';
   const ctx={window:{__seed:seed},Math,console};vm.createContext(ctx);
   vm.runInContext(code,ctx,{filename:'sim'});
   ctx.S.newGame(seed);ctx.S.R.sim=true;

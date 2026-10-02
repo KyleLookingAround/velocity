@@ -12,6 +12,7 @@ const FIELDS={
   speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false,
   card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], borrowed:()=>false, senator:()=>false,
   arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
+  aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1,
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
 };
 const DEFAULT=()=>{const s={};for(const k in FIELDS)s[k]=FIELDS[k]();return s};
@@ -54,7 +55,8 @@ const jobless=()=>G.res.filter(r=>r.role==='worker'&&r.job==null);
 const homesOwned=()=>G.res.filter(r=>r.homeOwner==='you').length;
 const shopsOwned=()=>G.shops.filter(s=>s.ownedByYou).length;
 const age=()=>START_AGE+Math.floor((G.week-(G.rungStart||0))/WEEKS);
-const yearNo=()=>Math.min(Math.floor((G.week-(G.rungStart||0))/WEEKS)+1,isLandlord()?LL.years:END_AGE-START_AGE);
+const rungYears=()=>G.rung==='landlord'?20:G.rung==='partner'?20:END_AGE-START_AGE;
+const yearNo=()=>Math.min(Math.floor((G.week-(G.rungStart||0))/WEEKS)+1,rungYears());
 // what you're worth: the invested fortune, the homes at today's price and the shops and workshops at their price
 function netWorth(){
   let v=G.cash+homesOwned()*G.homePrice;

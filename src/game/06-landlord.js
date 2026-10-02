@@ -9,7 +9,7 @@ const LL={years:20,rate:0.05,ltv:0.75,callAt:1,callTo:0.9,deposit:0.25,
   wear:{none:-0.09,basic:-0.02,full:0.035},           // yearly change in condition
   rentSteps:[-0.05,0,0.03,0.07,0.12]};
 const isLandlord=()=>G.rung==='landlord';
-const rungWeeks=()=>isLandlord()?LL.years*WEEKS:LIFE_WEEKS;
+const rungWeeks=()=>rungYears()*WEEKS;
 const rungWeek=()=>G.week-(G.rungStart||0);
 const myHomes=()=>G.res.filter(r=>r.homeOwner==='local');
 const homeValue=()=>myHomes().length*G.homePrice*(0.55+0.45*G.ll.cond);

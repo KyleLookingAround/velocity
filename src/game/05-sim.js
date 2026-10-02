@@ -11,23 +11,23 @@ function unrestTarget(){
   const kept=1-Math.min(1,(G.givenAvg||0)/Math.max(1,(G.gainsAvg||0)*T.heroGiveShare));
   const seen=Math.min(1,Math.max(0,Math.log10(Math.max(1,netWorth())/START_FORTUNE)/1.5));
   R.parts={poor,out,rough,burden,kept,seen};
-  // as the landlord: the estate's hoarding counts for half, and your homes' state and your evictions count too
+  // as the landlord or later: the estate's hoarding counts for half, and your homes' state and your evictions count too
   let ll=0;
   if(isLandlord()){const mine=myHomes();ll=mine.length?(0.12*(1-G.ll.cond)+0.1*mine.filter(r=>r.homeless||r.owed>0).length/mine.length)*mine.length/19:0}
-  return 100*(0.3*poor+0.25*out+0.3*rough+0.25*Math.max(0,burden-0.3)+0.32*kept*seen*(isLandlord()?0.5:1)+ll)+(G.anger||0);
+  return 100*(0.3*poor+0.25*out+0.3*rough+0.25*Math.max(0,burden-0.3)+0.32*kept*seen*(G.rung!=='billionaire'?0.5:1)+ll)+(G.anger||0);
 }
 function unrestWeek(){
   const t=Math.min(100,Math.max(0,unrestTarget()));
   G.unrest+=(t-G.unrest)*0.05;
   G.anger=(G.anger||0)*0.98;
-  if(G.unrest>=T.revoltAt&&!isLandlord()){G.revoltWeeks++;if(G.revoltWeeks>=T.revoltWeeks)endLife('revolt')}
+  if(G.unrest>=T.revoltAt&&G.rung==='billionaire'){G.revoltWeeks++;if(G.revoltWeeks>=T.revoltWeeks)endLife('revolt')}
   else G.revoltWeeks=Math.max(0,G.revoltWeeks-1);
 }
 const unrestLevel=u=>u<30?'calm':u<55?'grumbling':u<70?'protests':u<T.revoltAt?'strikes':'revolt';
 
 // the end of each game year: rents and pay rise, home prices grow, and the year goes into the history
 function yearEnd(){
-  for(const r of G.res){if(r.homeOwner==='local')r.rent*=1+(isLandlord()?G.ll.rentChange:T.rentRise);else if(r.homeOwner==='you')r.rent*=1+T.yourRentRise}
+  for(const r of G.res){if(r.homeOwner==='local')r.rent*=1+(isLandlord()?G.ll.rentChange:isPartner()?G.aiLandlord.rise:T.rentRise);else if(r.homeOwner==='you')r.rent*=1+T.yourRentRise}
   for(const s of G.shops)if(s.open&&s.profitAvg>0)s.wage*=1+T.wageRise;
   // home prices follow rents (only what the town could pay counts) and the market's mood, which sours when the town
   // strikes or its jobs go, and rises as the rich buy up homes
@@ -39,6 +39,7 @@ function yearEnd(){
   G.priceMood+=(mood-G.priceMood)*0.35;
   G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
   if(isLandlord()){landlordYearEnd();if(G.ending)return}
+  if(isPartner()){partnerYearEnd();if(G.ending)return}
   reopenShops();
   const y=G.year,stock=y.stock/Math.max(1,y.weeks);
   G.lastGiftCost=y.gc||{};
@@ -76,6 +77,12 @@ function fundWeek(){
 
 function endLife(kind){
   if(G.ending)return;
+  if(isPartner()){
+    const v=kind==='death'?partnerVerdict():{kind,forRich:0,forTown:0};
+    G.ending={rung:'partner',kind:v.kind,week:rungWeek(),worth:ptWorth(),years:yearsToBillion(),forRich:v.forRich,forTown:v.forTown,unrest:G.unrest,proBono:G.pt.proBono,loopholes:G.pt.loopholes};
+    G.ladder.best=Object.assign({},G.ladder.best,{partner:G.ending.kind});
+    return;
+  }
   if(isLandlord()){
     const v=kind==='death'?landlordVerdict():{kind};
     G.ending={rung:'landlord',kind:v.kind,week:rungWeek(),equity:equity(),start:G.ll.startEquity,burden:v.burden,unrest:G.unrest,cond:G.ll.cond,homes:myHomes().length};
