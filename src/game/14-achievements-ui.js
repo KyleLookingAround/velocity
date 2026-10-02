@@ -12,7 +12,8 @@ function achSummary(){
   return `<div class="card"><div class="txt"><b>Achievements</b><small>${n} of ${all.length} found${n<all.length?', some of them rare':''}</small></div>
     <button class="act" data-ach="1">The ladder</button></div>
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${CARDS.length} collected: every kind of decision is one</small></div>
-    <button class="act" data-deck="1">The deck</button></div>`;
+    <button class="act" data-deck="1">The deck</button></div>
+    <div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>`;
 }
 // the threads: what your lives did to named people, newest first
 function threadsHTML(){
@@ -100,13 +101,15 @@ function showEnding(){
 $('#box').addEventListener('click',e=>{
   if(e.target.closest('[data-close]')){hideModal();$('#box').classList.remove('wide')}
   if(e.target.closest('[data-share]')){shareEnding();return}
+  if(e.target.closest('[data-copysave]')){const t=$('#savecode');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save copied'),()=>{try{document.execCommand('copy');toast('Save copied')}catch(x){}});return}
+  if(e.target.closest('[data-loadsave]')){if(!loadCode($('#saveload').value))showSaveBox('That doesn\u2019t look like a save from this game.');return}
   const lr=e.target.closest('[data-lr]');if(lr){$('#ldetail').innerHTML=rungDetail(lr.dataset.lr);document.querySelectorAll('.rung.sel').forEach(x=>x.classList.remove('sel'));lr.classList.add('sel')}
   if(e.target.closest('[data-heir]')){startHeir();R.stage={};buildTabs();save();renderPane(true);
     showModal(`<h2>A rare role: the heir</h2><p>You inherit ${money(netWorth())}, the foundation’s gifts, and a town that remembers who you are.</p>
       <p>A hero’s heir is a hero only by finishing richer than it started, having given away its share.</p>
       <div class="opts"><button class="main" data-start="1"><b>Start</b><small>40 years.</small></button></div>`)}
 });
-$('#pane').addEventListener('click',e=>{if(e.target.closest('[data-ach]'))showAchievements();if(e.target.closest('[data-deck]'))showDeck()});
+$('#pane').addEventListener('click',e=>{if(e.target.closest('[data-savebox]'))showSaveBox();if(e.target.closest('[data-ach]'))showAchievements();if(e.target.closest('[data-deck]'))showDeck()});
 
 // the top bar's ladder chip (which rung you're on; it opens the ladder) and the thin bar of years through the rung
 const RUNG_ORDER=['billionaire','landlord','partner','shop','waiter','out','union','activist','mayor','governor','president'];
@@ -173,6 +176,20 @@ const METER_INFO={
   'Burnout':'Hours over 55 a week push it up, fewer bring it down. At 100% you stop.','A billion in':'At your rate so far, how long a billion would take.'};
 $('#meters').addEventListener('click',e=>{const m=e.target.closest('.meter');if(!m)return;const label=m.firstChild.textContent.trim(),t=METER_INFO[label];if(!t)return;
   const i=$('#info');i.innerHTML='<b>'+label+'</b> \u00b7 '+t;i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),4200)});
+// moving a game between devices: the save as a block of text to copy, and a box to paste one in
+function saveCode(){save();const j=localStorage.getItem(SAVE_KEY)||JSON.stringify(G);return 'MMM1:'+btoa(unescape(encodeURIComponent(j)))}
+function showSaveBox(msg){
+  showModal(`<h2>Your save</h2><p class="lead">Copy this into the same box on another device to carry on there. It holds this life and the whole ladder.</p>
+    <textarea id="savecode" readonly rows="5" class="code">${saveCode()}</textarea>
+    <div class="opts"><button class="main" data-copysave="1"><b>Copy it</b></button></div>
+    <p class="lead" style="margin-top:10px">Or paste a save from another device:</p>
+    <textarea id="saveload" rows="4" class="code" placeholder="MMM1:\u2026"></textarea>${msg?`<p class="lead" style="color:var(--red)">${msg}</p>`:''}
+    <div class="opts"><button data-loadsave="1"><b>Load it</b><small>Replaces the game on this device</small></button><button data-close="1"><b>Back to the game</b></button></div>`);
+}
+function loadCode(t){
+  try{t=t.trim();if(!t.startsWith('MMM1:'))throw 0;const j=decodeURIComponent(escape(atob(t.slice(5))));const s=JSON.parse(j);if(!s||s.v!==1||!s.rung)throw 0;
+    R.noSave=true;localStorage.setItem(SAVE_KEY,j);location.reload();return true}catch(e){return false}
+}
 // an ending as a picture: the role, the verdict, the big number and the notches, drawn on a canvas to share or save
 function endingPicture(){
   const box=$('#box'),W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');

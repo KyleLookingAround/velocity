@@ -131,6 +131,11 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
+## Moving a game
+
+The Story tab's **Your save** gives the whole game (this life and the ladder) as a block of text to copy, and takes
+one pasted from another device. Saves otherwise stay on the device.
+
 ## Sharing an ending
 
 Every ending card can be saved as a picture (the role, the verdict, its figure and the rung's notches), shared
