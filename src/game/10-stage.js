@@ -60,7 +60,6 @@ function bill(c,x,y,r,a){c.save();c.translate(x,y);c.rotate(r||0);c.globalAlpha=
 function flyBill(c,x0,y0,x1,y1,u,lift){if(u<0||u>1)return;const x=x0+(x1-x0)*u,y=y0+(y1-y0)*u-Math.sin(u*Math.PI)*(lift??40);bill(c,x,y,u*4,Math.min(1,(1-u)*5))}
 function stack(c,x,y,n){for(let i=0;i<n;i++){c.fillStyle=i%2?GREEN2:GREEN;c.fillRect(x-16,y-4-i*4,32,4)}}
 // the season, 0 in the depth of winter (the turn of the year) to 1 at midsummer, and a colour between two for it
-const season=()=>(1-Math.cos((G.week%WEEKS)/WEEKS*2*Math.PI))/2;
 function mix(a,b,t){const h=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const p=h(a),q=h(b);return 'rgb('+p.map((v,i)=>Math.round(v+(q[i]-v)*t)).join(',')+')'}
 function ground(c){const s=season();c.fillStyle=mix('#e4e2dc','#d6cfc1',s);c.fillRect(0,250,PW,50);c.fillStyle='rgba(120,100,70,.12)';c.fillRect(0,250,PW,2)}
 // the weather: rain on some autumn and spring weeks (the week decides, so it's the same for both panes), and some

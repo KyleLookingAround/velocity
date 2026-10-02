@@ -69,6 +69,8 @@ const CLIMB=['waiter','out','union','activist','mayor','governor','president'];
 function setAge(rung){const prev=G.ending;
   if(CLIMB.includes(rung)&&prev&&CLIMB.indexOf(prev.rung)>=0&&CLIMB.indexOf(prev.rung)===CLIMB.indexOf(rung)-1)G.ageAt=(G.ageAt||AGE_START[prev.rung])+Math.max(1,Math.round(prev.week/WEEKS));
   else G.ageAt=AGE_START[rung]||START_AGE}
+// the season, 0 in the depth of winter (the turn of the year) to 1 at midsummer: the stage draws it, and a few cards need it
+const season=()=>(1-Math.cos((G.week%WEEKS)/WEEKS*2*Math.PI))/2;
 const age=()=>(G.ageAt||START_AGE)+Math.floor((G.week-(G.rungStart||0))/WEEKS);
 const rungYears=()=>G.rung==='billionaire'?END_AGE-START_AGE:G.rung==='waiter'?15:G.rung==='out'?5:G.rung==='union'||G.rung==='activist'?10:G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?8:20;
 const yearNo=()=>Math.min(Math.floor((G.week-(G.rungStart||0))/WEEKS)+1,rungYears());

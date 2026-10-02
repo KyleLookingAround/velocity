@@ -1,0 +1,42 @@
+# Money Makes Money
+
+An economy game in one HTML page: a ladder of eleven lives, down by money and back up by votes. The source is
+`src/game/*.js` (joined in file-name order into one strict IIFE) and `src/shell.html` (CSS and HTML);
+`tools/build.mjs` joins them into `dist/index.html`. GitHub Pages publishes it on every merge to `main`. The README
+says how each rung plays; this file is the short core every session needs.
+
+## Commits, PRs and attribution
+
+- Every commit is authored KyleLookingAround <KyleMck10@hotmail.com>. If `git config user.email` says otherwise,
+  set it before committing.
+- Commit messages, PR titles and descriptions, branch names, code comments and docs never mention Claude,
+  Anthropic, AI or an assistant, and carry no `Co-authored-by` or "Generated with" lines.
+- Write messages as a short imperative subject in plain words, with a body when the reason isn't obvious.
+- Never commit `dist/`, `build/` or `node_modules/`.
+
+## Shipping
+
+1. Work on a branch from `main`, one change per branch.
+2. Prove it locally: `npm run build`, then `npm run bot` (all six groups in parallel, about two minutes) for
+   anything that touches `src/game/00-` to `09-`, and screenshots (`node tools/shots.mjs <scene>`, or a small
+   Playwright script in `build/`) for anything a player sees, at phone and desktop sizes at least.
+3. Push and open a pull request with a plain title and description. The Checks workflow runs every bot group and
+   the screenshots as parallel jobs; `check` is green only when all of them are. A newer push cancels the older run.
+4. Squash-merge once `check` is green. Merging publishes.
+5. Read a failure, don't rerun it: every run is seeded, so a failure repeats. Fix the cause; never loosen a bot
+   expectation to get green unless the game's behaviour is right and the expectation was too strict, and then say
+   so in the PR.
+
+## Rules every change keeps
+
+- `G` is the saved state, `R` is runtime only. New saved state gets its line in `FIELDS` (`02-state.js`) with its
+  default; never rename or remove a saved field. Old saves must keep loading.
+- Anything that changes the game uses `rnd()`, never `Math.random()` (the build rejects it on a line that doesn't
+  end with `// cosmetic`).
+- Files `00-` to `09-` are the simulation and must run headless (`tools/sim.mjs` loads them in Node: no DOM, no
+  saving); anything they call lives in them, not in the drawing files.
+- A rung's cards share two decision slots a year; a side event that shouldn't take one is `follow:true`, and a
+  rung's defining offer is `sure:<weeks>` so it always comes once.
+- A change to how something works updates the README in the same PR.
+- Phones (320 px up, portrait and landscape), tablets and large screens must all work.
+- Keep text concise and in UK English. Show impacts on the stage, not in text events.

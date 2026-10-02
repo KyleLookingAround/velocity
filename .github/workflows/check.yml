@@ -1,21 +1,50 @@
 name: Checks
+# Every pull request, and every push to main: the bot's groups and the screenshots run as parallel jobs, and `check`
+# passes only when all of them do (the one status a ruleset needs to require). A newer push cancels the older run.
 on:
   pull_request:
   push:
     branches: [main]
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  check:
+  bot:
+    name: bot (${{ matrix.group }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [down, climb, mayor, governor, president, hunt]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node tools/build.mjs
+      - run: node tools/bot.mjs --group ${{ matrix.group }}
+  shots:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run check
+      - run: node tools/build.mjs
+      - run: node tools/shots.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: screenshots
           path: build/shots
+  check:
+    needs: [bot, shots]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: test "${{ needs.bot.result }}" = success && test "${{ needs.shots.result }}" = success

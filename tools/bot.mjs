@@ -20,7 +20,8 @@
 //   squeeze (the accountant's prices, pay and supplies, but never sells)  -> closed: squeezing drives the customers off
 // Then the waiter, in the town a pillar shop owner leaves (after passive / fair / counsel):
 //   careful (fewer shifts when worn, the union, evening classes, never a payday loan) -> getting ahead
-//   grind   (extra shifts, payday loans, skips care: what pays most this week)        -> evicted
+//   grind   (extra shifts, payday loans, skips care: what pays most this week)        -> evicted, or just getting by
+//            when a fair landlord's rent is low enough: never getting ahead
 // Then out of work, after the careful waiter:
 //   organiser (the generous option: leads the organising)        -> organiser
 //   scrambler (what pays most: gig work, then the first job)     -> back on your feet
@@ -50,6 +51,9 @@
 // and a billionaire born after the rebuilt president lives under its laws: it pays the tax on fortunes.
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
+// --group <name> plays one group only (down: the billionaire to out of work; climb: the union and activist; mayor;
+// governor; president, with the heir; hunt: the rare endings). tools/bot-all.mjs plays every group at once, in parallel.
+const gi=process.argv.indexOf('--group'),GROUP=gi>0?process.argv[gi+1]:null,on=g=>!GROUP||GROUP===g;
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
 const budget=S=>S.netWorth()*S.G.rate*0.65; // what a hero lets itself give a year
 const running=S=>Object.keys(S.G.gifts).filter(k=>S.G.gifts[k]).reduce((a,k)=>a+S.giftEstimate(k),0);
@@ -108,7 +112,7 @@ const rares=new Set();
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}if(S.G.ending.rare)rares.add(S.G.ending.rung+':'+S.G.ending.rare)}
 const showYears=process.argv.includes('--years');
 let bad=0;const rows=[],llRows=[];
-for(const [name,pick] of Object.entries(BILLIONAIRE))for(const seed of [1,2,3]){
+if(on('down'))for(const [name,pick] of Object.entries(BILLIONAIRE))for(const seed of [1,2,3]){
   const S=loadSim(seed);live(S,pick,yearly[name]);
   const e=S.G.ending,h=S.G.history;
   const ok=e.kind===want[name]&&(name!=='hero'||e.nw>=S.START_FORTUNE)&&(name!=='patient'||e.nw>=4*S.START_FORTUNE);if(!ok)bad++;
@@ -122,7 +126,7 @@ for(const [name,pick] of Object.entries(BILLIONAIRE))for(const seed of [1,2,3]){
       homes:f.homes,rentShare:(f.burden*100||0).toFixed(0)+'%',repair:(f.cond*100).toFixed(0)+'%',unrest:Math.round(f.unrest),ok:lok?'yes':'NO'});
   }
 }
-for(const [bname,lname] of [['passive','fair'],['hero','fair'],['hoarder','gouger']])for(const seed of [1,2,3])for(const [pname,ppick] of Object.entries(PARTNER)){
+if(on('down'))for(const [bname,lname] of [['passive','fair'],['hero','fair'],['hoarder','gouger']])for(const seed of [1,2,3])for(const [pname,ppick] of Object.entries(PARTNER)){
   const S=loadSim(seed);live(S,BILLIONAIRE[bname],yearly[bname]);S.startLandlord();live(S,LANDLORD[lname]);
   if(S.G.ending.kind==='bankrupt')continue;
   S.startPartner();live(S,ppick);
@@ -130,18 +134,18 @@ for(const [bname,lname] of [['passive','fair'],['hero','fair'],['hoarder','gouge
   ptRows.push({after:bname+'/'+lname,seed,partner:pname,ending:e.kind,years:Math.floor(e.week/52),worth:'$'+(e.worth/1e6).toFixed(0)+'M',
     toBillion:Math.round(e.years)+' yrs',forRich:e.forRich,forTown:e.forTown,unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
 }
-for(const seed of [1,2,3])for(const [sname,spick] of Object.entries(SHOP)){
+if(on('down'))for(const seed of [1,2,3])for(const [sname,spick] of Object.entries(SHOP)){
   const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,spick);
   const e=S.G.ending,ok=e.kind===shWant[sname];if(!ok)bad++;
   shRows.push({seed,shop:sname,ending:e.kind,years:Math.floor(e.week/52),worth:'$'+(e.worth/1e6).toFixed(1)+'M',start:'$'+(e.start/1e6).toFixed(1)+'M',staff:e.staff,unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
 }
-for(const seed of [1,2,3])for(const [wname,wpick] of Object.entries(WAITER)){
+if(on('down'))for(const seed of [1,2,3])for(const [wname,wpick] of Object.entries(WAITER)){
   const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
   S.startWaiter();live(S,wpick);
-  const e=S.G.ending,ok=e.kind===wtWant[wname];if(!ok)bad++;
+  const e=S.G.ending,ok=wname==='grind'?e.kind!=='ahead':e.kind===wtWant[wname];if(!ok)bad++;
   wtRows.push({seed,waiter:wname,name:e.name,ending:e.kind,years:Math.floor(e.week/52),saved:'$'+Math.round(e.worth/S.HH),owes:'$'+Math.round(e.loan/S.HH),health:Math.round(e.health*100)+'%',trained:e.trained,ok:ok?'yes':'NO'});
 }
-for(const seed of [1,2,3])for(const [oname,opick] of Object.entries(OUT)){
+if(on('down'))for(const seed of [1,2,3])for(const [oname,opick] of Object.entries(OUT)){
   const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
   S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,opick);
   const e=S.G.ending,ok=e.kind===owWant[oname];if(!ok)bad++;
@@ -149,7 +153,7 @@ for(const seed of [1,2,3])for(const [oname,opick] of Object.entries(OUT)){
 }
 // after a sale of the café, the careful waiter still gets by on the estate's minimum; and the one let go can start out of
 // work straight from the sale
-for(const seed of [1,2,3])for(const next of ['waiter','out']){
+if(on('down'))for(const seed of [1,2,3])for(const next of ['waiter','out']){
   const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.seller);
   if(S.G.ending.kind!=='sold')continue;
   if(next==='waiter'){S.startWaiter();live(S,WAITER.careful);const e=S.G.ending,ok=e.kind!=='evicted';if(!ok)bad++;
@@ -157,19 +161,19 @@ for(const seed of [1,2,3])for(const next of ['waiter','out']){
   else{S.startOut();live(S,OUT.organiser);const e=S.G.ending,ok=!!e.kind;if(!ok)bad++;
     owRows.push({seed,out:'organiser, from a sale',name:e.name,ending:e.kind,job:e.job,sleepingRough:e.homeless,organised:e.organised,purse:'$'+(S.G.fund/1e6).toFixed(0)+'M',ok:ok?'yes':'NO'})}
 }
-for(const seed of [1,2,3])for(const [uname,upick] of Object.entries(UNION)){
+if(on('climb'))for(const seed of [1,2,3])for(const [uname,upick] of Object.entries(UNION)){
   const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
   S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,upick);
   const e=S.G.ending,ok=e.kind===unWant[uname];if(!ok)bad++;
   unRows.push({seed,union:uname,name:e.name,ending:e.kind,years:Math.floor(e.week/52),won:e.wins,lost:e.losses,members:Math.round(e.members*100)+'%',pay:(e.rise>=0?'+':'')+Math.round(e.rise*100)+'%',ok:ok?'yes':'NO'});
 }
-for(const seed of [1,2,3])for(const [aname,apick] of Object.entries(ACTIVIST)){
+if(on('climb'))for(const seed of [1,2,3])for(const [aname,apick] of Object.entries(ACTIVIST)){
   const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
   S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,UNION.steady);S.startActivist();live(S,apick);
   const e=S.G.ending,ok=e.kind===acWant[aname];if(!ok)bad++;
   acRows.push({seed,activist:aname,name:e.name,ending:e.kind,passed:e.passed.length,lost:e.lost,support:Math.round(e.support*100)+'%',unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
 }
-for(const [mname,mpick] of Object.entries(MAYOR)){let hits=0;
+if(on('mayor'))for(const [mname,mpick] of Object.entries(MAYOR)){let hits=0;
   for(const seed of [1,2,3]){
     const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
     S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);S.startMayor();live(S,mpick);
@@ -178,7 +182,7 @@ for(const [mname,mpick] of Object.entries(MAYOR)){let hits=0;
   }
   if(hits<(DONORS.includes(mname)||mname==='idle'?1:2)){bad++;myRows.push({mayor:mname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
 }
-for(const [gname,gpick] of Object.entries(GOVERNOR)){let hits=0;
+if(on('governor'))for(const [gname,gpick] of Object.entries(GOVERNOR)){let hits=0;
   for(const seed of [1,2,3]){
     const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
     S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);S.startMayor();live(S,MAYOR.builder);
@@ -191,7 +195,7 @@ for(const [gname,gpick] of Object.entries(GOVERNOR)){let hits=0;
   }
   if(hits<(DONORS.includes(gname)||gname==='idle'?1:2)){bad++;gvRows.push({governor:gname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
 }
-for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
+if(on('president'))for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
   for(const seed of [1,2,3]){
     const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
     S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);S.startMayor();live(S,MAYOR.builder);
@@ -213,18 +217,18 @@ for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
 }
 // the rare role: a hero's heir lives a second billionaire life in the same town, and is judged against what it inherited
 const heirRows=[];
-for(const seed of [1,2,3]){
+if(on('president'))for(const seed of [1,2,3]){
   const S=loadSim(seed);live(S,BILLIONAIRE.hero,yearly.hero);if(S.G.ending.kind!=='hero')continue;
   S.startHeir();const start=S.netWorth();live(S,BILLIONAIRE.hero,yearly.hero);const e=S.G.ending,ok=!!e&&e.heir===1&&S.G.ladder.achieved['m:heir'];if(!ok)bad++;
   heirRows.push({seed,inherited:'$'+(start/1e6).toFixed(0)+'M',ending:e.kind,rare:e.rare||'',worth:'$'+(e.nw/1e6).toFixed(0)+'M',ok:ok?'yes':'NO'});
 }
-console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);console.table(myRows);console.table(gvRows);console.table(prRows);
-console.table(heirRows);
+for(const t of [rows,llRows,ptRows,shRows,wtRows,owRows,unRows,acRows,myRows,gvRows,prRows,heirRows])if(t.length)console.table(t);
+
 // (an idle mayor or governor, or a president who lets Congress drift, is at the voters' mercy: one seed of three is enough)
 // the rare endings that need a deliberate route must stay reachable: a hunter that goes for them on purpose (its
 // billionaire buys the shops the general strike needs; the shop sells to its staff; the waiter guards their
 // health; the organiser strikes everywhere it hasn't won; the governor keeps raising the minimum wage)
-{const hunted=new Set(),k2=S=>opt(S,o=>o.kind);
+if(on('hunt')){const hunted=new Set(),k2=S=>opt(S,o=>o.kind);
   const pick={shop:S=>S.G.card.id==='staffbuy'?'sell':k2(S),waiter:S=>S.G.card.id==='shifts'?(S.G.wt.health<0.95?'fewer':'regular'):k2(S),
     union:S=>{if(S.G.card.id==='strikevote'){const won=S.G.un.wonAt||{};const o=S.cardOptions().find(o=>o.k!=='wait'&&!won[o.k]&&S.strikeOdds(o.k)>=0.4);return o?o.k:'wait'}return k2(S)},
     governor:S=>S.G.card.id==='minwage'?'raise':k2(S)};
