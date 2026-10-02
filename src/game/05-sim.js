@@ -46,7 +46,8 @@ function yearEnd(){
   // a wealth tax the town (or the country) voted for: 2% of the biggest fortune a year, and a further 1% each for
   // taxing gains like wages and ending buy-borrow-die, once a president has passed them
   const share=G.pub?(G.pub.wealthtax?0.02:0)+(G.pub.gains?0.01:0)+(G.pub.stepup?0.01:0):0;
-  if(share&&G.cash>0){const w=G.cash*share;G.cash-=w;purse('tax',w)}
+  // (a fortune hidden offshore pays the tax on only half of itself)
+  if(share&&G.cash>0){const w=G.cash*share*(G.offshore?0.5:1);G.cash-=w;purse('tax',w)}
   // the purse holds at most two years of the whole town's wages: beyond that the town can't spend it
   G.fund=Math.min(G.fund||0,T.wage*grow(0.02)*G.res.length*WEEKS*2);
   if(isShop()){shopYearEnd();if(G.ending)return}
@@ -200,4 +201,4 @@ function step(){
 function toast(t){R.toasts.push({t,week:G.week});if(R.toasts.length>6)R.toasts.shift()}
 // a new billionaire life keeps the ladder: what you've unlocked and how each rung ended
 // (and the laws a president passed: a billionaire in that country pays the taxes, and its purse pays the programmes)
-function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder){G.ladder=ladder;if(ladder.laws&&Object.keys(ladder.laws).length){G.pub=Object.assign({},ladder.laws);award('m:country')}}R.flows=[];R.toasts=[]}
+function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder){G.ladder=ladder;ladder.lives=(ladder.lives||0)+1;if(ladder.laws&&Object.keys(ladder.laws).length){G.pub=Object.assign({},ladder.laws);award('m:country')}}R.flows=[];R.toasts=[]}

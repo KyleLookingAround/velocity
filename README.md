@@ -128,6 +128,18 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
+## The week
+
+The waiter's Budget tab and the out-of-work Days tab open with the week at a glance, Monday to Sunday: the shifts or
+the job centre, rent day, pay day, the lender's day, dues, the bus, classes, benefit, works and gig rides, and what a
+week like this leaves (or how fast it runs savings down).
+
+## Later lives
+
+A card met in an earlier life says how you answered it then. In a country a president of yours remade, the
+billionaire meets cards no first life sees: friends moving fortunes offshore to dodge the wealth tax you passed
+(hide half, pay, or pay loudly and shame them), and the town unveiling a portrait of the president you were.
+
 ## Ages, and bounds that move
 
 Each rung's person has an age: the billionaire plays 40 to 80; Agnes is 38, Theo 32, Bea 35 when their rung starts.

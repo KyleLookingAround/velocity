@@ -45,9 +45,45 @@ PANES.cafe=function(){
 };
 
 // the waiter's Budget tab (per household)
+// a week at a glance, Monday to Sunday: the days you work, and when money comes in and goes out, with what's left
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+// a household's amount, short enough for a day's cell: $826, $1.2k
+const hhShort=v=>{const x=v/HH/grow(0.02);return '$'+(x>=1000?(x/1000).toFixed(x>=10000?0:1)+'k':Math.round(x))};
+function weekStrip(items){
+  const left=items.reduce((a,x)=>a+(x.amt||0),0);
+  const cell=d=>`<div class="day"><b>${DAYS[d]}</b>${items.filter(x=>x.day===d).map(x=>`<i class="${x.amt>0?'in':x.amt<0?'out':'do'}">${x.amt?'<u>'+(x.amt>0?'+':'\u2212')+hhShort(Math.abs(x.amt))+'</u>':''}${x.label}</i>`).join('')}</div>`;
+  return `<div class="week">${DAYS.map((_,d)=>cell(d)).join('')}</div><p class="weekleft">A week like this leaves <b class="${left<0?'bad':''}">${left<0?'\u2212':''}${hh(Math.abs(left))}</b>${left<0?': savings run down':''}</p>`;
+}
+function waiterWeekItems(){
+  const w=G.wt,r=me(),pay=G.shops[CAFE].wage*WT.shift[w.shift]*(w.trained?WT.trainedPay:1)*(w.super?1.15:1)*(w.cityPay?1.2:1)*(G.sh&&G.sh.coop?1.1:1);
+  const days=w.shift==='fewer'?[1,2,4,5]:w.shift==='extra'?[0,1,2,3,4,5]:[1,2,3,4,5],out=[];
+  for(const d of days)out.push({day:d,label:w.shift==='extra'&&d===5?'Double':'Shift'});
+  out.push({day:0,label:'Rent',amt:-r.rent});out.push({day:4,label:'Pay',amt:pay});
+  if(w.loan>0)out.push({day:3,label:'Lender',amt:-w.loan*WT.loanRate});
+  if(w.union)out.push({day:4,label:'Dues',amt:-WT.dues});
+  if(w.moved)out.push({day:0,label:'Bus',amt:-WT.travel*grow(0.02)});
+  if(w.classes>0)out.push({day:2,label:'Class',amt:-WT.classes*(w.cheap?0.5:1)});
+  if(w.benefit&&r.income>0&&G.fund>0)out.push({day:1,label:'Benefit',amt:Math.max(0,r.rent-pay/3)*0.6});
+  return out;
+}
+function outWeekItems(){
+  const o=G.ow,r=outMe(),wage=T.wage*grow(0.02),out=[];
+  if(r.job!=null){for(const d of [1,2,3,4,5])out.push({day:d,label:'Work'});out.push({day:4,label:'Pay',amt:G.shops[r.job]?G.shops[r.job].wage:wage})}
+  else{
+    if(o.benefit&&o.sanctioned<=0&&G.fund>0)out.push({day:0,label:'Benefit',amt:wage*OW.benefit});
+    if(o.benefit&&o.sanctioned>0)out.push({day:0,label:'Stopped'});
+    if(o.works&&G.fund>0){for(const d of [1,2,3])out.push({day:d,label:'Works'});out.push({day:3,label:'Works pay',amt:wage*OW.works})}
+    if(o.gig){for(const d of [4,5,6])out.push({day:d,label:'Rides'});out.push({day:6,label:'Gig pay',amt:wage*(o.coopGig?0.4:OW.gig)*(r.homeless?0.8:1)})}
+    out.push({day:2,label:'Job centre'});
+  }
+  if(!r.homeless)out.push({day:0,label:'Rent',amt:-r.rent});else out.push({day:0,label:r.sheltered?'Shelter':'The park'});
+  if(o.foodbank)out.push({day:3,label:'Food bank'});
+  if(o.course>0)out.push({day:2,label:'Course'});
+  return out;
+}
 PANES.budget=function(){
   const w=G.wt,r=me(),pay=G.shops[CAFE].wage*WT.shift[w.shift]*(w.trained?WT.trainedPay:1);
-  return `<p class="lead">Each bar is a year of your savings, less what you owe. Money here is one household\u2019s, in today\u2019s dollars.</p><canvas id="chart"></canvas>
+  return `<p class="lead">This week, and each bar a year of your savings less what you owe. Money here is one household\u2019s, in today\u2019s dollars.</p>${weekStrip(waiterWeekItems())}<canvas id="chart"></canvas>
     <div class="stats" style="margin-top:8px"><div>Pay a week<b>${hh(pay)}</b></div><div>Rent a week<b>${hh(r.rent)}</b></div>
     <div>Rent takes<b>${Math.round(r.rent/Math.max(1,pay)*100)}% of pay</b></div><div>Shifts<b>${{fewer:'Fewer',regular:'Regular',extra:'Extra'}[w.shift]}</b></div>
     <div>Savings<b>${hh(r.cash)}</b></div><div>Payday loan<b>${hh(w.loan)}</b></div>
@@ -61,7 +97,7 @@ PANES.budget=function(){
 PANES.days=function(){
   const o=G.ow,r=outMe(),wage=T.wage*grow(0.02);
   const odds=Math.round(offerOdds()*100);
-  return `<p class="lead">Money here is one household\u2019s, in today\u2019s dollars.</p>
+  return `<p class="lead">This week. Money here is one household\u2019s, in today\u2019s dollars.</p>${weekStrip(outWeekItems())}
     <div class="stats"><div>Savings<b>${hh(r.cash)}</b></div><div>Work<b>${r.job!=null?'A job':o.works?'Public works':o.gig?'Gig work':'None'}</b></div>
     <div>Benefit<b>${o.benefit?(o.sanctioned>0?'Stopped, '+o.sanctioned+' weeks':G.fund>0?hh(wage*OW.benefit)+' a week':'The purse is empty'):'Not claimed'}</b></div>
     <div>Public purse<b>${money(G.fund||0)}</b></div>

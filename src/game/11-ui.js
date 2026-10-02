@@ -140,8 +140,11 @@ function cardHTML(){
   // (the first decision ever explains itself, once)
   const tip=G.ladder.tipCard?'':`<div class="tip"><span>\u261d</span><span><b>The game waits for you.</b> Each choice shows what it does for you and for the town. The tagged one is the easy way. You can still look round the other tabs; this one brings you back.</span></div>`;
   const col=G.ladder.cards&&G.ladder.cards[cardKey(c)],rare=cardRare(c);
+  // (a card met in an earlier life says how you answered it then)
+  const last=col&&(col.life!==(G.ladder.lives||0)?col.label:col.before);
+  const twist=last?`<div class="twist">Last life you chose: <b>${last}</b></div>`:'';
   const star=`<span class="cstar${col?' on':''}${rare?' gold':''}" title="${col?'Collected':'Not yet collected'}${rare?' \u00b7 a card that comes once in a life':''}">${col?'\u2605':'\u2606'}</span>`;
-  return `<div class="decide">${tip}<div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}${star}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
+  return `<div class="decide">${tip}<div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}${star}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>${twist}`+
     c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }

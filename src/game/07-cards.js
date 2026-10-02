@@ -47,6 +47,20 @@ const CARDS=[
       {k:'cut',label:'Buy it and cut costs',acct:true,you:'Its profit, with one wage fewer',town:o+' and one of the staff are out of work',scene:'handshake',then:'laidoff',do:()=>buyRival()},
       {k:'keep',label:'Buy it and keep everyone',you:'A smaller profit',town:o+' stays on to run it. Nobody loses their job',scene:'handshake',then:'chain',do:()=>buyRival(true)},
       {k:'pass',label:'Pass',none:true,kind:true,you:'Nothing',town:o+' keeps the '+s.name,scene:'refuse',then:null,do:()=>{}}]}},
+  // ---- only in a country a president of yours remade ----
+  {id:'offshore',rung:'billionaire',cool:1e6,weight:3,when:()=>!!(G.pub&&G.pub.wealthtax)&&!G.offshore&&rungWeek()>2*WEEKS,
+    title:()=>'Your friends are moving their fortunes offshore',
+    body:()=>'The wealth tax a president of yours passed takes '+((G.pub.wealthtax?2:0)+(G.pub.gains?1:0)+(G.pub.stepup?1:0))+'% a year. A trust in the islands would hide half your fortune from it.',
+    options:()=>[{k:'hide',label:'Set up the trust',acct:true,you:'Half the tax, about '+money(G.cash*0.01)+' a year kept',town:'Less in the purse, and the town finds out',scene:'truck',then:'protest',do:()=>{G.offshore=true;G.unrest=Math.min(100,G.unrest+8)}},
+      {k:'pay',label:'Pay it, as the law says',none:true,kind:true,you:'Nothing changes',town:'The purse keeps paying for the programmes',scene:'refuse',then:'works',do:()=>{}},
+      {k:'loud',label:'Pay it, and say so in public',kind:true,you:'A few friends fewer',town:'Other fortunes are shamed into paying',scene:'give',then:'cheer',do:()=>{G.unrest=Math.max(0,G.unrest-6);purse('tax',G.cash*0.004)}}]},
+  {id:'portrait',rung:'billionaire',cool:1e6,weight:2,when:()=>!!(G.ladder.achieved&&G.ladder.achieved['m:top'])&&rungWeek()>WEEKS,
+    title:()=>'The town unveils a portrait of a president',
+    body:()=>'The one who rebuilt the ladder: you, a life ago. The committee asks the richest family in town to pay for the frame and the square around it.',
+    options:()=>{const a=Math.min(G.cash*0.02,2e7);return [
+      {k:'square',label:'Pay for the square',kind:true,you:money(a),town:'A square with benches, built by local hands',scene:'ribbon',then:'works',do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;purse('gift',a)}},
+      {k:'frame',label:'Pay for the frame',you:money(a/20),town:'A portrait, and nowhere to sit',scene:'give',then:'calm',do:()=>{G.cash-=a/20;purse('gift',a/20)}},
+      {k:'pass',label:'Send apologies',acct:true,none:true,you:'Nothing',town:'They hang it anyway',scene:'refuse',then:'calm',do:()=>{}}]}},
   {id:'workshop',rung:'billionaire',cool:40,backoff:4*WEEKS,when:()=>G.workshops.length<T.maxWorkshops&&jobless().length>0&&G.cash>=T.workshopCost*1.1,
     title:()=>'The council asks you to open a workshop',
     body:()=>jobless().length*HH+' households are out of work. A workshop would cost '+money(T.workshopCost)+' and sell what it makes outside the town.',
@@ -812,7 +826,9 @@ function answerCard(k){
   o.do();
   // every kind of card is a collectable: the first time you answer one it's yours, on the ladder, across lives
   const L=G.ladder,key=cardKey(c);L.cards=L.cards||{};const fresh=!L.cards[key];
-  if(fresh)L.cards[key]={title,k,label:o.label,week:G.week};else Object.assign(L.cards[key],{title,k,label:o.label});
+  // (the life it was answered in, so a later life can say how you answered it last time)
+  const life=L.lives||0;
+  if(fresh)L.cards[key]={title,k,label:o.label,week:G.week,life};else{const prev=L.cards[key];Object.assign(prev,{before:prev.life!==life?prev.label:prev.before,title,k,label:o.label,life})}
   R.lastCard={key,fresh,title};
   if(fresh&&Object.keys(L.cards).length>=CARDS.length)award('m:deck');
   G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label});
