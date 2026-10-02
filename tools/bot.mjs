@@ -202,14 +202,16 @@ for(const seed of [1,2,3]){
 }
 console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);console.table(myRows);console.table(gvRows);console.table(prRows);
 console.table(heirRows);
-// the rare endings that need a deliberate route must stay reachable: a hunter that goes for them on purpose (a
-// hoarder billionaire buys the shops the general strike needs; the shop sells to its staff; the waiter guards their
+// the rare endings that need a deliberate route must stay reachable: a hunter that goes for them on purpose (its
+// billionaire buys the shops the general strike needs; the shop sells to its staff; the waiter guards their
 // health; the organiser strikes everywhere it hasn't won; the governor keeps raising the minimum wage)
 {const hunted=new Set(),k2=S=>opt(S,o=>o.kind);
   const pick={shop:S=>S.G.card.id==='staffbuy'?'sell':k2(S),waiter:S=>S.G.card.id==='shifts'?(S.G.wt.health<0.95?'fewer':'regular'):k2(S),
     union:S=>{if(S.G.card.id==='strikevote'){const won=S.G.un.wonAt||{};const o=S.cardOptions().find(o=>o.k!=='wait'&&!won[o.k]&&S.strikeOdds(o.k)>=0.4);return o?o.k:'wait'}return k2(S)},
     governor:S=>S.G.card.id==='minwage'?'raise':k2(S)};
-  for(const seed of [1,2,3]){const S=loadSim(seed);live(S,BILLIONAIRE.hoarder);
+  // (its billionaire passes on homes and buys every shop it can, so the estate has shops to strike)
+  const shopper=S=>S.G.card.id==='homes'?'pass':S.G.card.id==='shop'?'cut':opt(S,o=>o.acct);
+  for(const seed of [1,2,3]){const S=loadSim(seed);live(S,shopper);
     for(const r of ['Landlord','Partner','Shop','Waiter','Out','Union','Activist','Mayor','Governor']){if(S.G.ending.kind==='outvoted')break;S['start'+r]();live(S,pick[r.toLowerCase()]||k2);if(S.G.ending.rare)hunted.add(S.G.ending.rung+':'+S.G.ending.rare)}}
   const need=['shop:coop','waiter:thriving','union:general','governor:landslide'],missing=need.filter(x=>!hunted.has(x));
   console.log('rare endings a hunter reached: '+[...hunted].sort().join(', '));if(missing.length){bad++;console.error('rare endings out of reach: '+missing.join(', '))}}console.log('rare endings reached: '+([...rares].sort().join(', ')||'none'));

@@ -42,7 +42,7 @@ const prOpposition=k=>lawOf(k).opp+0.03*Math.min(4,G.pr.lobby);
 function congressOdds(k,boost){const p=G.pr;return Math.max(0.05,Math.min(0.95,0.5+(p.congress+0.3*(p.approval-0.5)+(boost||0)-prOpposition(k)-0.42)*2.5))}
 function presidentWeek(){
   const p=G.pr,work=G.res.filter(r=>r.role==='worker'),jobs=work.filter(r=>r.job!=null).length/Math.max(1,work.length);
-  const target=0.28+(100-G.unrest)/400+(jobs-0.8)*0.6+0.025*p.passed.length-0.02*p.lobby;
+  const target=0.31+(100-G.unrest)/400+(jobs-0.8)*0.6+0.025*p.passed.length-0.02*p.lobby;
   p.approval=Math.max(0.05,Math.min(0.9,p.approval+(target-p.approval)*0.02));
 }
 function holdCongressVote(boost){
@@ -66,7 +66,7 @@ function presidentYearEnd(){
     toast(won?'Re-elected president':'You lose the election');if(won)townEvent('election','won');else endLife('oneterm');
   }
 }
-function prElectionOdds(){const p=G.pr;return Math.max(0.05,Math.min(0.95,0.5+(p.approval-(0.46+(G.pub.wealthtax?0.04:0)-0.03*Math.min(4,p.lobby)))*3))}
+function prElectionOdds(){const p=G.pr;return Math.max(0.05,Math.min(0.95,0.5+(p.approval-(0.44+(G.pub.wealthtax?0.04:0)-0.03*Math.min(4,p.lobby)))*3))}
 function presidentVerdict(){
   const p=G.pr;return {kind:p.lobby>=2?'lobbied':p.passed.includes('wealthtax')&&p.passed.length>=4?'rebuilt':'gridlock'};
 }

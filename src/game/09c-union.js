@@ -39,7 +39,8 @@ function unionWeek(){
   if(u.striking>0){
     u.fund-=u.members*n*T.wage*grow(0.02)*0.4;u.striking--;
     if(u.fund<0){u.fund=0;u.striking=0;return strikeEnds(false)}
-    if(u.striking===0)strikeEnds(rnd()<strikeOdds(u.target));
+    // (a strike is judged on the odds it was called at: the fund it spends on strike pay was already counted)
+    if(u.striking===0)strikeEnds(rnd()<(u.odds??strikeOdds(u.target)));
   }
   u.members=Math.max(0,Math.min(1,u.members+(G.unrest>55?0.002:-0.001)));
 }

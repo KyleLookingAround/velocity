@@ -27,7 +27,7 @@ const unrestLevel=u=>u<30?'calm':u<55?'grumbling':u<70?'protests':u<T.revoltAt?'
 
 // the end of each game year: rents and pay rise, home prices grow, and the year goes into the history
 function yearEnd(){
-  for(const r of G.res){if(r.homeOwner==='local')cutRent(r,1+(isLandlord()?G.ll.rentChange:G.rung!=='billionaire'&&G.aiLandlord?G.aiLandlord.rise:T.rentRise));else if(r.homeOwner==='you')r.rent*=1+T.yourRentRise}
+  for(const r of G.res){if(r.homeOwner==='local')cutRent(r,1+(isLandlord()?G.ll.rentChange:G.rung!=='billionaire'&&G.aiLandlord?G.aiLandlord.rise:T.rentRise));else if(r.homeOwner==='you'&&!r.kept)r.rent*=1+T.yourRentRise}
   for(const s of G.shops)if(s.open&&s.profitAvg>0)s.wage*=1+T.wageRise;
   // home prices follow rents (only what the town could pay counts) and the market's mood, which sours when the town
   // strikes or its jobs go, and rises as the rich buy up homes

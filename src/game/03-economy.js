@@ -22,7 +22,7 @@ function economyWeek(){
   // your workshops do the same: each worker's output sells outside town, and the profit comes to you
   G.workshops.forEach((w,i)=>{
     let paid=0,n=0;
-    res.forEach((r,k)=>{if(r.job!=='w'+i)return;const a=wageFor(r,T.wage*grow(0.02));r.income+=pay('w'+i,'r'+k,a,'wage');paid+=a;n++});
+    res.forEach((r,k)=>{if(r.job!=='w'+i)return;const a=wageFor(r,T.wage*grow(0.02)*(w.wageMul||1));r.income+=pay('w'+i,'r'+k,a,'wage');paid+=a;n++});
     const profit=n*T.workshopOutput*grow(0.02)*(1-T.supplies)-paid;
     // (a chain's warehouse sends its profit to its owners elsewhere)
     if(w.outside)pay('w'+i,'out',Math.max(0,profit),'profit');else G.cash+=profit>0?pay('w'+i,'you',profit,'profit'):profit;

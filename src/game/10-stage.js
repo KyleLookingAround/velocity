@@ -14,7 +14,8 @@ function fitMap(){
   const gap=10*dpr;
   // two panes, each PW×PH scaled to fit, one above the other or side by side: whichever shows them bigger
   const kTall=Math.min(cv.width/PW,(cv.height-gap)/(2*PH)),kWide=Math.min((cv.width-gap)/(2*PW),cv.height/PH);
-  const tall=kTall>=kWide,k=tall?kTall:kWide;
+  // (a phone held upright always stacks them: one above the other)
+  const tall=kTall>=kWide||innerHeight>innerWidth,k=tall?kTall:kWide;
   const w=PW*k,h=PH*k;V.k=k;
   V.panes=tall?[[(cv.width-w)/2,(cv.height-2*h-gap)/2],[(cv.width-w)/2,(cv.height-2*h-gap)/2+h+gap]]
     :[[(cv.width-2*w-gap)/2,(cv.height-h)/2],[(cv.width-2*w-gap)/2+w+gap,(cv.height-h)/2]];

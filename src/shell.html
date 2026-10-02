@@ -133,6 +133,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 #box .opts button.main{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
 #box .opts button.main small{color:#ccc}
 /* ---------- polish ---------- */
+#growth,#clock b,.meter b,.meter{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#fortune{min-width:0;flex:1}.meter{min-width:0}
 body{-webkit-font-smoothing:antialiased}
 #app{background:radial-gradient(120% 80% at 50% 0%,#efeae1 0%,var(--bg) 70%)}
 #top{background:var(--paper);border-bottom:1px solid var(--line);box-shadow:0 2px 10px rgba(40,30,10,.06);z-index:2}
@@ -222,7 +224,7 @@ button:active{transform:scale(.98)}
   #lad{padding:7px 8px 7px 24px;max-width:none}#lad b,#lad span{display:none}#lad em{display:block}
   #meters{gap:8px}
 }
-@media (max-width:899px) and (orientation:portrait){#app.deciding{grid-template-rows:auto minmax(0,calc(125vw + 14px)) minmax(56vh,1fr)}}
+
 @media (max-width:360px){#nw{font-size:19px}#clock{font-size:12px}#clock b{font-size:13.5px}#meters{gap:6px}#top{padding:6px 10px}}
 </style>
 </head>
