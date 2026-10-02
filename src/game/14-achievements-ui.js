@@ -94,6 +94,9 @@ function showEnding(){
     opts.insertAdjacentHTML('beforebegin',`<div class="endnotches"><span class="notches">${ids.map(([id,r])=>`<i class="${r?'gold ':''}${G.ladder.achieved[id]?'on':''}"></i>`).join('')}</span><small>${got} of ${ids.length} found on this rung</small></div>`)}
   const fresh=(e.newAch||[]).map(id=>allAchievements().find(a=>a.id===id)).filter(Boolean);
   if(fresh.length&&opts)opts.insertAdjacentHTML('beforebegin',`<div class="ach-new"><b>New achievement${fresh.length>1?'s':''}:</b> ${fresh.map(a=>a.name+(a.rare?' (rare)':'')).join(', ')}</div>`);
+  // on a phone not yet playing from the home screen, one offer to put it there
+  const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone,ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+  if(opts&&!standalone&&!prefs().installed&&(R.install||ios)&&/^https?:/.test(location.protocol))opts.insertAdjacentHTML('beforeend',`<button data-install="1"><b>Add it to your home screen</b><small>Full screen, and it plays offline</small></button>`);
   if(opts)opts.insertAdjacentHTML('beforeend',`<button data-share="1"><b>Save the picture</b><small>This ending as an image, to keep or send</small></button>`);
   // the rare role: a hero's heir, in the same town
   if(e.rung==='billionaire'&&e.kind==='hero'&&opts)opts.insertAdjacentHTML('beforeend',`<button data-heir="1"><b>Play the heir</b><small>A rare role: inherit ${money(e.nw)} and this town</small></button>`);
@@ -101,6 +104,8 @@ function showEnding(){
 $('#box').addEventListener('click',e=>{
   if(e.target.closest('[data-close]')){hideModal();$('#box').classList.remove('wide')}
   if(e.target.closest('[data-share]')){shareEnding();return}
+  const ib=e.target.closest('[data-install]');if(ib){setPref('installed',true);ib.remove();
+    if(R.install){R.install.prompt();R.install=null}else{const i=$('#info');i.innerHTML='<b>On an iPhone</b> \u00b7 tap Share, then \u201cAdd to Home Screen\u201d.';i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),7000)}return}
   if(e.target.closest('[data-copysave]')){const t=$('#savecode');t.select();(navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save copied'),()=>{try{document.execCommand('copy');toast('Save copied')}catch(x){}});return}
   if(e.target.closest('[data-loadsave]')){if(!loadCode($('#saveload').value))showSaveBox('That doesn\u2019t look like a save from this game.');return}
   const lr=e.target.closest('[data-lr]');if(lr){$('#ldetail').innerHTML=rungDetail(lr.dataset.lr);document.querySelectorAll('.rung.sel').forEach(x=>x.classList.remove('sel'));lr.classList.add('sel')}

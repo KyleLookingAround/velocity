@@ -41,4 +41,6 @@ function start(){
 }
 start();
 // installable on a phone, and playable offline: a small service worker keeps the page and its fonts (not from a file:// copy)
+// (the browser's own install prompt, kept for the offer an ending card makes)
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();R.install=e});
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
