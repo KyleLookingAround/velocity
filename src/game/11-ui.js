@@ -293,7 +293,7 @@ function showOutIntro(){
 }
 function showWaiterIntro(){
   const w=G.wt;
-  showModal(introWrap('waiter','The waiter',`<p>You are ${w.name}, and you wait tables at the café for ${hh(G.shops[CAFE].wage)} a week. Your rent to Agnes is ${hh(me().rent)} a week.</p>
+  showModal(introWrap('waiter','The waiter',`<p>You are ${w.name}, and you wait tables at the café for ${hh(G.shops[CAFE].wage)} a week. ${G.sh&&G.sh.sold?'The caf\u00e9 is the estate\u2019s since Bea sold it: it pays the minimum, and its profit leaves town. ':''}Your rent to Agnes is ${hh(me().rent)} a week.</p>
     <p>Every year you choose your shifts. Extra shifts pay, and wear you down. When you\u2019re short there\u2019s a payday lender. The union is organising.</p>
     <p>Fall too far behind on the rent and you\u2019re evicted.</p>`,`${WT.years} years.`));
 }
@@ -387,12 +387,12 @@ function showEndingCore(){
     const T0={pillar:['A pillar of the high street','You paid fairly, kept the café open, and the town kept coming back.'],
       tightfisted:['Kept the lights on','The café survived. Your staff mostly didn\u2019t.'],
       closed:['Closed','The café couldn\u2019t pay its way. You fall to the next rung: the waiter.'],
-      sold:['Sold','The estate bought the café. Its profit leaves town now.'],
+      sold:['Sold','The estate bought the caf\u00e9 for '+money(e.soldFor||0)+'. It pays the minimum now, a job went with the sale, and its profit leaves town.'],
       founder:['Founder','The café becomes a chain, and you start a new billionaire life. Nothing in the town has changed.']}[e.kind];
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.worth)}</div>
       <p>After ${Math.max(1,Math.round(e.week/WEEKS))} years. You paid ${e.pay.living?'a living wage for '+e.pay.living+' years':e.pay.minimum?'the minimum for '+e.pay.minimum+' years':'the going rate'}, and bought supplies ${e.supply==='local'?'in town':'from the megastore'}.</p>
       <p>${e.kind==='founder'?'The founder\u2019s shortcut: straight back to the top, with the rules unchanged.':''}</p>
-      <div class="opts">${e.kind==='founder'?'<button class="main" data-again="1"><b>Start your billionaire life</b><small>A new town and $30M</small></button>':'<button class="main" data-rung="waiter"><b>Step down: the waiter</b><small>Work at the café, in the town Bea leaves</small></button>'}
+      <div class="opts">${e.kind==='founder'?'<button class="main" data-again="1"><b>Start your billionaire life</b><small>A new town and $30M</small></button>':e.kind==='sold'?'<button class="main" data-rung="waiter"><b>Step down: the waiter</b><small>At the caf\u00e9, the estate\u2019s now, on the minimum</small></button><button data-rung="out"><b>Fall: out of work</b><small>The job that went with the sale was yours</small></button>':'<button class="main" data-rung="waiter"><b>Step down: the waiter</b><small>Work at the café, in the town Bea leaves</small></button>'}
       <button data-replay3="1"><b>Be the shop owner again</b><small>The same town, as Theo left it</small></button>
       ${e.kind!=='founder'?'<button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button>':''}</div>`,true);
   }

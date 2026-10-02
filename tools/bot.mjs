@@ -145,6 +145,16 @@ for(const seed of [1,2,3])for(const [oname,opick] of Object.entries(OUT)){
   const e=S.G.ending,ok=e.kind===owWant[oname];if(!ok)bad++;
   owRows.push({seed,out:oname,name:e.name,ending:e.kind,job:e.job,sleepingRough:e.homeless,organised:e.organised,purse:'$'+(S.G.fund/1e6).toFixed(0)+'M',ok:ok?'yes':'NO'});
 }
+// after a sale of the café, the careful waiter still gets by on the estate's minimum; and the one let go can start out of
+// work straight from the sale
+for(const seed of [1,2,3])for(const next of ['waiter','out']){
+  const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.seller);
+  if(S.G.ending.kind!=='sold')continue;
+  if(next==='waiter'){S.startWaiter();live(S,WAITER.careful);const e=S.G.ending,ok=e.kind!=='evicted';if(!ok)bad++;
+    wtRows.push({seed,waiter:'careful, after a sale',name:e.name,ending:e.kind,years:Math.floor(e.week/52),saved:'$'+Math.round(e.worth/S.HH),owes:'$'+Math.round(e.loan/S.HH),health:Math.round(e.health*100)+'%',trained:e.trained,ok:ok?'yes':'NO'})}
+  else{S.startOut();live(S,OUT.organiser);const e=S.G.ending,ok=!!e.kind;if(!ok)bad++;
+    owRows.push({seed,out:'organiser, from a sale',name:e.name,ending:e.kind,job:e.job,sleepingRough:e.homeless,organised:e.organised,purse:'$'+(S.G.fund/1e6).toFixed(0)+'M',ok:ok?'yes':'NO'})}
+}
 for(const seed of [1,2,3])for(const [uname,upick] of Object.entries(UNION)){
   const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
   S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,upick);

@@ -17,8 +17,11 @@ function start(){
     if(!modal&&!G.ending&&!G.card&&G.speed>0){
       acc+=dt*G.speed;
       while(acc>=weekSecs()){acc-=weekSecs();step();
-        if(G.week%WEEKS===0)save();if(G.card){renderPane(true);break}if(G.ending){R.stage={};save();showEnding();break}}
+        if(G.week%WEEKS===0)save();if(G.card){renderPane(true);break}if(G.ending){R.stage={};R.endSoon=true;break}}
     }
+    // an ending shows its card: at once when the weeks brought it, and once the deal's scene has played when a decision
+    // did (selling the café, founding the chain, taking the manager's job); again, if a menu was opened over it
+    if(G.ending&&!modal){R.endT=(R.endT||0)+dt;if(R.endSoon||R.endT>=3){R.endT=0;R.endSoon=false;save();showEnding()}}else R.endT=0;
     drawMap(dt);
     ui+=dt;if(ui>0.25){ui=0;refreshTop();renderPane(false);showToasts()}
     requestAnimationFrame(frame);

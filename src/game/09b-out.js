@@ -20,7 +20,8 @@ function restartOut(){
 function beginOut(kind){
   G.rung='out';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+4;G.shiftsDue=false;
   // the waiter loses the job (the café lets them go, or they were evicted and couldn't keep it)
-  const i=G.wt?G.wt.i:G.res.indexOf(jobless()[0]||G.res.find(r=>r.role==='worker'));
+  // (straight from a sale of the café, you're the one the estate let go)
+  const i=G.wt?G.wt.i:G.sh&&G.sh.letGo!=null&&G.res[G.sh.letGo].job==null?G.sh.letGo:G.res.indexOf(jobless()[0]||G.res.find(r=>r.role==='worker'&&r.job!=='retired'));
   const r=G.res[i];r.job=null;if(r.role==='owner'){r.role='worker';delete r.shop}
   G.aiLandlord=G.aiLandlord||{rise:0.035,evictAt:6};
   G.ow={i,name:r.name,benefit:false,works:false,gig:false,health:G.wt?Math.max(0.3,G.wt.health):0.7,trained:!!(G.wt&&G.wt.trained),course:0,

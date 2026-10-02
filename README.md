@@ -21,9 +21,10 @@ The screen is a **stage** of two scenes, drawn like the video, one above the oth
 wide screen: **you** (at your desk with the vault filling, signing a deed, shaking a senator's hand, loading the moving
 truck), and **the town**: the spending chain from shopper to cashier to barber to café, or the consequences of what
 you've done (families evicted, tents in the park, shutters coming down, strikes and marches, kids at the nursery your
-money pays for). Each scene slides into the next like a camera panning across one long town, and half the time someone
-walks up to the edge of the scene and the camera follows them: the figure on the right of one scene is the figure on
-the left of the next.
+money pays for). The stage is one camera travelling through one long town, both scenes in step: a scene drifts slowly
+past while it plays, then the camera moves on and the next slides in. Most of the time a passer-by (now and then with a
+child in tow) walks ahead of it, reaches the edge as the scene ends, and the camera follows them into the next scene,
+where they walk on.
 
 Around the stage: a **header** with your number and how fast it is really growing (measured over the last year:
 gifts, rents and taxes all show), who you are and how far through the rung you are (tap it for the ladder), and the town's state as chips that explain themselves when tapped; a **transport bar** with pause, speed and
@@ -66,9 +67,11 @@ last one left. At the top, the laws a president passes become the law in every b
 - **The shop owner** (20 years): you play Bea, who runs the café. Its customers spend the town's wages, including the
   ones you pay; rent on the premises goes to Agnes. You set prices (every rise sends customers to the megastore),
   pay, and where supplies come from (the megastore is cheaper, but that money leaves town). The estate may offer to
-  buy you out; late on, investors may offer to make you a **founder**: the shortcut straight back to a billionaire
-  life, which changes nothing. Endings: **pillar of the high street**, **kept the lights on**, **closed**, **sold**,
-  or **founder**.
+  buy you out: sell, and the life ends there, Bea retires on the money, the café is the estate's (it pays the minimum,
+  cuts a job, and sends its profit out of town), and the next life is either the waiter at that café, with head
+  office's cuts and transfers instead of Bea's offers, or straight to the bottom as the one let go. Late on, investors
+  may offer to make you a **founder**: the shortcut straight back to a billionaire life, which changes nothing.
+  Endings: **pillar of the high street**, **kept the lights on**, **closed**, **sold**, or **founder**.
 - **The waiter** (15 years): you play one of the café's staff, on whatever Bea paid, renting from Agnes. Each year you
   choose your shifts (extra shifts pay, and wear your health down); when you're short there's a payday lender; the
   union organises and later strikes; evening classes cost now and pay later. Endings: **getting ahead**, **getting

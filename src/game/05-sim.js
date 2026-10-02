@@ -138,7 +138,7 @@ function endLifeCore(kind){
   }
   if(isShop()){
     const v=kind==='death'?shopVerdict():{kind};
-    G.ending={rung:'shop',kind:v.kind,week:rungWeek(),worth:shopWorth(),start:G.sh.startWorth,pay:G.sh.payYears,supply:G.sh.supply,unrest:G.unrest,staff:staffOf(CAFE).length};
+    G.ending={rung:'shop',kind:v.kind,week:rungWeek(),worth:shopWorth(),start:G.sh.startWorth,pay:G.sh.payYears,supply:G.sh.supply,unrest:G.unrest,staff:staffOf(CAFE).length,soldFor:G.sh.soldFor||0};
     G.ladder.best=Object.assign({},G.ladder.best,{shop:G.ending.kind});
     return;
   }
