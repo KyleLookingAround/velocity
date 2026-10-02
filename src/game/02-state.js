@@ -10,7 +10,7 @@ const FIELDS={
   year:()=>emptyYear(), history:()=>[], gains:()=>0, given:()=>0, taxPaid:()=>0,
   nextTax:()=>T.taxEvery*WEEKS, tax:()=>null, moved:()=>0, lobbied:()=>0,
   speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false, adviser:()=>null,
-  card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], threads:()=>[], pyear:()=>({}), plast:()=>null, borrowed:()=>false, senator:()=>false,
+  card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], threads:()=>[], ageAt:()=>START_AGE, pyear:()=>({}), plast:()=>null, borrowed:()=>false, senator:()=>false,
   arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
   aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false, ow:()=>null, claimDue:()=>false, un:()=>null, ac:()=>null, pub:()=>({}), my:()=>null, levyDue:()=>false, gv:()=>null, wageDue:()=>false, pr:()=>null, heir:()=>0, startNW:()=>0, nwLog:()=>[], giftAsked:()=>-1e9, crashed:()=>false, paperFoundation:()=>false, paper:()=>null, miles:()=>({}),
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
@@ -23,6 +23,7 @@ function townEvent(k,name){R.recent[k]=name;if(!R.sim&&!R.townQ.includes(k))R.to
 
 function money(v){
   const s=v<0?'−':'';v=Math.abs(v);
+  if(v>=1e12)return s+'$'+(v/1e12).toFixed(v>=1e13?1:2)+'T';
   if(v>=1e9)return s+'$'+(v/1e9).toFixed(v>=1e10?1:2)+'B';
   if(v>=1e6)return s+'$'+(v/1e6).toFixed(v>=1e8?0:1)+'M';
   if(v>=1e5)return s+'$'+Math.round(v/1e3)+'k';
@@ -61,7 +62,14 @@ const workingAge=r=>r.role==='worker'||r.role==='owner'&&r.shop==null;
 const jobless=()=>G.res.filter(r=>r.role==='worker'&&r.job==null);
 const homesOwned=()=>G.res.filter(r=>r.homeOwner==='you').length;
 const shopsOwned=()=>G.shops.filter(s=>s.ownedByYou).length;
-const age=()=>START_AGE+Math.floor((G.week-(G.rungStart||0))/WEEKS);
+// how old you are: each rung's person starts at their own age, and the climb from the waiter up is one person, so
+// the years lived on each rung carry into the next
+const AGE_START={billionaire:40,landlord:38,partner:32,shop:35,waiter:22,out:37,union:42,activist:52,mayor:60,governor:68,president:74};
+const CLIMB=['waiter','out','union','activist','mayor','governor','president'];
+function setAge(rung){const prev=G.ending;
+  if(CLIMB.includes(rung)&&prev&&CLIMB.indexOf(prev.rung)>=0&&CLIMB.indexOf(prev.rung)===CLIMB.indexOf(rung)-1)G.ageAt=(G.ageAt||AGE_START[prev.rung])+Math.max(1,Math.round(prev.week/WEEKS));
+  else G.ageAt=AGE_START[rung]||START_AGE}
+const age=()=>(G.ageAt||START_AGE)+Math.floor((G.week-(G.rungStart||0))/WEEKS);
 const rungYears=()=>G.rung==='billionaire'?END_AGE-START_AGE:G.rung==='waiter'?15:G.rung==='out'?5:G.rung==='union'||G.rung==='activist'?10:G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?8:20;
 const yearNo=()=>Math.min(Math.floor((G.week-(G.rungStart||0))/WEEKS)+1,rungYears());
 // what you're worth: the invested fortune, the homes at today's price and the shops and workshops at their price

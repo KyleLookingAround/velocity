@@ -39,6 +39,8 @@ const MILESTONES={
   heir:{name:'The heir',note:'Play a hero’s heir to the end'},
   everyrole:{name:'Every rung',note:'Finish every role on the ladder at least once'},
   deck:{name:'The full deck',note:'Answer every kind of card on the ladder'},
+  hundredb:{name:'A hundred billion',note:'A fortune of $100B, in one life or down the generations'},
+  trillion:{name:'Trillionaire',note:'A fortune of a trillion dollars: heirs of heirs, compounding for a century or more'},
 };
 const achId=(rung,k)=>rung+':'+k;
 const allAchievements=()=>[
@@ -69,7 +71,7 @@ function endLife(kind){
 }
 // the rare role: the heir of a hero, a second billionaire life in the same town, from the fortune it left
 function startHeir(){
-  G.heir=(G.heir||0)+1;G.ending=null;G.card=null;G.rung='billionaire';G.rungStart=G.week;G.startNW=netWorth();
+  G.heir=(G.heir||0)+1;G.ending=null;G.card=null;G.rung='billionaire';G.ageAt=START_AGE;G.rungStart=G.week;G.startNW=netWorth();
   G.given=0;G.gains=0;G.givenAvg=0;G.gainsAvg=0;G.revoltWeeks=0;G._nw=null;G.nwLog=[];G.nextCard=G.week+12;G.nextTax=G.week+T.taxEvery*WEEKS;
   toast('You are the heir');
 }

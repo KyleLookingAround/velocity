@@ -26,7 +26,7 @@ function restartPresident(){
   R.flows=[];R.stage={};beginPresident(ladder.fromGovernor);
 }
 function beginPresident(kind){
-  G.rung='president';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+3;G.wageDue=false;
+  setAge('president');G.rung='president';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+3;G.wageDue=false;
   const i=G.gv?G.gv.i:G.res.indexOf(G.res.find(r=>r.role==='worker')),r=G.res[i];
   r.job='president';r.homeless=false;r.sheltered=false;r.arrears=0;
   G.pub=G.pub||{};

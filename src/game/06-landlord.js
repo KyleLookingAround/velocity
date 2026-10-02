@@ -28,7 +28,7 @@ function restartLandlord(){
   R.flows=[];R.stage={};beginLandlord(ladder.from);
 }
 function beginLandlord(kind){
-  G.rung='landlord';G.rungStart=G.week;G.ending=null;G.tax=null;G.nextTax=1e9;G.speed=G.speed||1;
+  setAge('landlord');G.rung='landlord';G.rungStart=G.week;G.ending=null;G.tax=null;G.nextTax=1e9;G.speed=G.speed||1;
   G.foundation=kind==='hero';
   if(!G.foundation)for(const k in G.gifts)G.gifts[k]=false;
   const ag=G.res[0],homes=myHomes().length;

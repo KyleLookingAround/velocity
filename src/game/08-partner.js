@@ -18,7 +18,7 @@ function restartPartner(){
   R.flows=[];R.stage={};beginPartner(ladder.fromLandlord);
 }
 function beginPartner(kind){
-  G.rung='partner';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+6;G.rentDue=false;
+  setAge('partner');G.rung='partner';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+6;G.rentDue=false;
   // Agnes keeps on as you played her: a fair landlord raises rents 2% a year and gives tenants time, a rentier 7% and evicts
   G.aiLandlord=kind==='fair'?{rise:0.02,evictAt:10}:{rise:0.07,evictAt:6};
   G.pt={cash:400000,hours:50,rent:3200,home:'rent',loopholes:0,evictionWork:0,proBono:0,unionSide:null,burn:0.1,partnerShare:1,

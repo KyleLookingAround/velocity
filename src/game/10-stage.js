@@ -5,7 +5,7 @@
 // SCENE_SECS of real time, whatever the game speed, and the camera moves on; drawing never touches the game state.
 const $=s=>document.querySelector(s);
 const cv=$('#cv'),ctx=cv.getContext('2d');
-const PW=480,PH=300,SCENE_SECS=6,CT=48; // (CT: the sky a stacked phone pane does without)
+const PW=480,PH=300,SCENE_SECS=6,CT=70; // (CT: the sky a stacked phone pane does without)
 const V={k:1,dpr:1,panes:[]};
 const INK='#151515',GREY='#8b8b8b',GREEN='#4c9a5d',GREEN2='#5aa86b',RED='#b23a3a';
 function fitMap(){
@@ -13,8 +13,8 @@ function fitMap(){
   cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);V.dpr=dpr;
   const gap=10*dpr;
   // two panes, each PW×PH scaled to fit, one above the other or side by side: whichever shows them bigger
-  // (a phone held upright always stacks them, one above the other, and crops their empty sky so they fill the width)
-  const portrait=innerHeight>innerWidth,ct=portrait&&r.width<560?CT:0,ph=PH-ct;
+  // (stacked panes crop their empty sky so they fill the width; a phone held upright always stacks them)
+  const portrait=innerHeight>innerWidth,ct=CT,ph=PH-ct;
   const kTall=Math.min(cv.width/PW,(cv.height-gap)/(2*ph)),kWide=Math.min((cv.width-gap)/(2*PW),cv.height/PH);
   const tall=kTall>=kWide||portrait,k=tall?kTall:kWide;
   const w=PW*k,h=(tall?ph:PH)*k;V.k=k;V.ct=tall?ct:0;

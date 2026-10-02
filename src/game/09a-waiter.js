@@ -19,7 +19,7 @@ function restartWaiter(){
   R.flows=[];R.stage={};beginWaiter(ladder.fromShop);
 }
 function beginWaiter(kind){
-  G.rung='waiter';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+6;G.priceDue=false;G.hoursDue=false;
+  setAge('waiter');G.rung='waiter';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+6;G.priceDue=false;G.hoursDue=false;
   // you're a waiter at the café: on its staff (taken on if it had none), in a home of your own, renting
   const cafe=G.shops[CAFE];if(!cafe.open){cafe.open=true;cafe.cash=6000*HH;const j=jobless().find(r=>r.name!=='Bea');if(j){j.role='owner';j.shop=CAFE;cafe.owner=G.res.indexOf(j)}}
   let r=staffOf(CAFE)[0]||G.res.find(r=>r.role==='worker'&&r.job==null&&r.name!=='Bea')||G.res.find(r=>r.role==='worker'&&r.job!=='mill');

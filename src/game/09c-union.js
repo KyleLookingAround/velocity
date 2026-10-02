@@ -19,7 +19,7 @@ function restartUnion(){
   R.flows=[];R.stage={};beginUnion(ladder.fromOut);
 }
 function beginUnion(kind){
-  G.rung='union';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+4;G.claimDue=false;
+  setAge('union');G.rung='union';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+4;G.claimDue=false;
   const i=G.ow?G.ow.i:G.res.indexOf(workers()[0]),r=G.res[i];
   // the union pays you a modest wage to organise; you're housed, whatever happened at the bottom
   r.job='union';r.homeless=false;r.sheltered=false;r.arrears=0;
@@ -56,7 +56,7 @@ function strikeEnds(won){
   const u=G.un,t=u.target;
   if(won){u.wins++;u.wonAt=Object.assign({},u.wonAt,{[t]:true});if(t==='mill')G.millMul=(G.millMul||1)*(1+UN.winRaise);else G.shops.forEach(s=>{if(s.open&&(t==='estate'?s.ownedByYou:!s.ownedByYou))s.wage*=1+UN.winRaise});
     u.members=Math.min(1,u.members+0.1);toast('The strike is won: '+(t==='mill'?'the mill':t==='estate'?'the estate’s shops':'the high street')+' pays 12% more');townEvent('strikewon',t)}
-  else{u.losses++;u.members=Math.max(0,u.members-0.15);toast('The strike is lost')}
+  else{u.losses++;u.members=Math.max(0,u.members-0.08);toast('The strike is lost')}
   u.target=null;
 }
 function unionYearEnd(){const u=G.un;u.history.push({year:(G.week-G.rungStart)/WEEKS,members:u.members,fund:u.fund,wins:u.wins,mill:G.millMul||1})}

@@ -28,7 +28,7 @@ function restartActivist(){
   R.flows=[];R.stage={};beginActivist(ladder.fromUnion);
 }
 function beginActivist(kind){
-  G.rung='activist';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+3;
+  setAge('activist');G.rung='activist';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+3;
   const i=G.un?G.un.i:G.res.indexOf(G.res.find(r=>r.role==='worker')),r=G.res[i];
   r.job='activist';r.homeless=false;r.sheltered=false;r.arrears=0;
   G.pub=G.pub||{};

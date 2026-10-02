@@ -19,7 +19,7 @@ function restartMayor(){
   R.flows=[];R.stage={};beginMayor(ladder.fromActivist);
 }
 function beginMayor(kind){
-  G.rung='mayor';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+4;
+  setAge('mayor');G.rung='mayor';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+4;
   const i=G.ac?G.ac.i:G.res.indexOf(G.res.find(r=>r.role==='worker')),r=G.res[i];
   r.job='mayor';r.homeless=false;r.sheltered=false;r.arrears=0;
   G.pub=G.pub||{};

@@ -18,7 +18,7 @@ function restartOut(){
   R.flows=[];R.stage={};beginOut(ladder.fromWaiter);
 }
 function beginOut(kind){
-  G.rung='out';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+4;G.shiftsDue=false;
+  setAge('out');G.rung='out';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+4;G.shiftsDue=false;
   // the waiter loses the job (the café lets them go, or they were evicted and couldn't keep it)
   // (straight from a sale of the café, you're the one the estate let go)
   const i=G.wt?G.wt.i:G.sh&&G.sh.letGo!=null&&G.res[G.sh.letGo].job==null?G.sh.letGo:G.res.indexOf(jobless()[0]||G.res.find(r=>r.role==='worker'&&r.job!=='retired'));

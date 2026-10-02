@@ -128,6 +128,17 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
+## Ages, and bounds that move
+
+Each rung's person has an age: the billionaire plays 40 to 80; Agnes is 38, Theo 32, Bea 35 when their rung starts.
+The climb is one person: Jo starts waiting tables at 22 and, rung by rung, is 37 out of work, 42 organising, 52
+campaigning, 62 as mayor, 70 as governor and 78 as president, 86 at the end of two terms; the years actually lived on
+each rung carry into the next. Money moves with the years too: wages grow 2% a year across the ladder, and bounds
+follow them (no rent above four fifths of the wage of the day, whoever the landlord). Figures are of their day:
+a wage a century on is about seven times today's, and so are rents, prices and the estate's fortune; the working
+rungs show one household's money in today's dollars. The fortune has its own milestones, however many generations it
+takes: $100B, and **Trillionaire**, which needs heirs of heirs compounding for a century or more.
+
 ## The purse's books
 
 The public purse keeps books: every flow in (taxes on the rich, gifts, grants, federal money, donors, council rents)

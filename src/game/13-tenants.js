@@ -14,7 +14,7 @@ Object.assign(PANES,{
   tenants(){
     const rows=myHomes().map(r=>{const st=r.homeless?'Evicted, sleeping rough':r.sheltered?'Evicted, in a shelter':r.owed>0?'Owes '+hh(r.owed):r.arrears?r.arrears+' weeks behind':'Paying';
       const share=r.income>0?Math.round(r.rent/r.income*100)+'% of income':'no income';
-      return `<div class="card"><div class="txt"><b>${r.name}</b><small>Rent ${hh(r.rent)} a week · ${share}</small><small>${st}</small></div></div>`}).join('');
+      return `<div class="row"><b>${r.name}</b><span>${hh(r.rent)}/wk · ${share}</span><em class="${r.homeless||r.sheltered||r.arrears?'bad':''}">${st}</em></div>`}).join('');
     const pol=G.ll.policy,opts=[['cut','Cut their rent'],['time','Give them time'],['evict','Evict']];
     const policy=`<div class="card"><div class="txt"><b>When a tenant falls six weeks behind</b><small>${pol?'Your policy, applied to everyone':'You\u2019ll be asked the first time'}</small>
       <div class="seg">${opts.map(([k,l])=>`<button class="${pol===k?'on':''}" data-policy="${k}">${l}</button>`).join('')}</div></div></div>`;

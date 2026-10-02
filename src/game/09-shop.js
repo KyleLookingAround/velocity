@@ -20,7 +20,7 @@ function restartShop(){
   R.flows=[];R.stage={};beginShop(ladder.fromPartner);
 }
 function beginShop(kind){
-  G.rung='shop';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+6;G.hoursDue=false;
+  setAge('shop');G.rung='shop';G.rungStart=G.week;G.ending=null;G.card=null;G.arrearsQ=[];G.nextCard=G.week+6;G.hoursDue=false;
   // Bea has the café, whatever happened to it: reopened if it closed, bought back if the estate had it
   const s=G.shops[CAFE],b=bea(),i=G.res.indexOf(b);
   for(const r of G.res)if(r.role==='owner'&&r.shop===CAFE&&r!==b){r.role='worker';r.job=null;delete r.shop}

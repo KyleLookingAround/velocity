@@ -28,6 +28,8 @@ const unrestLevel=u=>u<30?'calm':u<55?'grumbling':u<70?'protests':u<T.revoltAt?'
 // the end of each game year: rents and pay rise, home prices grow, and the year goes into the history
 function yearEnd(){
   for(const r of G.res){if(r.homeOwner==='local')cutRent(r,1+(isLandlord()?G.ll.rentChange:G.rung!=='billionaire'&&G.aiLandlord?G.aiLandlord.rise:T.rentRise));else if(r.homeOwner==='you'&&!r.kept)r.rent*=1+T.yourRentRise}
+  // (a bound that moves with the years: no rent above four fifths of the wage of the day, whoever the landlord)
+  const rentCap=T.wage*grow(0.02)*0.8;for(const r of G.res)if(r.rent>rentCap)r.rent=rentCap;
   for(const s of G.shops)if(s.open&&s.profitAvg>0)s.wage*=1+T.wageRise;
   // home prices follow rents (only what the town could pay counts) and the market's mood, which sours when the town
   // strikes or its jobs go, and rises as the rich buy up homes
@@ -188,7 +190,9 @@ function step(){
   G.givenAvg=(G.givenAvg||0)*0.98+givenW*WEEKS*0.02;
   unrestWeek();
   purseWeekEnd(fund0);
-  if(G.week%WEEKS===0){yearEnd();purseYearEnd();G._yv=0}
+  if(G.week%WEEKS===0){yearEnd();purseYearEnd();G._yv=0;
+    // the fortune's own milestones, however many generations it took
+    if(G.rung==='billionaire'){const nw=netWorth();if(nw>=1e11)award('m:hundredb');if(nw>=1e12)award('m:trillion')}}
   if(rungWeek()>=rungWeeks()&&!G.ending)endLife('death');
   if(taxDue())proposeTax();
   drawCard();

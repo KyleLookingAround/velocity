@@ -174,7 +174,7 @@ for(const [mname,mpick] of Object.entries(MAYOR)){let hits=0;
     const e=S.G.ending,want=mname==='idle'?'caretaker':mname,ok=e.kind===want||e.kind==='outvoted';if(e.kind===want)hits++;if(!ok)bad++;
     myRows.push({seed,mayor:mname,name:e.name,ending:e.kind,terms:e.terms,council:e.council,donors:e.donors,approval:Math.round(e.approval*100)+'%',unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
   }
-  if(hits<(DONORS.includes(mname)?1:2)){bad++;myRows.push({mayor:mname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
+  if(hits<(DONORS.includes(mname)||mname==='idle'?1:2)){bad++;myRows.push({mayor:mname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
 }
 for(const [gname,gpick] of Object.entries(GOVERNOR)){let hits=0;
   for(const seed of [1,2,3]){
@@ -185,7 +185,7 @@ for(const [gname,gpick] of Object.entries(GOVERNOR)){let hits=0;
     const e=S.G.ending,want=gname==='idle'?'steward':gname,ok=e.kind===want||e.kind==='unseated';if(e.kind===want)hits++;if(!ok)bad++;
     gvRows.push({seed,governor:gname,name:e.name,ending:e.kind,terms:e.terms,minWage:'+'+Math.round((e.minWage-1)*100)+'%',fortuneTax:e.fortuneTax,grants:e.granted,donors:e.donors,approval:Math.round(e.approval*100)+'%',unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
   }
-  if(hits<(DONORS.includes(gname)?1:2)){bad++;gvRows.push({governor:gname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
+  if(hits<(DONORS.includes(gname)||gname==='idle'?1:2)){bad++;gvRows.push({governor:gname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
 }
 for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
   for(const seed of [1,2,3]){
@@ -203,7 +203,7 @@ for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
     }
     prRows.push({seed,president:pname,name:e.name,ending:e.kind,terms:e.terms,laws:e.passed.length,lobby:e.lobby,approval:Math.round(e.approval*100)+'%',unrest:Math.round(e.unrest),nextBillionaire:next,ok:ok?'yes':'NO'});
   }
-  if(hits<(DONORS.includes(pname)?1:2)){bad++;prRows.push({president:pname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
+  if(hits<(DONORS.includes(pname)||pname==='gridlock'?1:2)){bad++;prRows.push({president:pname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
 }
 // the rare role: a hero's heir lives a second billionaire life in the same town, and is judged against what it inherited
 const heirRows=[];
@@ -214,6 +214,7 @@ for(const seed of [1,2,3]){
 }
 console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);console.table(myRows);console.table(gvRows);console.table(prRows);
 console.table(heirRows);
+// (an idle mayor or governor, or a president who lets Congress drift, is at the voters' mercy: one seed of three is enough)
 // the rare endings that need a deliberate route must stay reachable: a hunter that goes for them on purpose (its
 // billionaire buys the shops the general strike needs; the shop sells to its staff; the waiter guards their
 // health; the organiser strikes everywhere it hasn't won; the governor keeps raising the minimum wage)

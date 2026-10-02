@@ -244,7 +244,7 @@ function introWrap(rung,title,body,years){
   return `<div class="ihead"><span class="ico ${RUNG_TAB[rung]}">${TAB_ICONS[RUNG_TAB[rung]]||''}</span><div><small class="kick">${n===6?'The bottom':n===11?'The top':n<6?'Step down':'Climb'} \u00b7 Rung ${n} of 11</small><h2>${title}</h2></div></div>
     ${body}${townSoFarHTML()}
     <div class="endnotches"><span class="notches">${ends.map(notch).join('')}${rares.map(notch).join('')}</span><small>${got.length?got.length+' of '+(ends.length+rares.length)+' endings found here: '+got.map(x=>x[1]).join(', '):(ends.length+rares.length)+' endings to find here, one of them rare'}</small></div>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${years}</small></button></div>`;
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${rung==='billionaire'?'':'You\u2019re '+age()+'. '}${years}</small></button></div>`;
 }
 function showLandlordIntro(){
   const from=G.ladder.from,mine=myHomes().length,estate=G.res.filter(r=>r.homeOwner==='you').length;
