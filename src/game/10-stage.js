@@ -475,7 +475,7 @@ function skyline(c,x0){
 }
 // a scene's caption, sized to stay readable on a phone; it belongs to its scene, so it slides along with it
 function caption(c,text,dx){
-  const k=V.k/V.dpr,t=text.length>64?text.slice(0,62)+'\u2026':text;
+  text=townText(text);const k=V.k/V.dpr,t=text.length>64?text.slice(0,62)+'\u2026':text;
   // as large as a phone needs, but never wider than the pane
   let size=Math.max(13,Math.min(19,12.5/k));c.font='700 '+size+'px Inter,system-ui,sans-serif';const w=c.measureText(t).width;if(w>PW-24)size*=(PW-24)/w;
   const h=Math.max(26,size*2.2);

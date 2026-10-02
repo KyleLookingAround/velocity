@@ -9,12 +9,15 @@ const FIELDS={
   unrest:()=>18, revoltWeeks:()=>0, ending:()=>null,
   year:()=>emptyYear(), history:()=>[], gains:()=>0, given:()=>0, taxPaid:()=>0,
   nextTax:()=>T.taxEvery*WEEKS, tax:()=>null, moved:()=>0, lobbied:()=>0,
-  speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false, adviser:()=>null,
+  speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false, adviser:()=>null, town:()=>'mill',
   card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], threads:()=>[], boom:()=>null, offshore:()=>false, ageAt:()=>START_AGE, pyear:()=>({}), plast:()=>null, borrowed:()=>false, senator:()=>false,
   arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
   aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false, ow:()=>null, claimDue:()=>false, un:()=>null, ac:()=>null, pub:()=>({}), my:()=>null, levyDue:()=>false, gv:()=>null, wageDue:()=>false, pr:()=>null, heir:()=>0, startNW:()=>0, nwLog:()=>[], giftAsked:()=>-1e9, crashed:()=>false, paperFoundation:()=>false, paper:()=>null, miles:()=>({}),
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
 };
+// the town's big employer by name: the mill, the cannery or the depot (text only; the code still calls it the mill)
+const townOf=()=>TOWNS[G&&G.town]||TOWNS.mill;
+function townText(s){const m=townOf().mill;return m==='mill'||typeof s!=='string'?s:s.replace(/\b([Mm])ill\b/g,(_,c)=>(c==='M'?m[0].toUpperCase():m[0])+m.slice(1))}
 const DEFAULT=()=>{const s={};for(const k in FIELDS)s[k]=FIELDS[k]();return s};
 let G;
 const R={sim:false,flows:[],toasts:[],tab:'fortune',stage:{},recent:{},townQ:[]};
@@ -53,7 +56,7 @@ function makeResidents(){
     R0('Nan','retiree',{}), R0('Pip','retiree',{}),
   ];
 }
-function makeShops(){return SHOP_DEF.map((d,i)=>({cat:d.cat,name:d.name,owner:i+1,open:true,cash:6000*HH,
+function makeShops(){return SHOP_DEF.map((d,i)=>({cat:d.cat,name:(TOWNS[townNow].shops||[])[i]||d.name,owner:i+1,open:true,cash:6000*HH,
   wage:T.wage,rev:0,profitAvg:0,lossWeeks:0,goodWeeks:0,ownedByYou:false,boughtFor:0}))}
 
 const staffOf=i=>G.res.filter(r=>r.job===i);

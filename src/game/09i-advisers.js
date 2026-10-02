@@ -44,6 +44,9 @@ const giftBudget=()=>netWorth()*G.rate*0.65;
 // a line in the adviser's own voice, for the result strip
 const adviserLine=a=>a&&a.voice?a.voice[Math.floor(G.week/7)%a.voice.length]:'';
 const achCount=()=>Object.keys(G.ladder.achieved||{}).length;
+// the towns your achievements have opened, and the one a new billionaire life moves on to
+const townsOpen=()=>TOWN_ORDER.filter(k=>achCount()>=TOWNS[k].need);
+const nextTown=()=>{const o=townsOpen(),i=o.indexOf(G.town||'mill');return o[(i+1)%o.length]};
 const adviserOpen=a=>a.ach?!!(G.ladder.achieved&&G.ladder.achieved[a.ach]):achCount()>=a.need;
 // the adviser in charge, if they work on this rung
 const adviserOn=()=>{const a=ADVISERS.find(a=>a.k===G.adviser);return a&&(!a.rung||a.rung===G.rung)?a:null};

@@ -43,6 +43,20 @@ const SHOP_DEF=[
   {cat:'hair',name:'Barber',max:2},
   {cat:'goods',name:'Store',max:2},
 ];
+// three towns: the same ladder in a different place. A new billionaire life moves on to the next town you've unlocked
+// (by achievements); the lives that step down from it stay in it. Each changes a few numbers and what the big employer
+// is; homes cost what their rents make them worth.
+const TOWNS={
+  mill:{name:'Millbrook',kind:'A mill town',mill:'mill',need:0,note:'Where it started: the mill, a high street and the estate.',t:{},leak:{}},
+  port:{name:'Saltby',kind:'A port',mill:'cannery',need:3,shops:['Fish market','Café','Barber','Chandler'],note:'The cannery pays better and rents are higher, and more of what people buy comes off the ships.',
+    t:{wage:760*HH,rent:190*HH},leak:{goods:0.55}},
+  suburb:{name:'Elm Park',kind:'A suburb',mill:'depot',need:6,shops:['Deli','Café','Salon','Garden centre'],note:'Dear homes, retirees on good pensions, and a retail park that takes the high street\u2019s trade.',
+    t:{wage:660*HH,rent:215*HH,pension:500*HH},leak:{food:0.26,goods:0.52}},
+};
+const TOWN_ORDER=['mill','port','suburb'];
+const BASE_T=Object.assign({},T),BASE_LEAK=Object.assign({},CAT_LEAK);
+let townNow='mill'; // (the town the next new game is built in)
+function applyTown(k){const t=TOWNS[k]||TOWNS.mill;townNow=TOWNS[k]?k:'mill';Object.assign(T,BASE_T,t.t);T.homePrice=BASE_T.homePrice*T.rent/BASE_T.rent;Object.assign(CAT_LEAK,BASE_LEAK,t.leak)}
 const GIFTS=[
   {k:'poverty',name:'End poverty',note:'Tops every household up to the poverty line',real:'$177B a year in the US'},
   {k:'shelter',name:'House everyone',note:'Nobody sleeps rough after an eviction',real:'$10B a year in the US'},

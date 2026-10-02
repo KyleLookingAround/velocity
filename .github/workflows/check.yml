@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: [down, climb, mayor, governor, president, hunt]
+        group: [down, climb, mayor, governor, president, hunt, towns]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

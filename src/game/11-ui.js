@@ -111,7 +111,7 @@ function refreshTop(){
     $('#nw').textContent=moneyFine(netWorth());
     const g=growthNow(),measured=(G.nwLog||[]).length>WEEKS||rungWeek()>=13;
     $('#growth').innerHTML=`${g<0?'shrinking':'growing'} <b class="${g<0?'bad':''}">${(Math.abs(g)*100).toFixed(1)}%</b> a year`+(measured?'':' <span class="est">expected</span>')+(last&&last.given>0?`<span class="long"> · gave ${money(last.given)} last year</span>`:'');
-    $('#clock').innerHTML=`<b>Age ${age()}</b><br>Year ${yearNo()} of 40`;
+    $('#clock').innerHTML=`<b>Age ${age()}</b><br>Year ${yearNo()} of 40${G.town&&G.town!=='mill'?' \u00b7 '+townOf().name:''}`;
     const work=G.res.filter(r=>r.role==='worker'||r.role==='owner');
     setMeter(1,'Jobs',work.filter(r=>r.role==='owner'||r.job!=null).length+' of '+work.length);setMeter(2,'Town spends',money(weeklySpend()*WEEKS)+'/yr');
   }
@@ -121,6 +121,8 @@ function refreshTop(){
 }
 
 let paneKey='';
+// the town's employer by name in what's on screen: text only, so a button's data-*="mill" still works
+function townDom(el){if(!el||townOf().mill==='mill')return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))if(/\b[Mm]ill\b/.test(n.nodeValue))n.nodeValue=townText(n.nodeValue)}
 function renderPane(force){
   // a new decision opens its tab; once answered, you're back where you were
   const cid=G.card?G.card.id+':'+G.card.week:null;
@@ -132,7 +134,7 @@ function renderPane(force){
   const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span>${R.lastChoice.quote?`<q>${R.lastChoice.quote}</q>`:''}${R.lastChoice.fresh?`<i class="newcard">\u2605 New card \u00b7 ${R.lastChoice.n} of ${deckSize()}</i>`:''}</div>`:'';
   const html=R.tab==='decide'&&G.card?cardHTML():waiting+result+PANES[R.tab]();
   $('#sheet').classList.toggle('deciding',R.tab==='decide'&&!!G.card);
-  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
+  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;townDom($('#pane'));$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
 }
 // the decision card: what's happened, and each option's cost to you and to the town
 function cardHTML(){
@@ -220,7 +222,7 @@ function drawChart(){
 
 // the cards that open and close a rung
 // (an ending sits low, so its scene stays in view above it)
-function showModal(html,low){$('#box').className='';$('#box').innerHTML=html;$('#modal').classList.toggle('low',!!low);$('#modal').classList.add('show')}
+function showModal(html,low){$('#box').className='';$('#box').innerHTML=html;townDom($('#box'));$('#modal').classList.toggle('low',!!low);$('#modal').classList.add('show')}
 function hideModal(){$('#modal').classList.remove('show')}
 // the first screen: four short points, each with its picture, and the start
 const ICONS={you:ic('<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /> <path d="M5 21h14" />'),town:TAB_ICONS.town,card:TAB_ICONS.decide,ladder:ic('<path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8"/>')};
@@ -271,10 +273,12 @@ function showPresidentIntro(){
 }
 // a billionaire life in a country a president changed
 function showLawsIntro(){
-  const laws=Object.keys(G.pub||{}).filter(k=>G.pub[k]&&lawOf(k));
-  if(!laws.length)return;
-  showModal(`<h2>The country you made</h2><p>You have $30 million again, in a country with these laws:</p><p><b>${laws.map(k=>lawOf(k).name).join('</b>, <b>')}</b>.</p>
-    <p>${G.pub.wealthtax?'Your fortune pays 2% a year into the public purse, and the purse pays for the programmes.':'The public purse pays for the programmes.'}</p>
+  const laws=Object.keys(G.pub||{}).filter(k=>G.pub[k]&&lawOf(k)),t=townOf(),away=G.town&&G.town!=='mill';
+  if(!laws.length&&!away)return;
+  // (a new town says where you are; the country's laws, if you made any, come with you)
+  showModal(`<h2>${away?t.name+': '+t.kind.toLowerCase():'The country you made'}</h2>${away?`<p>${t.note}</p>`:''}
+    ${laws.length?`<p>You have $30 million again, in a country with these laws:</p><p><b>${laws.map(k=>lawOf(k).name).join('</b>, <b>')}</b>.</p>
+    <p>${G.pub.wealthtax?'Your fortune pays 2% a year into the public purse, and the purse pays for the programmes.':'The public purse pays for the programmes.'}</p>`:'<p>You have $30 million again.</p>'}
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You're 40. You have 40 years.</small></button></div>`);
 }
 function showGovernorIntro(){
@@ -445,7 +449,7 @@ function showEndingCore(){
 $('#box').addEventListener('click',e=>{
   const s=e.target.closest('[data-start]'),a=e.target.closest('[data-again]'),g=e.target.closest('[data-rung]'),rr=e.target.closest('[data-replay]');
   if(s){G.seen.intro=true;G.seen[G.rung]=true;hideModal();save()}
-  if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true);showLawsIntro()} // cosmetic
+  if(a){newGame(Math.random()*4294967296,nextTown());G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true);showLawsIntro()} // cosmetic
   if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
   if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
   if(g&&g.dataset.rung==='president'){startPresident();R.stage={};buildTabs();save();renderPane(true);showPresidentIntro()}
@@ -468,6 +472,6 @@ $('#box').addEventListener('click',e=>{
   if(rr){restartLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
 });
 function showToasts(){
-  while(R.toasts.length){const t=R.toasts.shift();const d=document.createElement('div');d.className='toast'+(t.t.startsWith('Achievement')?' gold':'');d.textContent=t.t;
+  while(R.toasts.length){const t=R.toasts.shift();const d=document.createElement('div');d.className='toast'+(t.t.startsWith('Achievement')?' gold':'');d.textContent=townText(t.t);
     $('#toasts').appendChild(d);setTimeout(()=>d.remove(),4600);while($('#toasts').children.length>3)$('#toasts').firstChild.remove()}
 }
