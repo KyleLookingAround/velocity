@@ -131,8 +131,9 @@ leaves the life you're in, so a life under way asks once more first.
   third of a wage), closing the partner's loopholes, and the billionaire's gifts as **public programmes** paid from
   the purse (housing first, childcare, medical debt relief, housing vouchers). Once a programme runs, the state will
   match the purse with a grant. Knocking on doors builds support that stays; a foundation will fund you if you drop
-  the wealth tax. What passes lasts. Endings: **the town changed** (three votes or more), **heard**, **bought**, or
-  **ignored**.
+  the wealth tax. What passes lasts. The Campaign tab's ballot paper lists every measure open to you with its odds as
+  things stand, so you can see which fight is worth picking next. Endings: **the town changed** (three votes or more),
+  **heard**, **bought**, or **ignored**.
 - **The mayor** (two four-year terms): the activist runs and wins, and the public purse is yours to spend. Each year
   you set the property tax on the landlords' rents; you buy homes for the town and let them at a quarter of a wage
   (they never evict, and the rent comes back to the purse); and you decide what the mill gets for staying (a subsidy,

@@ -141,8 +141,8 @@ function frontsHTML(){
   const u=G.un,pc=v=>Math.round(v*100)+'%',wait=u.focusAt!=null&&G.week-u.focusAt<13?13-(G.week-u.focusAt):0;
   return `<div class="cap" style="margin:12px 0 4px;text-align:left">The fronts</div><p class="lead">${u.focus?'Organising at <b>'+FRONTS.find(f=>f.k===u.focus).name.toLowerCase()+'</b> (+'+Math.round(UN_FOCUS*100)+' points on its odds).':'Tap a front to organise there: its odds rise.'}${wait?' You can move in '+wait+' week'+(wait===1?'':'s')+'.':''}</p>`+
     FRONTS.filter(f=>frontOpen(f.k)).map(f=>{const o=strikeOdds(f.k),won=u.wonAt&&u.wonAt[f.k];
-      return `<button class="front${u.focus===f.k?' on':''}" data-front="${f.k}"${wait&&u.focus!==f.k?' disabled':''}><span><b>${f.name}</b><small>${frontStaff(f.k)} working \u00b7 ${f.hold}</small></span>
-        <i><u style="width:${Math.round(o*100)}%"></u></i><em>${pc(o)}</em>${won?'<span class="won">Won</span>':'<span></span>'}</button>`}).join('');
+      return `<button class="front${u.focus===f.k?' on':''}" data-front="${f.k}"${wait&&u.focus!==f.k?' disabled':''}><span><b>${f.name}${won?'<span class="won">Won</span>':''}</b><small>${frontStaff(f.k)} working \u00b7 ${f.hold}</small></span>
+        <i><u style="width:${Math.round(o*100)}%"></u></i><em>${pc(o)}</em></button>`}).join('');
 }
 
 // the activist's Campaign tab: support, the campaign under way, what has passed, and the purse that pays for it
@@ -154,8 +154,19 @@ PANES.campaign=function(){
     <div class="stats"><div>Behind you<b>${pc(a.support)}</b></div><div>Funds<b>${money(a.funds)}</b></div>
     <div>Chance now<b>${k?pc(voteOdds(k)):'\u2013'}</b></div><div>With a push<b>${k?pc(voteOdds(k,adsBoost())):'\u2013'}</b></div>
     <div>Purse<b>${money(G.fund||0)}</b></div><div>Paid out<b>${money(spent)}/yr</b></div></div>
-    ${MEASURES.map(m=>`<div class="card"><div class="txt"><b>${m.name}</b><small>${m.note}</small><small>${a.passed.includes(m.k)?'Passed':a.donor&&m.k==='wealthtax'?'Off the table':a.lost.includes(m.k)?'Lost '+a.lost.filter(x=>x===m.k).length+'\u00d7':'Not yet'}</small></div></div>`).join('')}`;
+    ${ballotHTML()}`;
 };
+// the ballot paper: every measure open to you with its odds as things stand (the one you're campaigning for first,
+// the passed ones last), so you can see which fight is worth picking next
+function ballotHTML(){
+  const a=G.ac,pc=v=>Math.round(v*100)+'%';
+  const st=m=>a.passed.includes(m.k)?['won','Passed']:a.donor&&m.k==='wealthtax'?['off','Off the table']:a.campaign===m.k?['now','Campaigning']:a.lost.includes(m.k)?['lost','Lost '+a.lost.filter(x=>x===m.k).length+'\u00d7']:['','Not yet'];
+  const rank=m=>a.campaign===m.k?0:a.passed.includes(m.k)?3:a.donor&&m.k==='wealthtax'?2:1;
+  const ms=MEASURES.filter(m=>!m.when||m.when()||a.passed.includes(m.k)).sort((x,y)=>rank(x)-rank(y)||voteOdds(y.k)-voteOdds(x.k));
+  return `<div class="cap" style="margin:12px 0 4px;text-align:left">The ballot paper</div>`+ms.map(m=>{const [c,l]=st(m),done=c==='won'||c==='off',o=voteOdds(m.k);
+    return `<div class="front ro${a.campaign===m.k?' on':''}"><span><b>${m.name}<span class="won st-${c||'none'}">${l}</span></b><small>${m.note}</small></span>${done?'<span></span><span></span>':`<i><u style="width:${Math.round(o*100)}%"></u></i><em>${pc(o)}</em>`}</div>`}).join('')+
+    `<p class="lead">Odds as things stand, before a final push. A measure you\u2019ve lost before is a little easier the next time.</p>`;
+}
 
 // the mayor's Town hall tab: approval and the next election, the purse and the tax, and the town's own homes
 // the purse's budget: last year's money in and out as two bars, each split by where it came from or went
