@@ -1,0 +1,20 @@
+/* ================= the landlord's tabs ================= */
+// Books (your equity over the years and what the bank sees) and Tenants (who pays what).
+Object.assign(PANES,{
+  books(){
+    const ll=G.ll,h=ll.history.at(-1),v=homeValue();
+    return `<p class="lead">Each bar is a year of your equity: what your homes are worth, plus your savings, less the loan. The dashed line is where you started.</p><canvas id="chart"></canvas>
+      <div class="stats" style="margin-top:8px"><div>Homes worth<b>${money(v)}</b></div><div>Loan<b>${money(ll.loan)}</b></div>
+      <div>Savings<b>${money(G.res[0].cash)}</b></div><div>Loan to value<b>${v?Math.round(ll.loan/v*100)+'%':'–'}</b></div>
+      <div>Rent this year<b>${pct(ll.rentChange)}</b></div><div>Repairs<b>${{none:'None',basic:'Basic',full:'Full'}[ll.repairs]}</b></div>
+      <div>Rent last year<b>${h?money(h.rent):'–'}</b></div><div>Interest last year<b>${h?money(h.interest):'–'}</b></div>
+      <div>Repairs last year<b>${h?money(h.repairs):'–'}</b></div><div>Evictions last year<b>${h?h.evictions:'–'}</b></div></div>
+      <p class="lead" style="margin-top:8px">The bank calls in the loan if it grows past what the homes are worth, and takes them if you miss three months of payments.</p>`;
+  },
+  tenants(){
+    const rows=myHomes().map(r=>{const st=r.homeless?'Evicted, sleeping rough':r.sheltered?'Evicted, in a shelter':r.owed>0?'Owes '+money(r.owed/HH):r.arrears?r.arrears+' weeks behind':'Paying';
+      const share=r.income>0?Math.round(r.rent/r.income*100)+'% of income':'no income';
+      return `<div class="card"><div class="txt"><b>${r.name}</b><small>Rent ${money(r.rent/HH)} a week · ${share}</small><small>${st}</small></div></div>`}).join('');
+    return `<p class="lead">Your tenants, ${HH} households each.</p>`+(rows||'<p class="lead">You have no tenants. The estate may offer you homes.</p>');
+  },
+});

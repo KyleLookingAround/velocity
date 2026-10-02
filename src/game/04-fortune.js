@@ -23,11 +23,14 @@ function shopPrice(s){const staff=staffOf(G.shops.indexOf(s)).reduce((a,r)=>a+wa
   return Math.max(2e6,(s.rev*(1-T.supplies)-staff)*WEEKS*T.rivalMultiple)}
 function rivalTarget(){return G.shops.filter(s=>s.open&&!s.ownedByYou).sort((a,b)=>shopPrice(b)-shopPrice(a))[0]}
 function canBuyRival(){const s=rivalTarget();return !!s&&G.cash>=shopPrice(s)}
-function buyRival(){
+function buyRival(keep){
   const s=rivalTarget();if(!s)return false;const p=shopPrice(s);if(G.cash<p)return false;
   G.cash-=p;s.ownedByYou=true;s.boughtFor=p;
-  const o=G.res[s.owner];o.role='worker';o.job=null;delete o.shop;
-  const staff=staffOf(G.shops.indexOf(s));if(staff.length>1)staff[staff.length-1].job=null;
+  // the owner stays on as its manager on a wage, or is out; cutting costs also lets one of the staff go
+  const i=G.shops.indexOf(s),o=G.res[s.owner];o.role='worker';delete o.shop;
+  if(keep){o.job=i;toast('You bought the '+s.name+'. '+o.name+' stays on to run it');return true}
+  o.job=null;
+  const staff=staffOf(i);if(staff.length>1)staff[staff.length-1].job=null;
   toast('You bought the '+s.name+'. '+o.name+' is out of work');
   return true;
 }

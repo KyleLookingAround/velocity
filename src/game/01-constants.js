@@ -44,7 +44,7 @@ const SHOP_DEF=[
   {cat:'goods',name:'Store',max:2},
 ];
 const GIFTS=[
-  {k:'poverty',name:'End poverty',note:'Tops every figure up to the poverty line',real:'$177B a year in the US'},
+  {k:'poverty',name:'End poverty',note:'Tops every household up to the poverty line',real:'$177B a year in the US'},
   {k:'shelter',name:'House everyone',note:'Nobody sleeps rough after an eviction',real:'$10B a year in the US'},
   {k:'vouchers',name:'Housing vouchers',note:'Pays a third of the rent for low earners',real:'$118B a year in the US'},
   {k:'childcare',name:'Childcare and pre-K',note:'Parents can work full time',real:'$75B a year in the US'},

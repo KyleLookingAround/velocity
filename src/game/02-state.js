@@ -9,12 +9,14 @@ const FIELDS={
   unrest:()=>18, revoltWeeks:()=>0, ending:()=>null,
   year:()=>emptyYear(), history:()=>[], gains:()=>0, given:()=>0, taxPaid:()=>0,
   nextTax:()=>T.taxEvery*WEEKS, tax:()=>null, moved:()=>0, lobbied:()=>0,
-  speed:()=>1, seen:()=>({intro:false}),
+  speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false,
+  card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], borrowed:()=>false, senator:()=>false,
+  arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
 };
 const DEFAULT=()=>{const s={};for(const k in FIELDS)s[k]=FIELDS[k]();return s};
 let G;
-const R={sim:false,flows:[],bills:[],weekT:0,last:0,toasts:[],sel:null,tab:'moves'};
+const R={sim:false,flows:[],toasts:[],tab:'fortune',stage:{},recent:null};
 
 function money(v){
   const s=v<0?'−':'';v=Math.abs(v);

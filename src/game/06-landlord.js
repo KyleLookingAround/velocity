@@ -25,14 +25,15 @@ function startLandlord(){
 // replay the landlord in the same town the billionaire left
 function restartLandlord(){
   const ladder=G.ladder;const s=JSON.parse(ladder.legacy);G=DEFAULT();Object.assign(G,s);G.ladder=ladder;
-  R.flows=[];R.bills=[];beginLandlord(ladder.from);
+  R.flows=[];R.stage={};beginLandlord(ladder.from);
 }
 function beginLandlord(kind){
   G.rung='landlord';G.rungStart=G.week;G.ending=null;G.tax=null;G.nextTax=1e9;G.speed=G.speed||1;
   G.foundation=kind==='hero';
   if(!G.foundation)for(const k in G.gifts)G.gifts[k]=false;
   const ag=G.res[0],homes=myHomes().length;
-  G.ll={loan:0,rentChange:0.03,repairs:'basic',evict:true,cond:0.82,missed:0,startEquity:0,history:[],year:llYear(),strikeSeen:false};
+  G.ll={loan:0,rentChange:0.03,repairs:'basic',cond:0.82,missed:0,startEquity:0,history:[],year:llYear()};
+  G.card=null;G.arrearsQ=[];G.rentDue=true;G.freezeUntil=0;G.nextCard=G.week+6;
   // Agnes keeps what she's saved, and has borrowed against her homes; if the billionaire bought them all she at least
   // has the deposit on two
   G.ll.loan=homes*G.homePrice*0.4;
@@ -65,6 +66,7 @@ function landlordYearEnd(){
     else return endLife('bankrupt');
   }
   const tenants=myHomes().filter(r=>!r.homeless&&!r.sheltered);
+  G.rentDue=G.freezeUntil<=G.week;if(!G.rentDue)ll.rentChange=0;
   ll.history.push({year:rungWeek()/WEEKS,equity:equity(),value,loan:ll.loan,cash:ag.cash,rent:ll.year.rent,interest:ll.year.interest,
     repairs:ll.year.repairs,cond:ll.cond,homes:myHomes().length,let:tenants.length,evictions:ll.year.evictions,unrest:G.unrest});
   ll.year=llYear();
@@ -87,7 +89,6 @@ function sellToEstate(){
 }
 function setRentChange(v){G.ll.rentChange=v}
 function setRepairs(k){G.ll.repairs=k}
-function setEvict(on){G.ll.evict=!!on}
 
 // how a landlord's 20 years are judged
 function landlordVerdict(){

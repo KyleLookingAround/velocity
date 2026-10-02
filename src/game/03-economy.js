@@ -54,8 +54,9 @@ function economyWeek(){
     if(rent){
       if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)
         if(mine){G.ll.year.rent+=rent;if(r.owed>0){const p=Math.min(r.owed,Math.max(0,(r.cash-rent)*0.2));r.cash-=p;r.owed-=p;res[0].income+=pay(id,'r0',p,'rent')}}}
-      else if(mine&&!G.ll.evict){r.owed=(r.owed||0)+rent;G.ll.year.lost+=rent}
-      else{r.arrears++;if(r.arrears>=6){evict(r);if(mine)G.ll.year.evictions++}}
+      // your own tenants who fall six weeks behind come to you as a card; one you've given time builds up what it owes
+      else if(mine){G.ll.year.lost+=rent;if(r.grace>G.week)r.owed=(r.owed||0)+rent;else{r.arrears++;if(r.arrears>=6&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}}
+      else{r.arrears++;if(r.arrears>=6)evict(r)}
     }
     if(r.debt>0){if(gifts.medical){giveOut(r.debt,'medical',i);r.debt=0}else{const p=Math.min(r.debt,T.medicalPay,Math.max(0,r.cash*0.5));r.debt-=p;r.cash-=pay(id,'out',p,'debt')}}
     const mpc=r.role==='owner'?T.mpc.mid:r.income>T.wage*1.4?T.mpc.mid:T.mpc.low;

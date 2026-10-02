@@ -50,6 +50,7 @@ function yearEnd(){
 // every few years the town votes on a one-off tax on your fortune
 function taxDue(){return G.week>=G.nextTax&&!G.tax&&!G.ending}
 function proposeTax(){
+  if(G.senator){G.senator=false;G.nextTax=G.week+T.taxEvery*WEEKS;G.anger=(G.anger||0)+12;toast('The tax vote fails. Everyone knows who paid for that');return}
   const amount=netWorth()*T.taxRate;
   G.tax={amount,payback:Math.log(1/(1-T.taxRate))/Math.log(1+G.rate)};
 }
@@ -91,7 +92,7 @@ function endLife(kind){
 
 // one week of everything, in order
 function step(){
-  if(G.ending||G.tax)return;
+  if(G.ending||G.card)return;
   economyWeek();fundWeek();fortuneWeek();
   // the gifts stop when the fortune can't pay for them: a fortune never goes below nothing
   if(G.cash<0&&Object.values(G.gifts).some(Boolean)){for(const k in G.gifts)G.gifts[k]=false;toast(isLandlord()?'The foundation has run out of money':'Your fortune can\u2019t pay for the gifts any more. They\u2019ve stopped')}
@@ -106,6 +107,7 @@ function step(){
   if(G.week%WEEKS===0){yearEnd();G._yv=0}
   if(rungWeek()>=rungWeeks()&&!G.ending)endLife('death');
   if(taxDue())proposeTax();
+  drawCard();
 }
 function toast(t){R.toasts.push({t,week:G.week});if(R.toasts.length>6)R.toasts.shift()}
 // a new billionaire life keeps the ladder: what you've unlocked and how each rung ended
