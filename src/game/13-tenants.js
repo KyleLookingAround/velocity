@@ -133,11 +133,17 @@ PANES.union=function(){
   return `<p class="lead">A won strike raises a workplace\u2019s pay by ${Math.round(UN.winRaise*100)}%. The odds depend on how many are in and how long the fund can carry them.</p>
     <div class="stats"><div>Workers in<b>${pc(u.members)}</b></div><div>Strike fund<b>${money(u.fund)}</b></div>
     <div>A strike costs<b>${money(strikeCost())}</b></div><div>Striking<b>${u.striking?u.striking+' weeks left':'No'}</b></div>
-    <div>Odds at the mill<b>${pc(strikeOdds('mill'))}</b></div><div>On the high street<b>${pc(strikeOdds('street'))}</b></div>
-    ${shopsOwned()?`<div>At the estate\u2019s shops<b>${pc(strikeOdds('estate'))}</b></div><div></div>`:''}
     <div>Strikes won<b>${u.wins}</b></div><div>Strikes lost<b>${u.losses}</b></div>
-    <div>Pay since you began<b>${(wageRise()>=0?'+':'')+pc(wageRise())}</b></div><div>Public purse<b>${money(G.fund||0)}</b></div></div>`;
+    <div>Pay since you began<b>${(wageRise()>=0?'+':'')+pc(wageRise())}</b></div><div>Public purse<b>${money(G.fund||0)}</b></div></div>`+frontsHTML();
 };
+// the three fronts, each with its people, its odds and whether you've won there; tap one to organise there this quarter
+function frontsHTML(){
+  const u=G.un,pc=v=>Math.round(v*100)+'%',wait=u.focusAt!=null&&G.week-u.focusAt<13?13-(G.week-u.focusAt):0;
+  return `<div class="cap" style="margin:12px 0 4px;text-align:left">The fronts</div><p class="lead">${u.focus?'Organising at <b>'+FRONTS.find(f=>f.k===u.focus).name.toLowerCase()+'</b> (+'+Math.round(UN_FOCUS*100)+' points on its odds).':'Tap a front to organise there: its odds rise.'}${wait?' You can move in '+wait+' week'+(wait===1?'':'s')+'.':''}</p>`+
+    FRONTS.filter(f=>frontOpen(f.k)).map(f=>{const o=strikeOdds(f.k),won=u.wonAt&&u.wonAt[f.k];
+      return `<button class="front${u.focus===f.k?' on':''}" data-front="${f.k}"${wait&&u.focus!==f.k?' disabled':''}><span><b>${f.name}</b><small>${frontStaff(f.k)} working \u00b7 ${f.hold}</small></span>
+        <i><u style="width:${Math.round(o*100)}%"></u></i><em>${pc(o)}</em>${won?'<span class="won">Won</span>':'<span></span>'}</button>`}).join('');
+}
 
 // the activist's Campaign tab: support, the campaign under way, what has passed, and the purse that pays for it
 PANES.campaign=function(){

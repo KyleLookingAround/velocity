@@ -48,8 +48,15 @@ function unionWeek(){
 function strikeOdds(target){
   const u=G.un,n=Math.max(1,workers().length),weeks=u.fund/Math.max(1,u.members*n*T.wage*grow(0.02)*0.4);
   const hold=target==='mill'?0.55:target==='estate'?0.6:0.4;
-  return Math.max(0.05,Math.min(0.95,u.members*0.8+Math.min(1,weeks/UN.strikeWeeks)*0.5-hold+0.2+(u.allies?0.05:0)));
+  return Math.max(0.05,Math.min(0.95,u.members*0.8+Math.min(1,weeks/UN.strikeWeeks)*0.5-hold+0.2+(u.allies?0.05:0)+(u.focus===target?UN_FOCUS:0)));
 }
+// the fronts: where the union can strike, who works there, and how hard the employer holds out. Once a quarter you can
+// put your organising into one of them, which raises the odds there
+const FRONTS=[{k:'mill',name:'The mill',hold:'Owners elsewhere, a long purse'},{k:'street',name:'The high street',hold:'Small owners, short of cash'},{k:'estate',name:'The estate\u2019s shops',hold:'The estate\u2019s lawyers'}];
+const UN_FOCUS=0.06;
+const frontStaff=k=>k==='mill'?millStaff().length:G.shops.reduce((a,s,i)=>a+(s.open&&(k==='estate'?s.ownedByYou:!s.ownedByYou)?staffOf(i).length:0),0);
+const frontOpen=k=>k!=='estate'||shopsOwned()>0;
+function setFocus(k){const u=G.un;if(!frontOpen(k)||u.focus===k||(u.focusAt!=null&&G.week-u.focusAt<13))return false;u.focus=k;u.focusAt=G.week;return true}
 // a strike needs a fund that can carry the members for its four weeks
 const strikeCost=()=>G.un.members*Math.max(1,workers().length)*T.wage*grow(0.02)*0.4*UN.strikeWeeks;
 function strikeEnds(won){

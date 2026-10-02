@@ -29,7 +29,7 @@ sessions). The owner decides what moves up.
 - **Shop: the menu** (S). Three or four menu lines with their own margin and local/megastore supply; price per line.
 - **Waiter & out of work: the week** (M, done). A seven-day strip showing shifts, rent day, the lender's day; the budget
   becomes something you see, not a number.
-- **Union: workplaces as targets** (S). The mill, the high street and the estate's shops as three fronts with their
+- **Union: workplaces as targets** (S, done as the fronts). The mill, the high street and the estate's shops as three fronts with their
   own membership and odds; pick where to organise this quarter.
 - **Activist: the ballot paper** (S). Several measures live at once with a bar each; spend your campaign weeks across
   them.

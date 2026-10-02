@@ -122,8 +122,9 @@ leaves the life you're in, so a life under way asks once more first.
   workers. Members pay dues into a strike fund; you choose where to recruit, when to strike and whom (the mill, the
   high street, the estate's shops), whether to fight a sacking, and whether to ask the council for a living-wage rule.
   A won strike raises a whole workplace's pay by 12%, and that pay is spent in town. The mill's managers will offer a
-  small raise to call it off, and a manager's job for you. Endings: **fair wages**, **sold out**, or **crumbs from the
-  table**.
+  small raise to call it off, and a manager's job for you. The Union tab shows the three fronts (the mill, the high
+  street and, once the estate owns shops, its shops) with who works there and the odds; put your organising into one
+  a quarter for six points on its odds. Endings: **fair wages**, **sold out**, or **crumbs from the table**.
 - **The activist** (10 years): the same person, campaigning for changes the whole town votes on. Supporters give a
   little each week; each campaign runs half a year before its vote, against the measure's own opponents and the
   estate's money. On the ballot: taxing the estate (2% a year into the public purse), capping rents (none above a
