@@ -24,7 +24,7 @@ function beginGovernor(kind){
   G.pub=G.pub||{};
   // the state starts with a budget of a year of the town's wages, times the towns it stands for
   G.gv={i,name:r.name,approval:kind==='builder'?0.56:kind==='machine'?0.5:0.52,minWage:1,raises:0,cuts:0,fortuneTax:false,
-    budget:G.res.length*T.wage*grow(0.02)*WEEKS*0.5,granted:0,donors:0,deals:[],elections:[],recession:0,history:[],year:{grants:0,tax:0}};
+    budget:G.res.length*T.wage*grow(0.02)*WEEKS*0.5,startBudget:G.res.length*T.wage*grow(0.02)*WEEKS*0.5,granted:0,donors:0,deals:[],elections:[],recession:0,history:[],year:{grants:0,tax:0}};
   G.wageDue=true;G.seen.governor=false;
   toast('You are '+r.name+', governor of the state');
 }

@@ -19,16 +19,16 @@ const ENDINGS={
 // the rare forms: a rung's ending, played unusually well (or on a later loop), with its own title
 const RARE={
   billionaire:[{k:'fullcircle',name:'Full circle',note:'Die a hero in a country a president of yours remade',when:e=>e.kind==='hero'&&G.pub&&G.pub.wealthtax},
-    {k:'dynasty',name:'Dynasty',note:'Play the heir of a hero, and die a hero too',when:e=>e.kind==='hero'&&G.heir>0}],
+    {k:'dynasty',name:'Dynasty',note:'Three generations of heroes: play the heir of a hero\u2019s heir, and die a hero too',when:e=>e.kind==='hero'&&G.heir>=2}],
   landlord:[{k:'goodlandlord',name:'The good landlord',note:'A fair landlord with homes kept nearly perfect and rents a quarter of income',when:e=>e.kind==='fair'&&e.cond>=0.9&&e.burden<=0.25}],
-  partner:[{k:'peoples',name:'The people’s lawyer',note:'Counsel for the town who never took a rich client’s side',when:e=>e.kind==='counsel'&&e.forRich===0&&e.forTown>=4}],
-  shop:[{k:'coop',name:'The co-op',note:'A pillar who paid a living wage for fifteen years and bought locally',when:e=>e.kind==='pillar'&&e.pay&&e.pay.living>=15&&e.supply==='local'}],
-  waiter:[{k:'thriving',name:'Thriving',note:'Get ahead, trained and in full health',when:e=>e.kind==='ahead'&&e.trained&&e.health>=0.9}],
+  partner:[{k:'peoples',name:'The people\u2019s lawyer',note:'Defend the town against the rentier landlord you once were, and never take a rich client\u2019s side',when:e=>e.kind==='counsel'&&e.forRich===0&&e.forTown>=4&&G.ladder.fromLandlord==='rentier'}],
+  shop:[{k:'coop',name:'The co-op',note:'Pay a living wage, buy locally, and sell the caf\u00e9 to the people who work in it',when:e=>e.kind==='pillar'&&G.sh&&G.sh.coop}],
+  waiter:[{k:'thriving',name:'Thriving',note:'Get ahead, trained and in full health, at a caf\u00e9 its staff own',when:e=>e.kind==='ahead'&&e.trained&&e.health>=0.9&&G.sh&&G.sh.coop}],
   out:[{k:'phoenix',name:'From the street',note:'Start out of work with nowhere to live, and end with a job and a home',when:e=>e.kind==='feet'&&G.ow&&G.ow.startHomeless}],
-  union:[{k:'general',name:'The general strike',note:'Win four strikes and nearly every worker, and raise pay by a third',when:e=>e.kind==='fairpay'&&e.wins>=4&&e.members>=0.9&&e.rise>=0.3}],
+  union:[{k:'general',name:'The general strike',note:'Win strikes at the mill, on the high street and at the estate\u2019s own shops',when:e=>e.kind==='fairpay'&&G.un.wonAt&&G.un.wonAt.mill&&G.un.wonAt.street&&G.un.wonAt.estate}],
   activist:[{k:'sweep',name:'Clean sweep',note:'Pass every measure, closing the loopholes your partner once wrote',when:e=>e.kind==='changed'&&e.passed.includes('loopholes')&&e.passed.length>=7}],
-  mayor:[{k:'commons',name:'The commons',note:'Leave no home in town with a private landlord',when:e=>e.kind==='builder'&&!G.res.some(r=>r.homeOwner==='local'&&r.role!=='landlord'||r.homeOwner==='you')}],
-  governor:[{k:'landslide',name:'Landslide',note:'A new deal, with 85% of the state behind you',when:e=>e.kind==='newdeal'&&e.approval>=0.85}],
+  mayor:[{k:'commons',name:'The commons',note:'Leave no home in town with a private landlord, without a penny from the state',when:e=>e.kind==='builder'&&!G.my.granted&&!G.res.some(r=>r.homeOwner==='local'&&r.role!=='landlord'||r.homeOwner==='you')}],
+  governor:[{k:'landslide',name:'Landslide',note:'Raise the minimum wage by half, keep 85% behind you, and leave the state\u2019s budget bigger than you found it',when:e=>e.kind==='newdeal'&&e.minWage>=1.5&&e.approval>=0.85&&G.gv.budget>=(G.gv.startBudget||0)}],
   president:[{k:'utopia',name:'Utopia',note:'Rebuild the ladder in a country that was already yours, passing every bill',when:e=>e.kind==='rebuilt'&&G.pr.loop&&e.passed.length>=BILLS.length}],
 };
 // milestones on the ladder itself

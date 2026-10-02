@@ -101,14 +101,17 @@ last one left. At the top, the laws a president passes become the law in every b
 ## Achievements, rare endings and the heir
 
 Every ending of every rung is an achievement, kept across lives (the Story tab opens them; ones not yet found stay
-hidden, with a count of how many are left). Each rung also has a **rare ending**, reached only by playing it unusually
-well or on a later loop: the good landlord, the people's lawyer, the co-op, the general strike, the commons, a
-landslide, and the hardest: a clean sweep (which needs a partner who once wrote the estate's loopholes), full circle
-(a hero billionaire in a country you remade) and utopia (rebuilding a country that was already yours). A few
+hidden, with a count of how many are left). Each rung also has a **rare ending**, and none of them comes from always taking the generous option: each needs a
+choice no tag recommends, a setup from an earlier rung, or a second loop. Selling the café to its staff makes **the
+co-op**, and a waiter later thriving there; striking the estate's own shops (which only a billionaire who bought them
+leaves behind) makes **the general strike**; defending tenants against the rentier you once were makes **the people's
+lawyer**; a town with no private landlord, built without state money, is **the commons**; a governor who keeps raising
+the minimum wage past where anyone advises, and still balances the budget, wins **a landslide**; a clean sweep needs a
+partner who once wrote the loopholes; full circle and utopia need the loop.  A few
 milestones count too: all the way down, all the way up, every rung, the country you made.
 
 The **heir** is a rare role: when a billionaire dies a hero, you can play its heir, a second billionaire life in the
-same town, starting from the fortune it left (and judged against it). An heir who dies a hero too founds a
+same town, starting from the fortune it left (and judged against it). Three generations of heroes found a
 **dynasty**.
 
 **Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
@@ -133,7 +136,8 @@ it would be at the start of the game: a century of the ladder inflates every pri
   governors under the same rule: generous → a new deal, the donors' way → the dealmaker, doing nothing → the
   steward. Then three presidents: generous → the ladder, rebuilt, the donors' way → owned, sending nothing →
   gridlock; and a passive billionaire born after the rebuilt president must pay the tax on fortunes. Then a hero's
-  heir on each seed, which must reach an ending and the heir milestone. It lists the rare endings the runs reached.
+  heir on each seed, which must reach an ending and the heir milestone, and a rare-ending hunter that must still reach
+  the co-op, thriving, the general strike and a landslide on purpose. It lists the rare endings the runs reached.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
   first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.
