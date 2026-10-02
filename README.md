@@ -103,13 +103,14 @@ leaves the life you're in, so a life under way asks once more first.
   docket: the cases you took, newest first, each marked for the rich or for the town, under the scales your ending is
   weighed on. Endings: **hired gun**, **counsel for the town**, or **burnt out**.
 - **The shop owner** (20 years): you play Bea, who runs the café. Its customers spend the town's wages, including the
-  ones you pay; rent on the premises goes to Agnes. You set prices (every rise sends customers to the megastore),
-  pay, and where supplies come from (the megastore is cheaper, but that money leaves town). The estate may offer to
-  buy you out: sell, and the life ends there, Bea retires on the money, the café is the estate's (it pays the minimum,
-  cuts a job, and sends its profit out of town), and the next life is either the waiter at that café, with head
-  office's cuts and transfers instead of Bea's offers, or straight to the bottom as the one let go. Late on, investors
-  may offer to make you a **founder**: the shortcut straight back to a billionaire life, which changes nothing.
-  Endings: **pillar of the high street**, **kept the lights on**, **closed**, **sold**, or **founder**.
+  ones you pay; rent on the premises goes to Agnes. You set prices (every rise sends customers to the megastore), pay,
+  and where supplies come from (the megastore is cheaper, but that money leaves town). The estate may offer to buy you
+  out: sell, and the life ends there, Bea retires on the money, the café is the estate's (it pays the minimum, cuts a
+  job, and sends its profit out of town), and the next life is either the waiter at that café, with head office's cuts
+  and transfers instead of Bea's offers, or straight to the bottom as the one let go. Late on, investors may offer to
+  make you a **founder**: the shortcut straight back to a billionaire life, which changes nothing. The Café tab's menu
+  splits the takings into coffee, lunches and cakes, each with what it pays its supplier and what it keeps. Endings:
+  **pillar of the high street**, **kept the lights on**, **closed**, **sold**, or **founder**.
 - **The waiter** (15 years): you play one of the café's staff, on whatever Bea paid, renting from Agnes. Each year you
   choose your shifts (extra shifts pay, and wear your health down); when you're short there's a payday lender; the
   union organises and later strikes; evening classes cost now and pay later. Endings: **getting ahead**, **getting
