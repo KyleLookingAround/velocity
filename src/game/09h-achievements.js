@@ -38,6 +38,7 @@ const MILESTONES={
   country:{name:'The country you made',note:'Start a billionaire life under your own laws'},
   heir:{name:'The heir',note:'Play a hero’s heir to the end'},
   everyrole:{name:'Every rung',note:'Finish every role on the ladder at least once'},
+  deck:{name:'The full deck',note:'Answer every kind of card on the ladder'},
 };
 const achId=(rung,k)=>rung+':'+k;
 const allAchievements=()=>[

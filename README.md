@@ -113,7 +113,7 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
-## Achievements, rare endings and the heir
+## Achievements, rare endings, the heir and the deck
 
 Every ending of every rung is an achievement, kept across lives (the Story tab opens them; ones not yet found stay
 hidden, with a count of how many are left). Each rung also has a **rare ending**, and none of them comes from always taking the generous option: each needs a
@@ -128,6 +128,13 @@ milestones count too: all the way down, all the way up, every rung, the country 
 The **heir** is a rare role: when a billionaire dies a hero, you can play its heir, a second billionaire life in the
 same town, starting from the fortune it left (and judged against it). Three generations of heroes found a
 **dynasty**.
+
+**The deck.** Every kind of decision is a collectable card: answer it once and it's yours, on every life after, with a
+star in the card's corner from then on (gold for a card that comes once in a life). The Story tab opens the deck,
+one row per rung, collected cards face up with the answer you gave last; the full deck is a milestone.
+
+**Seasons.** The year turns on the stage: winter light and a little snow around the turn of the year, warm light at
+midsummer.
 
 **Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
 it would be at the start of the game: a century of the ladder inflates every price.

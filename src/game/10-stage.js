@@ -59,7 +59,18 @@ function bill(c,x,y,r,a){c.save();c.translate(x,y);c.rotate(r||0);c.globalAlpha=
 // a bill flying from (x0,y0) to (x1,y1) over u in [0,1], arcing up
 function flyBill(c,x0,y0,x1,y1,u,lift){if(u<0||u>1)return;const x=x0+(x1-x0)*u,y=y0+(y1-y0)*u-Math.sin(u*Math.PI)*(lift??40);bill(c,x,y,u*4,Math.min(1,(1-u)*5))}
 function stack(c,x,y,n){for(let i=0;i<n;i++){c.fillStyle=i%2?GREEN2:GREEN;c.fillRect(x-16,y-4-i*4,32,4)}}
-function ground(c){c.fillStyle='#d6cfc1';c.fillRect(0,250,PW,50);c.fillStyle='rgba(120,100,70,.12)';c.fillRect(0,250,PW,2)}
+// the season, 0 in the depth of winter (the turn of the year) to 1 at midsummer, and a colour between two for it
+const season=()=>(1-Math.cos((G.week%WEEKS)/WEEKS*2*Math.PI))/2;
+function mix(a,b,t){const h=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const p=h(a),q=h(b);return 'rgb('+p.map((v,i)=>Math.round(v+(q[i]-v)*t)).join(',')+')'}
+function ground(c){const s=season();c.fillStyle=mix('#e4e2dc','#d6cfc1',s);c.fillRect(0,250,PW,50);c.fillStyle='rgba(120,100,70,.12)';c.fillRect(0,250,PW,2)}
+// snow in the weeks around the new year: a few flakes drifting down each pane
+function snow(c,dt){
+  const s=season();if(s>0.1)return;
+  if(!R.snow)R.snow=Array.from({length:40},()=>({x:Math.random()*PW,y:Math.random()*PH,v:14+Math.random()*16,w:Math.random()*6.3})); // cosmetic
+  c.fillStyle='rgba(255,255,255,.85)';
+  for(const f of R.snow){f.y+=f.v*dt;f.w+=dt;f.x+=Math.sin(f.w)*0.3;if(f.y>PH){f.y=-4;f.x=Math.random()*PW} // cosmetic
+    c.beginPath();c.arc(f.x,f.y,1.8,0,7);c.fill()}
+}
 function desk(c,x,y){c.fillStyle='#8f8f8f';c.fillRect(x-40,y-34,80,6);c.fillRect(x-36,y-28,5,28);c.fillRect(x+31,y-28,5,28)}
 function laptop(c,x,y){c.fillStyle='#5b5b5b';c.fillRect(x-12,y-50,24,16);c.fillRect(x-16,y-35,32,3)}
 function chair(c,x,y){c.fillStyle='#6d6d6d';c.fillRect(x-14,y-26,28,5);c.fillRect(x-14,y-56,5,32);c.fillRect(x-12,y-22,4,22);c.fillRect(x+8,y-22,4,22)}
@@ -414,9 +425,9 @@ function drawMap(dt){
     c.save();c.shadowColor='rgba(40,30,10,.22)';c.shadowBlur=18;c.shadowOffsetY=6;c.fillStyle='#ece6db';c.beginPath();c.roundRect(0,ct,PW,PH-ct,14);c.fill();c.restore();
     c.save();c.beginPath();c.roundRect(0,ct,PW,PH-ct,14);c.clip();
     const cam=s.tr?s.tr.off*ease(Math.min(1,s.tr.u)):0,world=((R.world&&R.world[side])||0)+cam+(side==='town'?400:0);
-    const g=c.createLinearGradient(0,0,0,250);g.addColorStop(0,'#f7f3eb');g.addColorStop(1,'#e2dbcd');c.fillStyle=g;c.fillRect(0,0,PW,PH);
+    const se=season(),g=c.createLinearGradient(0,0,0,250);g.addColorStop(0,mix('#edeff3','#f9f3e6',se));g.addColorStop(1,mix('#d9dde3','#e6dcc9',se));c.fillStyle=g;c.fillRect(0,0,PW,PH);
     // a warm light that drifts a little with the camera
-    const lx=PW*0.5-((world*0.08)%120)+60,glow=c.createRadialGradient(lx,90,10,lx,90,300);glow.addColorStop(0,'rgba(255,236,196,.55)');glow.addColorStop(1,'rgba(255,236,196,0)');c.fillStyle=glow;c.fillRect(0,0,PW,PH);
+    const lx=PW*0.5-((world*0.08)%120)+60,glow=c.createRadialGradient(lx,90,10,lx,90,300);glow.addColorStop(0,'rgba(255,236,196,'+(0.2+0.4*se).toFixed(2)+')');glow.addColorStop(1,'rgba(255,236,196,0)');c.fillStyle=glow;c.fillRect(0,0,PW,PH);
     skyline(c,world*0.35);
     ground(c);
     let cap,capNext=null,u=0;
@@ -432,6 +443,7 @@ function drawMap(dt){
       cap=(SCENES[s.k]||SCENES.chain).cap(s.d||{});
     }
     // haze at both edges: scenes drift in and out of it rather than off a hard edge
+    snow(c,dt);
     for(const [x0,x1] of [[0,26],[PW,PW-26]]){const h=c.createLinearGradient(x0,0,x1,0);h.addColorStop(0,'rgba(236,230,219,.8)');h.addColorStop(1,'rgba(236,230,219,0)');c.fillStyle=h;c.fillRect(Math.min(x0,x1),0,26,PH)}
     // the pane's label, as a small pill
     const lab=side==='you'?'YOU':'THE TOWN';c.font='800 11px Inter,system-ui,sans-serif';const lw=c.measureText(lab).width+16;

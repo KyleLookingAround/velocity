@@ -771,6 +771,7 @@ const CARDS=[
 ];
 const tenantShare=()=>{const t=myHomes().filter(r=>!r.homeless&&!r.sheltered&&r.income>0);return t.length?t.reduce((a,r)=>a+r.rent/r.income,0)/t.length:0};
 const cardDef=id=>CARDS.find(c=>c.id===id);
+const cardKey=c=>c.rung+':'+c.id,cardRare=c=>c.cool>=1e6; // (a card that comes once in a life gets a gold star)
 const cardOptions=()=>{const c=G.card&&cardDef(G.card.id);return c?c.options(G.card.d||{}):[]};
 
 // each week: an urgent card at once, otherwise a new card every few months
@@ -797,6 +798,11 @@ function answerCard(k){
   // (charities take turns: one asks at most every two years)
   if(c.id.startsWith('gift-'))G.giftAsked=G.week;
   o.do();
+  // every kind of card is a collectable: the first time you answer one it's yours, on the ladder, across lives
+  const L=G.ladder,key=cardKey(c);L.cards=L.cards||{};const fresh=!L.cards[key];
+  if(fresh)L.cards[key]={title,k,label:o.label,week:G.week};else Object.assign(L.cards[key],{title,k,label:o.label});
+  R.lastCard={key,fresh,title};
+  if(fresh&&Object.keys(L.cards).length>=CARDS.length)award('m:deck');
   G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label});
   if(c.id.startsWith('gift-'))G.seenGifts[c.id.slice(5)]=true;
   if(G.choices.length>80)G.choices.shift();

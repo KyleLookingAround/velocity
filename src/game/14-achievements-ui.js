@@ -8,9 +8,24 @@ const RUNG_NAMES={billionaire:'Billionaire',landlord:'Landlord',partner:'Law fir
 function syncBest(){const l=G.ladder;l.achieved=l.achieved||{};for(const [r,k] of Object.entries(l.best||{}))if(ENDINGS[r]&&ENDINGS[r][k]&&!l.achieved[achId(r,k)])l.achieved[achId(r,k)]=1}
 const found=()=>(syncBest(),allAchievements()).filter(a=>G.ladder.achieved&&G.ladder.achieved[a.id]);
 function achSummary(){
-  const all=allAchievements(),n=found().length;
+  const all=allAchievements(),n=found().length,cards=Object.keys(G.ladder.cards||{}).length;
   return `<div class="card"><div class="txt"><b>Achievements</b><small>${n} of ${all.length} found${n<all.length?', some of them rare':''}</small></div>
-    <button class="act" data-ach="1">The ladder</button></div>`;
+    <button class="act" data-ach="1">The ladder</button></div>
+    <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${CARDS.length} collected: every kind of decision is one</small></div>
+    <button class="act" data-deck="1">The deck</button></div>`;
+}
+// the deck: every kind of card on each rung, collected ones face up with the answer you gave last
+function showDeck(){
+  syncBest();
+  const L=G.ladder.cards||{},total=CARDS.length,n=Object.keys(L).length;
+  const rows=RUNG_ORDER.map(r=>{const cs=CARDS.filter(c=>c.rung===r);if(!cs.length)return '';
+    const got=cs.filter(c=>L[cardKey(c)]).length,known=reached(r);
+    return `<div class="dsec"><div class="cap">${known?RUNG_NAMES[r]:'? ? ?'} \u00b7 ${got}/${cs.length}</div><div class="deck">${cs.map(c=>{const e=L[cardKey(c)],rare=cardRare(c);
+      return e?`<div class="dcard on${rare?' gold':''}"><i>\u2605</i><b>${e.title}</b><small>${e.label}</small></div>`:`<div class="dcard${rare?' gold':''}"><i>${rare?'\u2606':'?'}</i><b>${known?'Not yet':'? ? ?'}</b></div>`}).join('')}</div></div>`}).join('');
+  showModal(`<div class="ladhead"><h2>Your cards</h2><div class="score"><b>${n}</b> of ${total}</div></div><div class="bar big"><i style="width:${Math.round(n/total*100)}%"></i></div>
+    <p class="lead">Every kind of decision is a card. Answer it once and it\u2019s yours, on every life after. A gold star marks a card that comes once in a life.</p>
+    <div class="achlist">${rows}</div><div class="opts"><button class="main" data-close="1"><b>Back to the game</b></button></div>`);
+  $('#box').classList.add('wide');
 }
 // the ladder: down by money on the left, up by votes on the right, out of work at the foot. Each rung has a notch for
 // every ending (rare ones gold) and fills them as you find them; a rung never reached keeps its name hidden
@@ -74,7 +89,7 @@ $('#box').addEventListener('click',e=>{
       <p>A hero’s heir is a hero only by finishing richer than it started, having given away its share.</p>
       <div class="opts"><button class="main" data-start="1"><b>Start</b><small>40 years.</small></button></div>`)}
 });
-$('#pane').addEventListener('click',e=>{if(e.target.closest('[data-ach]'))showAchievements()});
+$('#pane').addEventListener('click',e=>{if(e.target.closest('[data-ach]'))showAchievements();if(e.target.closest('[data-deck]'))showDeck()});
 
 // the top bar's ladder chip (which rung you're on; it opens the ladder) and the thin bar of years through the rung
 const RUNG_ORDER=['billionaire','landlord','partner','shop','waiter','out','union','activist','mayor','governor','president'];

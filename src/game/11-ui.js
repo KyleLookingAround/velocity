@@ -126,7 +126,7 @@ function renderPane(force){
   for(const b of $('#tabs').children)b.classList.toggle('on',b.dataset.t===R.tab);
   const waiting=G.card&&R.tab!=='decide'?`<button class="waiting" data-t-go="decide"><span class="w"><b>A decision is waiting</b><span>${cardDef(G.card.id).title(G.card.d||{})}</span></span><i>Decide \u203a</i></button>`:'';
   // (the last answer's result stays in view for a few seconds, whichever tab you're on)
-  const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span></div>`:'';
+  const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span>${R.lastChoice.fresh?`<i class="newcard">\u2605 New card \u00b7 ${R.lastChoice.n} of ${CARDS.length}</i>`:''}</div>`:'';
   const html=R.tab==='decide'&&G.card?cardHTML():waiting+result+PANES[R.tab]();
   $('#sheet').classList.toggle('deciding',R.tab==='decide'&&!!G.card);
   if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
@@ -136,7 +136,9 @@ function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   // (the first decision ever explains itself, once)
   const tip=G.ladder.tipCard?'':`<div class="tip"><span>\u261d</span><span><b>The game waits for you.</b> Each choice shows what it does for you and for the town. The tagged one is the easy way. You can still look round the other tabs; this one brings you back.</span></div>`;
-  return `<div class="decide">${tip}<div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
+  const col=G.ladder.cards&&G.ladder.cards[cardKey(c)],rare=cardRare(c);
+  const star=`<span class="cstar${col?' on':''}${rare?' gold':''}" title="${col?'Collected':'Not yet collected'}${rare?' \u00b7 a card that comes once in a life':''}">${col?'\u2605':'\u2606'}</span>`;
+  return `<div class="decide">${tip}<div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}${star}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
     c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
@@ -181,7 +183,7 @@ const PANES={
 function onPaneClick(e){
   const go=e.target.closest('[data-t-go]');if(go){R.tab=go.dataset.tGo;renderPane(true);return}
   const k=e.target.closest('[data-card]'),g=e.target.closest('[data-gift]'),a=e.target.closest('[data-auto]');
-  if(k&&G.card){G.ladder.tipCard=true;const o=cardOptions().find(x=>x.k===k.dataset.card);if(o)R.lastChoice={label:o.label,town:o.town,at:performance.now()};answerCard(k.dataset.card);save();renderPane(true);refreshTop()}
+  if(k&&G.card){G.ladder.tipCard=true;const o=cardOptions().find(x=>x.k===k.dataset.card);answerCard(k.dataset.card);if(o)R.lastChoice={label:o.label,town:o.town,at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true);refreshTop()}
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
   if(a){G.autoAcct=!G.autoAcct;save();renderPane(true)}
   const pol=e.target.closest('[data-policy]');if(pol&&G.ll){G.ll.policy=pol.dataset.policy;save();renderPane(true)}
@@ -196,7 +198,9 @@ function drawChart(){
   const top=H-14,yOf=v=>H-(Math.max(0,v)/max)*top;
   // a faint guide at the top, and the start as a dashed line on every rung
   c.strokeStyle='#e6dfd2';c.lineWidth=1;c.beginPath();c.moveTo(0,H-top+0.5);c.lineTo(W,H-top+0.5);c.moveTo(0,H+0.5);c.lineTo(W,H+0.5);c.stroke();
-  c.fillStyle='#8a8478';c.font='600 11px system-ui';c.textAlign='left';c.fillText(money(max),2,H-top-4);
+  // (the scale's label sits on whichever side the latest bar isn't, so the two figures never overlap)
+  const nowX=(rows.length-1)*bw+bw/2;
+  c.fillStyle='#8a8478';c.font='600 11px system-ui';c.textAlign=nowX<W/2?'right':'left';c.fillText(money(max),nowX<W/2?W-2:2,H-top-4);
   const start=rows[0]?rows[0].v:0;
   if(start>0){const y0=yOf(start);c.strokeStyle='#b5ac9b';c.setLineDash([4,4]);c.beginPath();c.moveTo(0,y0);c.lineTo(W,y0);c.stroke();c.setLineDash([])}
   rows.forEach((y,i)=>{const now=i===rows.length-1,x=i*bw+Math.max(1,bw*0.12),w=Math.max(2,bw*0.76),yy=yOf(y.v),bh=Math.max(2,H-yy);

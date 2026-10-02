@@ -144,9 +144,22 @@ h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.1}
 #pane .waiting b{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--amber)}#pane .waiting .w span{font-size:13.5px;font-weight:700}
 #pane .waiting i{font-style:normal;flex:none;font-size:12.5px;font-weight:800;color:#fff;background:var(--amber);border-radius:999px;padding:5px 11px}
 /* ---------- a decision ---------- */
-.decide{animation:deal .32s var(--ease);counter-reset:opt}
+.cstar{margin-left:auto;font-size:19px;line-height:1;color:#c9c1b2;letter-spacing:0}
+.cstar.on{color:var(--gold);animation:pop .3s cubic-bezier(.2,.9,.25,1.1)}.cstar.gold:not(.on){color:#d8c48a}
+.result{flex-wrap:wrap}.result .newcard{display:block;width:100%;font-style:normal;color:var(--gold-ink);font-weight:800;font-size:12px;margin-top:1px}
+/* the deck */
+.dsec{margin:6px 0 12px}.dsec .cap{text-align:left;margin:0 0 6px}
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
+.dcard{position:relative;min-height:60px;border-radius:10px;border:1px solid var(--line-2);background:var(--paper-2);padding:7px 22px 6px 8px;font-size:11.5px;color:var(--faint);display:flex;flex-direction:column;gap:2px}
+.dcard b{font-family:var(--display);font-size:12.5px;line-height:1.15;font-weight:700}
+.dcard small{color:var(--muted);font-size:10.5px;line-height:1.2}
+.dcard i{position:absolute;right:6px;top:4px;font-style:normal;font-size:13px;color:#c4bcad}
+.dcard.on{background:var(--card);color:var(--ink);box-shadow:var(--sh-1)}.dcard.on i{color:var(--gold)}
+.dcard.gold{border-color:var(--gold-line)}.dcard.gold.on{background:linear-gradient(180deg,#fffdf8,#fbf3df)}
+
+.decide{position:relative;animation:deal .32s var(--ease);counter-reset:opt}
 @keyframes deal{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:none}}
-.decide .kicker{display:inline-flex;align-items:center;gap:6px;color:var(--amber)}
+.decide .kicker{display:flex;align-items:center;gap:6px;color:var(--amber)}
 .decide .kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 1.4s ease-in-out infinite}
 .decide h3{margin:3px 0 5px;font-size:21px}
 .decide p{margin:0 0 11px;font-size:13.5px;color:var(--ink-2);line-height:1.45}
@@ -217,7 +230,7 @@ h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.1}
 .ldetail b{font-family:var(--display);font-size:16px}
 .ldetail .found{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.ldetail small{display:block;color:var(--muted);font-size:12px}.ldetail small.note{color:var(--gold-ink);margin-top:3px}
 .pill{background:var(--green-soft);color:#24502f;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700}.pill.gold{background:var(--gold-soft);color:var(--gold-ink)}
-.medals{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:2px 0 4px}
+.medals{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:6px;margin:2px 0 4px}
 .medal{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;font-size:10.5px;color:var(--faint);line-height:1.2}
 .medal i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;background:var(--paper-2);border:2px dashed #c4bcad;color:var(--faint)}
 .medal.on{color:var(--ink)}.medal.on i{background:var(--gold);border:2px solid #b58a14;color:#fff}
