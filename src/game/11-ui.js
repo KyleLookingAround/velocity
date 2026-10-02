@@ -182,7 +182,7 @@ const PANES={
   story(){
     const list=G.choices.slice().reverse().slice(0,30);
     return achSummary()+threadsHTML()+advisersHTML()+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':c.rung==='governor'?'Governor':c.rung==='president'?'President':'Age '+(c.age||START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':c.rung==='governor'?'Governor':c.rung==='president'?'President':'Age '+(c.age||START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span>${c.alts&&c.alts.length?`<details><summary>What the other answers said</summary>${c.town?`<p class="took"><b>${c.label}</b> \u00b7 you: ${c.you} \u00b7 town: ${c.town}</p>`:''}${c.alts.map(a=>`<p><b>${a.label}</b> \u00b7 you: ${a.you} \u00b7 town: ${a.town}</p>`).join('')}</details>`:''}</div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
