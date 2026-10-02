@@ -19,8 +19,11 @@ for you and what it does to the town, and one is **your accountant's pick**: wha
 **Advisers** are the upgrades: achievements unlock them on the Story tab, and one at a time can run things for you.
 The accountant (1 achievement) takes the money option every time; the manager (2) handles only the yearly routine of
 prices, shifts, rents and levies and leaves the real decisions to you; the conscience (4) takes the kind option; your
-memory (7) answers each card the way you did last time and brings a new one to you; at 10, a 16× speed. Switch them
-off to decide everything yourself.
+memory (7) answers each card the way you did last time and brings a new one to you; at 10, a 16× speed. Each rung
+has its own adviser too, unlocked by that rung's best ending and playing for it on that rung only: the foundation
+director (gives what the fortune can carry, year by year), the managing agent, the clerk, the head waiter, the shop
+steward, the caseworker, the branch secretary, the campaign manager, the chief of staff, the state treasurer and the
+whip. Switch them off to decide everything yourself.
 
 The screen is a **stage** of two scenes, drawn like the video, one above the other on a phone and side by side on a
 wide screen: **you** (at your desk with the vault filling, signing a deed, shaking a senator's hand, loading the moving

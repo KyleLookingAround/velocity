@@ -16,10 +16,12 @@ function achSummary(){
 }
 // the advisers unlocked so far, one of them in charge or none; locked ones stay hidden, with the next one's price
 function advisersHTML(){
-  syncBest();const open=ADVISERS.filter(adviserOpen),next=ADVISERS.find(a=>!adviserOpen(a)),n=achCount();
-  return `<div class="card"><div class="txt"><b>Advisers</b><small>${open.length?open.length+' unlocked by your achievements. One can run things for you; switch them off to decide everything yourself.':'Achievements unlock advisers who can run things for you.'}${next?' Next: <b>'+next.name+'</b> at '+next.need+' achievement'+(next.need===1?'':'s')+' (you have '+n+').':''}</small></div></div>`+
-    open.map(a=>a.speed?`<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}</small></div><span class="kick">Unlocked</span></div>`:
-      `<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}</small></div><button class="toggle ${G.adviser===a.k?'on':''}" data-adv="${a.k}" aria-label="${a.name}" aria-pressed="${G.adviser===a.k}"></button></div>`).join('');
+  syncBest();const open=ADVISERS.filter(adviserOpen),next=ADVISERS.find(a=>!a.rung&&!adviserOpen(a)),n=achCount();
+  const here=ADVISERS.find(a=>a.rung===G.rung),hereOpen=here&&adviserOpen(here);
+  const row=a=>a.speed?`<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}</small></div><span class="kick">Unlocked</span></div>`:
+    `<div class="card"><div class="txt"><b>${a.name}${a.rung?' <span class="kick">'+RUNG_NAMES[a.rung]+'</span>':''}</b><small>${a.note()}</small></div><button class="toggle ${G.adviser===a.k?'on':''}" data-adv="${a.k}" aria-label="${a.name}" aria-pressed="${G.adviser===a.k}"></button></div>`;
+  return `<div class="card"><div class="txt"><b>Advisers</b><small>${open.length?open.length+' unlocked by your achievements. One can run things for you; switch them off to decide everything yourself.':'Achievements unlock advisers who can run things for you.'}${next?' Next: <b>'+next.name+'</b> at '+next.need+' achievement'+(next.need===1?'':'s')+' (you have '+n+').':''}${here&&!hereOpen?' This rung’s own adviser, <b>'+here.name+'</b>, comes with its best ending.':''}</small></div></div>`+
+    open.filter(a=>!a.rung).map(row).join('')+open.filter(a=>a.rung).sort((a,b)=>(a.rung===G.rung?0:1)-(b.rung===G.rung?0:1)).map(row).join('');
 }
 // the deck: every kind of card on each rung, collected ones face up with the answer you gave last
 function showDeck(){
