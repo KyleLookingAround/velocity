@@ -39,7 +39,7 @@ function canBuild(){return G.workshops.length<T.maxWorkshops&&G.cash>=T.workshop
 function build(){
   if(!canBuild())return false;
   G.cash-=T.workshopCost;const i=G.workshops.length;G.workshops.push({at:G.week});
-  let hired=0;for(const r of jobless()){if(hired>=T.workshopStaff)break;r.job='w'+i;hired++}
+  let hired=0;for(const r of hireable()){if(hired>=T.workshopStaff)break;r.job='w'+i;hired++}
   toast('Workshop '+(i+1)+' opens'+(hired?' and hires '+hired:''));
   return true;
 }

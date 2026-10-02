@@ -53,3 +53,17 @@ PANES.budget=function(){
     <div>Housing benefit<b>${w.benefit?(G.fund>0?'Claimed':'The purse is empty'):'Not claimed'}</b></div><div>Public purse<b>${money(G.fund||0)}</b></div>
     <div>Getting to work<b>${w.moved?'The bus':'On foot'}</b></div><div>Weeks behind on rent<b>${r.arrears}</b></div></div>`;
 };
+
+// out of work: the Days tab
+PANES.days=function(){
+  const o=G.ow,r=outMe(),wage=T.wage*grow(0.02);
+  const odds=Math.round(offerOdds()*100);
+  return `<p class="lead">Money here is one household\u2019s, in today\u2019s dollars.</p>
+    <div class="stats"><div>Savings<b>${hh(r.cash)}</b></div><div>Work<b>${r.job!=null?'A job':o.works?'Public works':o.gig?'Gig work':'None'}</b></div>
+    <div>Benefit<b>${o.benefit?(o.sanctioned>0?'Stopped, '+o.sanctioned+' weeks':G.fund>0?hh(wage*OW.benefit)+' a week':'The purse is empty'):'Not claimed'}</b></div>
+    <div>Public purse<b>${money(G.fund||0)}</b></div>
+    <div>Home<b>${r.homeless?(r.sheltered?'A shelter':'Sleeping rough'):'Renting from Agnes'}</b></div><div>Rent a week<b>${r.homeless?'\u2013':hh(r.rent)}</b></div>
+    <div>Health<b>${Math.round(o.health*100)}%</b></div><div>Chance of an offer<b>${odds}%</b></div>
+    <div>Trained<b>${o.trained?'Yes':o.course?'On a course':'No'}</b></div><div>Organising<b>${o.organised>=3?'Leading it':o.organised?'Started':'No'}</b></div>
+    <div>Food bank visits<b>${o.foodbank}</b></div><div></div></div>`;
+};

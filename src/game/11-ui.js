@@ -11,7 +11,7 @@ function buildChrome(){
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
-  const tabs=isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  const tabs=isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
@@ -19,7 +19,12 @@ const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
-  if(isWaiter()){
+  if(isOut()){
+    const o=G.ow,r=outMe();$('#nw').textContent=hh(r.cash);
+    $('#growth').innerHTML=r.job!=null?'<b>In work</b> again':(o.benefit&&o.sanctioned<=0&&G.fund>0?'on benefit':'no benefit')+(o.works?' · public works':'')+(o.gig?' · gig work':'');
+    $('#clock').innerHTML=`<b>${o.name}, ${age()}</b><br>Year ${yearNo()} of ${OW.years}`;
+    setMeter(1,'Health',Math.round(o.health*100)+'%');setMeter(2,'Home',r.homeless?(r.sheltered?'A shelter':'None'):'Renting');
+  }else if(isWaiter()){
     const w=G.wt,r=me();$('#nw').textContent=hh(waiterWorth());
     $('#growth').innerHTML=`pay <b>${hh(G.shops[CAFE].wage*WT.shift[w.shift]*(w.trained?WT.trainedPay:1))}</b> a week · rent ${hh(r.rent)}`;
     $('#clock').innerHTML=`<b>${w.name}, ${age()}</b><br>Year ${yearNo()} of ${WT.years}`;
@@ -62,7 +67,7 @@ function renderPane(force){
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   return `<div class="decide"><div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
-    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='waiter'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
+    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
 const PANES={
@@ -98,7 +103,7 @@ const PANES={
     const list=G.choices.slice().reverse().slice(0,30);
     return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes the way that makes the most money, without asking you.</small></div>
       <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
@@ -147,6 +152,13 @@ function showPartnerIntro(){
     <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
 }
+function showOutIntro(){
+  const o=G.ow,r=outMe();
+  showModal(`<h2>The bottom rung: out of work</h2><p>You are ${o.name}. ${r.homeless?'You have no job and nowhere to live.':'The café has let you go.'}</p>
+    <p>What the town can do for you depends on what\u2019s in its public purse: ${money(G.fund||0)}, from the taxes the rich paid. ${G.gifts.shelter?'A billionaire\u2019s foundation still pays for a shelter.':''}</p>
+    <p>Jobs come as offers, rarer when nobody\u2019s hiring and when you\u2019ve no address. Or you could organise the people around you.</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${OW.years} years.</small></button></div>`);
+}
 function showWaiterIntro(){
   const w=G.wt;
   showModal(`<h2>Step down: the waiter</h2><p>You are ${w.name}, and you wait tables at the café for ${hh(G.shops[CAFE].wage)} a week. Your rent to Agnes is ${hh(me().rent)} a week.</p>
@@ -161,14 +173,24 @@ function showShopIntro(){
 }
 function showEnding(){
   const e=G.ending;
+  if(e.rung==='out'){
+    const T0={feet:['Back on your feet','A job, and a door of your own.'],
+      organiser:['An organiser','You didn\u2019t climb out alone. You brought people with you.'],
+      stuck:['Still at the bottom','Five years, and the ladder\u2019s still out of reach.']}[e.kind];
+    return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p>
+      <p>${e.name}. ${e.job?'In work.':'Out of work.'} ${e.homeless?'Sleeping rough.':'Housed.'} The town\u2019s public purse has ${money(G.fund||0)} left.</p>
+      <p>This is the bottom of the ladder. The climb back up, by votes rather than money, starts with the <b>union organiser</b>. It isn\u2019t built yet.</p>
+      <div class="opts"><button class="main" data-replay5="1"><b>Live the bottom rung again</b><small>The same town, as you left it</small></button>
+      <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
+  }
   if(e.rung==='waiter'){
     const T0={ahead:['Getting ahead','You came out of it with something put by and nothing owed.'],
       by:['Getting by','Fifteen years of shifts, and you\u2019re still standing.'],
       evicted:['Evicted','You fell too far behind on the rent. You fall to the bottom rung: out of work.']}[e.kind];
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${hh(e.worth)}</div>
       <p>${e.name}, after ${Math.max(1,Math.round(e.week/WEEKS))} years. ${e.loan>0?'You still owe '+hh(e.loan)+'. ':''}${e.trained?'You finished the course. ':''}${e.union?'You stood with the union.':''}</p>
-      <p>Next: <b>Out of work</b>, the bottom rung. It isn\u2019t built yet.</p>
-      <div class="opts"><button class="main" data-replay4="1"><b>Be the waiter again</b><small>The same town, as Bea left it</small></button>
+      <div class="opts"><button class="main" data-rung="out"><b>Step down: out of work</b><small>The bottom rung, as ${e.name}</small></button>
+      <button data-replay4="1"><b>Be the waiter again</b><small>The same town, as Bea left it</small></button>
       <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   if(e.rung==='shop'){
@@ -223,6 +245,8 @@ $('#box').addEventListener('click',e=>{
   if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true)} // cosmetic
   if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
   if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
+  if(g&&g.dataset.rung==='out'){startOut();R.stage={};buildTabs();save();renderPane(true);showOutIntro()}
+  if(e.target.closest('[data-replay5]')){restartOut();R.stage={};buildTabs();save();renderPane(true);showOutIntro()}
   if(g&&g.dataset.rung==='waiter'){startWaiter();R.stage={};buildTabs();save();renderPane(true);showWaiterIntro()}
   if(e.target.closest('[data-replay4]')){restartWaiter();R.stage={};buildTabs();save();renderPane(true);showWaiterIntro()}
   if(g&&g.dataset.rung==='shop'){startShop();R.stage={};buildTabs();save();renderPane(true);showShopIntro()}

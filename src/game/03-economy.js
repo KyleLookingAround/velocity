@@ -65,8 +65,8 @@ function economyWeek(){
     const mpc=r.role==='owner'?T.mpc.mid:r.income>T.wage*1.4?T.mpc.mid:T.mpc.low;
     // (you, as the shop owner, live on what you take: your savings sit still)
     // (as the waiter, you spend less of each pound and keep your savings for a rainy day)
-    const you=isShop()&&r.name==='Bea'||isWaiter()&&r===me();
-    let s=Math.max(0,(r.income-rent)*(isWaiter()&&r===me()?0.82:mpc))+r.cash*(you?0.002:T.savingsDraw);
+    const worker=isWaiter()&&r===me()||isOut()&&r===outMe(),you=isShop()&&r.name==='Bea'||worker;
+    let s=Math.max(0,(r.income-rent)*(worker?0.82:mpc))+r.cash*(you?0.002:T.savingsDraw);
     if(r.homeless)s=Math.min(s,T.povertyLine*0.5);
     s=Math.min(s,Math.max(0,r.cash));r.cash-=s;r.spent=s;
     for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],r['to_'+c]=s*CAT_SHARE[c];
@@ -115,14 +115,14 @@ function staffing(){
     const staff=staffOf(i),wages=staff.reduce((a,r)=>a+wageFor(r,s.wage),0)+(s.ownedByYou?0:T.ownerWage);
     const profit=s.rev*(1-T.supplies)-wages;
     s.profitAvg=s.profitAvg*0.9+profit*0.1;
-    if(s.profitAvg>s.wage*0.55&&staff.length<SHOP_DEF[i].max){s.goodWeeks++;if(s.goodWeeks>=6){const j=jobless()[0];if(j){j.job=i;s.goodWeeks=0}}}else s.goodWeeks=0;
+    if(s.profitAvg>s.wage*0.55&&staff.length<SHOP_DEF[i].max){s.goodWeeks++;if(s.goodWeeks>=6){const j=hireable()[0];if(j){j.job=i;s.goodWeeks=0}}}else s.goodWeeks=0;
     if(s.cash<-3*s.wage){
       if(staff.length){staff[staff.length-1].job=null;s.cash+=s.wage}
       else if(s.cash<-8*s.wage)closeShop(i);
     }
   });
 }
-function staffWorkshops(){G.workshops.forEach((w,i)=>{const n=G.res.filter(r=>r.job==='w'+i).length;if(n<T.workshopStaff){const j=jobless()[0];if(j)j.job='w'+i}})}
+function staffWorkshops(){G.workshops.forEach((w,i)=>{const n=G.res.filter(r=>r.job==='w'+i).length;if(n<T.workshopStaff){const j=hireable()[0];if(j)j.job='w'+i}})}
 function closeShop(i){
   if(isShop()&&i===CAFE)return endLife('closed');
   const s=G.shops[i];s.open=false;
@@ -135,7 +135,7 @@ function closeShop(i){
 function reopenShops(){
   G.shops.forEach((s,i)=>{
     if(s.open)return;
-    const j=jobless()[0];if(!j)return;
+    const j=hireable()[0];if(!j)return;
     const spend=G.res.reduce((a,r)=>a+r.spent,0)*CAT_SHARE[s.cat]*(1-CAT_LEAK[s.cat]);
     if(spend*(1-T.supplies)>T.ownerWage*1.3){s.open=true;s.cash=4000*HH;s.owner=G.res.indexOf(j);j.role='owner';j.shop=i;s.profitAvg=0;toast(s.name+' reopens under '+j.name)}
   });

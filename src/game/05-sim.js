@@ -40,10 +40,13 @@ function yearEnd(){
   G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
   if(isLandlord()){landlordYearEnd();if(G.ending)return}
   if(isPartner()){partnerYearEnd();if(G.ending)return}
-  if(isShop()||isWaiter()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
+  if(isShop()||isWaiter()||isOut()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
   if(isShop()){shopYearEnd();if(G.ending)return}
   if(isWaiter()){waiterYearEnd();if(G.ending)return}
+  if(isOut()){outYearEnd();if(G.ending)return}
   reopenShops();
+  // the purse holds at most two years of the whole town's wages: beyond that the town can't spend it
+  G.fund=Math.min(G.fund||0,T.wage*grow(0.02)*G.res.length*WEEKS*2);
   const y=G.year,stock=y.stock/Math.max(1,y.weeks);
   G.lastGiftCost=y.gc||{};
   G.history.push({year:yearNo()-1,nw:netWorth(),cash:G.cash,given:y.given,gains:y.gains,vel:stock>0?y.tx/stock:0,unrest:G.unrest,
@@ -74,11 +77,17 @@ function answerTax(choice){
 // purse does no more than that; benefits draw on it too)
 function fundWeek(){
   if(!(G.fund>0))return;
-  for(const r of jobless()){const w=Math.min(G.fund,T.wage*grow(0.02)*0.8);if(w<=0)break;G.fund-=w;r.income+=0;r.cash+=pay('out','r'+G.res.indexOf(r),w,'works')}
+  for(const r of hireable()){const w=Math.min(G.fund,T.wage*grow(0.02)*0.8);if(w<=0)break;G.fund-=w;r.income+=0;r.cash+=pay('out','r'+G.res.indexOf(r),w,'works')}
 }
 
 function endLife(kind){
   if(G.ending)return;
+  if(isOut()){
+    const v=kind==='death'?outVerdict():{kind};const r=outMe();
+    G.ending={rung:'out',kind:v.kind,week:rungWeek(),name:G.ow.name,job:r.job!=null,homeless:r.homeless&&!r.sheltered,organised:G.ow.organised,cash:r.cash,unrest:G.unrest};
+    G.ladder.best=Object.assign({},G.ladder.best,{out:G.ending.kind});
+    return;
+  }
   if(isWaiter()){
     const v=kind==='death'?waiterVerdict():{kind};
     G.ending={rung:'waiter',kind:v.kind,week:rungWeek(),worth:waiterWorth(),loan:G.wt.loan,health:G.wt.health,trained:G.wt.trained,union:G.wt.union,name:G.wt.name,unrest:G.unrest};
@@ -120,6 +129,7 @@ function step(){
   if(isLandlord()){landlordWeek();if(G.ending)return}
   if(isShop()){shopWeek();if(G.ending)return}
   if(isWaiter()){waiterWeek();if(G.ending)return}
+  if(isOut()){outWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
   G._nw=nw;G._yv=G.year.given;

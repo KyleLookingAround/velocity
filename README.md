@@ -26,8 +26,8 @@ scene and the camera follows them: the figure on the right of one scene is the f
 
 ## The ladder
 
-The game is a ladder of roles, one per rung: down by money, back up by votes. Four rungs are built; each starts in
-the town the last one left.
+The game is a ladder of roles, one per rung: down by money, back up by votes. The whole way down is built, six rungs;
+each starts in the town the last one left, and the climb back up is next.
 
 - **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
@@ -48,6 +48,17 @@ the town the last one left.
   buy you out; late on, investors may offer to make you a **founder**: the shortcut straight back to a billionaire
   life, which changes nothing. Endings: **pillar of the high street**, **kept the lights on**, **closed**, **sold**,
   or **founder**.
+- **The waiter** (15 years): you play one of the café's staff, on whatever Bea paid, renting from Agnes. Each year you
+  choose your shifts (extra shifts pay, and wear your health down); when you're short there's a payday lender; the
+  union organises and later strikes; evening classes cost now and pay later. Endings: **getting ahead**, **getting
+  by**, or **evicted**.
+- **Out of work** (5 years), the bottom rung: the same person, now out of work (and homeless, if evicted). Benefits,
+  public works and job-centre courses are paid from the **public purse**, which is filled by the taxes the rich paid
+  (and emptied by any loopholes the partner wrote); gig work pays and wears you down; job offers come rarer with no
+  address. Endings: **back on your feet**, **organiser** (the start of the climb), or **stuck**.
+
+**Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
+it would be at the start of the game: a century of the ladder inflates every price.
 
 ## Building and checking
 
@@ -59,7 +70,9 @@ the town the last one left.
   in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair. Then
   three partners in the towns those landlords leave: always the accountant → hired gun, always the town → counsel,
   75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the accountant's
-  prices, pay and supplies without selling → closed.
+  prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding → evicted)
+  and three people out of work (organising → organiser, scrambling for work → back on your feet, taking nothing →
+  stuck).
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, and the landlord.
 - `npm run check` runs all three.
