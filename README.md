@@ -279,7 +279,7 @@ Saves stay on the device.
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
   first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.
 - `npm run check` runs all three. On GitHub, the Checks workflow runs on every pull request and every push to `main`:
-  each bot group and the screenshots are parallel jobs, and a `check` job passes only when all of them do. A newer
+  each bot group and each screen size's screenshots are parallel jobs, and a `check` job passes only when all of them do. A newer
   push cancels the older run.
 
 Changes ship as pull requests (a branch, the Checks green, then a squash merge), as `CLAUDE.md` describes.
