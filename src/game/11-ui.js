@@ -88,19 +88,21 @@ function renderPane(force){
   $('#sheet').classList.toggle('deciding',!!G.card);$('#app').classList.toggle('deciding',!!G.card);
   for(const b of $('#tabs').children)b.classList.toggle('on',!G.card&&b.dataset.t===R.tab);
   const html=G.card?cardHTML():PANES[R.tab]();
-  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
+  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
 }
 // the decision card: what's happened, and each option's cost to you and to the town
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
-  return `<div class="decide"><div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
+  // (the first decision ever explains itself, once)
+  const tip=G.ladder.tipCard?'':`<div class="tip"><span>\u261d</span><span><b>The game waits for you.</b> Each choice shows what it does for you and for the town. The tagged one is the easy way; the others change the town.</span></div>`;
+  return `<div class="decide">${tip}<div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
     c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
 const PANES={
   fortune(){
     const share=G.gains>0?Math.round(G.given/G.gains*100):0;
-    return `<p class="lead">Each bar is a year of your fortune. The dark strip under it is what you gave away.</p><canvas id="chart"></canvas>
+    return `<p class="lead">Each bar is a year of your fortune. The gold strip under it is what you gave away; the dashed line is where you started.</p><canvas id="chart"></canvas>
       <div class="stats" style="margin-top:8px"><div>Worth now<b>${money(netWorth())}</b></div><div>Invested<b>${money(G.cash)}</b></div>
       <div>Homes owned<b>${homesOwned()} of 19</b></div><div>Shops owned<b>${shopsOwned()} of 4</b></div>
       <div>Given so far<b>${money(G.given)}</b></div><div>Share of gains<b>${share}%</b></div>
@@ -112,7 +114,8 @@ const PANES={
     let s=`<p class="lead">Gifts you've been asked for can be started or stopped here at any time. They come out of your fortune every week.</p>`;
     s+=seen.length?seen.map(g=>`<div class="card"><div class="txt"><b>${g.name}</b><small>${g.note}</small><small>${G.gifts[g.k]?(cost[g.k]?'Cost you '+money(cost[g.k])+' last year':'Started this year'):'About '+money(giftEstimate(g.k))+' a year'}</small><small class="real">${g.real}</small></div>
       <button class="toggle ${G.gifts[g.k]?'on':''}" data-gift="${g.k}" aria-label="${g.name}" aria-pressed="${G.gifts[g.k]}"></button></div>`).join(''):'<p class="lead">Nobody has asked you for anything yet.</p>';
-    const own=[homesOwned()&&homesOwned()+' figures’ homes',shopsOwned()&&shopsOwned()+' shops',G.workshops.length&&G.workshops.length+' workshops'].filter(Boolean);
+    const n=(k,one,many)=>k&&k+' '+(k===1?one:many);
+    const own=[n(homesOwned(),'street of homes','streets of homes'),n(shopsOwned(),'shop','shops'),n(G.workshops.filter(w=>!w.outside).length,'workshop','workshops')].filter(Boolean);
     if(own.length)s+=`<div class="sum">You own ${own.join(', ')}.</div>`;
     return s;
   },
@@ -135,7 +138,7 @@ const PANES={
 };
 function onPaneClick(e){
   const k=e.target.closest('[data-card]'),g=e.target.closest('[data-gift]'),a=e.target.closest('[data-auto]');
-  if(k&&G.card){answerCard(k.dataset.card);save();renderPane(true);refreshTop()}
+  if(k&&G.card){G.ladder.tipCard=true;answerCard(k.dataset.card);save();renderPane(true);refreshTop()}
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
   if(a){G.autoAcct=!G.autoAcct;save();renderPane(true)}
 }
@@ -146,23 +149,39 @@ function drawChart(){
   const L=isLandlord()||isShop(),P=isPartner()||isShop()||isWaiter(),n=rungYears()+1,W=r.width,H=r.height-18,bw=W/n;
   const rows=isWaiter()?G.wt.history.map(y=>({v:(y.cash-y.loan)/HH/grow(0.02)})).concat([{v:waiterWorth()/HH/grow(0.02)}]):isShop()?G.sh.history.map(y=>({v:y.worth})).concat([{v:shopWorth()}]):P?G.pt.history.map(y=>({v:y.worth})).concat([{v:ptWorth()}]):L?G.ll.history.map(y=>({v:y.equity})).concat([{v:equity()}]):G.history.map(y=>({v:y.nw,g:y.given})).concat([{v:netWorth(),g:G.year.given}]);
   const max=Math.max(isWaiter()?100:isShop()?G.sh.startWorth:P?1e6:L?G.ll.startEquity:START_FORTUNE*1.2,...rows.map(y=>Math.abs(y.v)),1);
-  c.fillStyle='#888';c.font='11px system-ui';c.textAlign='left';c.fillText(money(max),2,10);
-  rows.forEach((y,i)=>{const bh=Math.max(1,(Math.max(0,y.v)/max)*(H-14));for(let k=0;k<bh;k+=4){c.fillStyle=k%8?'#5aa86b':'#4c9a5d';c.fillRect(i*bw+1,H-k-3,bw-2,3)}
-    if(y.g>0){c.fillStyle='#235f33';c.fillRect(i*bw+1,H+2,bw-2,Math.min(12,2+y.g/max*400))}});
-  if(L){const y0=H-((isShop()?G.sh.startWorth:G.ll.startEquity)/max)*(H-14);c.strokeStyle='#999';c.setLineDash([4,4]);c.beginPath();c.moveTo(0,y0);c.lineTo(W,y0);c.stroke();c.setLineDash([])}
-  c.fillStyle='#666';c.textAlign='center';c.fillText(L||P?'year 1':'age 40',bw*2.5,H+16);c.fillText(L||P?String(rungYears()):'80',W-bw,H+16);
+  const top=H-14,yOf=v=>H-(Math.max(0,v)/max)*top;
+  // a faint guide at the top, and the start as a dashed line on every rung
+  c.strokeStyle='#e6dfd2';c.lineWidth=1;c.beginPath();c.moveTo(0,H-top+0.5);c.lineTo(W,H-top+0.5);c.moveTo(0,H+0.5);c.lineTo(W,H+0.5);c.stroke();
+  c.fillStyle='#8a8478';c.font='600 11px system-ui';c.textAlign='left';c.fillText(money(max),2,H-top-4);
+  const start=rows[0]?rows[0].v:0;
+  if(start>0){const y0=yOf(start);c.strokeStyle='#b5ac9b';c.setLineDash([4,4]);c.beginPath();c.moveTo(0,y0);c.lineTo(W,y0);c.stroke();c.setLineDash([])}
+  rows.forEach((y,i)=>{const now=i===rows.length-1,x=i*bw+Math.max(1,bw*0.12),w=Math.max(2,bw*0.76),yy=yOf(y.v),bh=Math.max(2,H-yy);
+    const g=c.createLinearGradient(0,yy,0,H);g.addColorStop(0,now?'#2f7a44':'#5ca56d');g.addColorStop(1,now?'#3c8a50':'#8cc497');c.fillStyle=g;
+    c.beginPath();c.roundRect(x,yy,w,bh,[Math.min(4,w/2),Math.min(4,w/2),0,0]);c.fill();
+    if(y.v<0){c.fillStyle='#b23a3a';c.fillRect(x,H-3,w,3)}
+    if(y.g>0){c.fillStyle='#d4a72c';c.fillRect(x,H+2,w,Math.min(10,2+y.g/max*400))}
+    if(now&&rows.length>1){c.fillStyle='#1c1b18';c.font='700 11px system-ui';c.textAlign=x+w/2>W-40?'right':'center';c.fillText(money(y.v),Math.min(W-2,x+w/2),Math.max(10,yy-5))}});
+  c.fillStyle='#8a8478';c.font='11px system-ui';c.textAlign='left';c.fillText(L||P?'year 1':'age 40',2,H+16);c.textAlign='right';c.fillText(L||P?String(rungYears()):'80',W-2,H+16);
 }
 
 // the cards that open and close a rung
 // (an ending sits low, so its scene stays in view above it)
-function showModal(html,low){$('#box').innerHTML=html;$('#modal').classList.toggle('low',!!low);$('#modal').classList.add('show')}
+function showModal(html,low){$('#box').className='';$('#box').innerHTML=html;$('#modal').classList.toggle('low',!!low);$('#modal').classList.add('show')}
 function hideModal(){$('#modal').classList.remove('show')}
+// the first screen: four short points, each with its picture, and the start
+const ICONS={
+  you:'<svg viewBox="0 0 40 40"><rect x="13" y="3" width="14" height="9" rx="1"/><rect x="10" y="11" width="20" height="2"/><circle cx="20" cy="17" r="5"/><rect x="14" y="22" width="12" height="11" rx="3"/><rect x="15" y="32" width="4" height="7"/><rect x="21" y="32" width="4" height="7"/></svg>',
+  town:'<svg viewBox="0 0 40 40"><path d="M3 20 12 12 21 20V36H3Z"/><path d="M19 22 28 14 37 22V36H19Z" opacity=".55"/><rect x="9" y="27" width="5" height="9" fill="#fff"/></svg>',
+  card:'<svg viewBox="0 0 40 40"><rect x="7" y="5" width="26" height="31" rx="4"/><rect x="12" y="12" width="16" height="3" fill="#fff"/><rect x="12" y="19" width="12" height="3" fill="#fff" opacity=".7"/><rect x="12" y="26" width="14" height="3" fill="#fff" opacity=".7"/></svg>',
+  ladder:'<svg viewBox="0 0 40 40"><rect x="9" y="3" width="4" height="34" rx="2"/><rect x="27" y="3" width="4" height="34" rx="2"/><rect x="11" y="9" width="18" height="3"/><rect x="11" y="18" width="18" height="3"/><rect x="11" y="27" width="18" height="3"/></svg>'};
 function showIntro(){
-  showModal(`<h2>Money Makes Money</h2><p>You have <b>$30 million</b>. It earns 8% a year while you do nothing.</p>
-    <p>Every few months someone will want something from you: a deal, a donation, a vote. Your accountant will always say what pays best.</p>
-    <p>On the left you'll see what you do. On the right, what it does to the town.</p>
-    <p>This is the top rung of a ladder. Each life steps down a rung, then climbs back up by votes. The ladder button keeps every ending you find.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You're 40. You have 40 years.</small></button></div>`);
+  const row=(i,b,t)=>`<div class="step"><span class="ico ${i}">${ICONS[i]}</span><div><b>${b}</b><span>${t}</span></div></div>`;
+  showModal(`<div class="hero"><small>A game about where money goes</small><h2>Money Makes Money</h2></div>
+    <div class="steps">${row('you','You have $30 million','It earns 8% a year while you do nothing.')}
+    ${row('town','Below you, a town','Every dollar you keep is one that stops moving down there. Watch what it does.')}
+    ${row('card','People want things from you','Deals, donations, votes. The game waits while you choose; your accountant always knows what pays.')}
+    ${row('ladder','A ladder of lives','Each life steps down a rung, then climbs back up by votes. Every ending you find is kept.')}</div>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You\u2019re 40. You have 40 years.</small></button></div>`);
 }
 function showLandlordIntro(){
   const from=G.ladder.from,mine=myHomes().length,estate=G.res.filter(r=>r.homeOwner==='you').length;

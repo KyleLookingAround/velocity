@@ -54,6 +54,7 @@ function showEnding(){
   showEndingCore();
   const e=G.ending,box=$('#box');if(!e)return;
   const rare=e.rare&&(RARE[e.rung]||[]).find(r=>r.k===e.rare);
+  box.querySelector('h2').insertAdjacentHTML('beforebegin',`<small class="kick">The end \u00b7 ${RUNG_NAMES[e.rung]}${e.heir?' (heir)':''}</small>`);box.classList.add('ending');
   if(rare){box.querySelector('h2').innerHTML=rare.name+'<span class="rare">Rare</span>';const p=box.querySelector('h2+p');if(p)p.textContent=rare.note+'.'}
   const opts=box.querySelector('.opts');
   // this rung's notches, so the card shows what's left to find here
@@ -82,6 +83,7 @@ function topExtras(){
   const n=RUNG_ORDER.indexOf(G.rung)+1,got=G.ladder.achieved?Object.keys(G.ladder.achieved).length:0;
   const txt=`<b>${RUNG_NAMES[G.rung]}${G.heir?' (heir)':''}</b><span>Rung ${n} of 11 \u00b7 ${got} found</span><em>${n}/11</em>`;
   if(chip.innerHTML!==txt)chip.innerHTML=txt;
+  $('#speed').classList.toggle('paused',G.speed===0&&!G.card&&!G.ending);
   $('#yearbar').style.width=Math.min(100,rungWeek()/Math.max(1,rungWeeks())*100)+'%';
 }
 $('#lad').addEventListener('click',()=>{if(!$('#modal').classList.contains('show'))showAchievements()});

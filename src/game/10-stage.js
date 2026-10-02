@@ -57,7 +57,7 @@ function bill(c,x,y,r,a){c.save();c.translate(x,y);c.rotate(r||0);c.globalAlpha=
 // a bill flying from (x0,y0) to (x1,y1) over u in [0,1], arcing up
 function flyBill(c,x0,y0,x1,y1,u,lift){if(u<0||u>1)return;const x=x0+(x1-x0)*u,y=y0+(y1-y0)*u-Math.sin(u*Math.PI)*(lift??40);bill(c,x,y,u*4,Math.min(1,(1-u)*5))}
 function stack(c,x,y,n){for(let i=0;i<n;i++){c.fillStyle=i%2?GREEN2:GREEN;c.fillRect(x-16,y-4-i*4,32,4)}}
-function ground(c){c.fillStyle='#d2d2d2';c.fillRect(0,250,PW,50)}
+function ground(c){c.fillStyle='#d6cfc1';c.fillRect(0,250,PW,50);c.fillStyle='rgba(120,100,70,.12)';c.fillRect(0,250,PW,2)}
 function desk(c,x,y){c.fillStyle='#8f8f8f';c.fillRect(x-40,y-34,80,6);c.fillRect(x-36,y-28,5,28);c.fillRect(x+31,y-28,5,28)}
 function laptop(c,x,y){c.fillStyle='#5b5b5b';c.fillRect(x-12,y-50,24,16);c.fillRect(x-16,y-35,32,3)}
 function chair(c,x,y){c.fillStyle='#6d6d6d';c.fillRect(x-14,y-26,28,5);c.fillRect(x-14,y-56,5,32);c.fillRect(x-12,y-22,4,22);c.fillRect(x+8,y-22,4,22)}
@@ -354,8 +354,8 @@ function queueScenes(you,town,d){
 // A scene slides out as the next slides in, like the video's camera panning across the map. Half the time someone walks
 // up to the edge of the scene as it ends, and the camera follows them: they stand at the far edge of the next scene, so
 // the figure on the right of one scene is the figure on the left of the next (or the other way round).
-const TR=0.9,WALK_IN=1.4,AL=34,AR=446;
-const ease=u=>u<0.5?2*u*u:1-2*(1-u)*(1-u);
+const TR=1.25,WALK_IN=1.4,AL=34,AR=446;
+const ease=u=>u<0.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
 function nextScene(side){
   if(side==='you')return {k:G.ending?endingScene():idleScene(),d:{}};
   return {k:G.ending?endingTown():R.townQ.length?R.townQ.shift():pickTownScene(),d:{}};
@@ -363,7 +363,7 @@ function nextScene(side){
 function advanceStage(side,dt){
   let s=R.stage[side];
   if(!s)s=R.stage[side]=Object.assign(nextScene(side),{t:0});
-  if(s.tr){s.tr.u+=dt/TR;if(s.tr.u>=1)s=R.stage[side]=s.tr.to;return s}
+  if(s.tr){s.tr.u+=dt/TR;if(s.tr.u>=1){R.world=R.world||{};R.world[side]=(R.world[side]||0)+s.tr.off;s=R.stage[side]=s.tr.to}return s}
   s.t+=dt;
   if(s.pend===undefined&&(s.t>=SCENE_SECS-WALK_IN||s.next))s.pend=Math.random()<0.5?(Math.random()<0.5?1:-1):0; // cosmetic
   if(s.t>=SCENE_SECS||s.next){
@@ -379,31 +379,60 @@ function drawWalker(c,s){
   if(!s.pend)return;const u=Math.min(1,(s.t-(SCENE_SECS-WALK_IN))/WALK_IN);if(u<0)return;
   const x=s.pend>0?PW+40+(AR-PW-40)*u:-40+(AL+40)*u;person(c,x,250,{pose:u<1?'walk':'stand',t:s.t*2,dir:s.pend>0?-1:1});
 }
+// the far town behind every scene: rooftops, chimneys and trees, drawn faint and panned slower than the scene, so the
+// camera seems to travel through one long town rather than cut between pictures
+function skyline(c,x0){
+  c.fillStyle='rgba(150,138,118,.13)';
+  const W=900,start=Math.floor(x0/W)-1;
+  for(let n=start;n<start+3;n++){const bx=n*W-x0;
+    for(let k=0;k<12;k++){const r=((n*12+k)*2654435761>>>0)%1000/1000,w=50+r*40,h=40+((r*7)%1)*70,x=bx+k*75;
+      if(r<0.3){c.beginPath();c.arc(x+30,214-h*0.4,22+r*20,0,7);c.fill();c.fillRect(x+27,214-h*0.4,6,h*0.4+40)}
+      else{c.fillRect(x,250-h-36,w,h+36);if(r>0.7)c.fillRect(x+w*0.6,250-h-52,8,18);
+        if(r>0.5&&r<0.7){c.beginPath();c.moveTo(x-4,250-h-36);c.lineTo(x+w/2,250-h-60);c.lineTo(x+w+4,250-h-36);c.fill()}}}}
+}
+// a scene's caption, sized to stay readable on a phone, fading as the next one arrives
+function caption(c,text,a,dy){
+  const k=V.k/V.dpr,size=Math.max(13,Math.min(19,12.5/k)),h=size*2.2;
+  c.save();c.globalAlpha=a;
+  c.fillStyle='rgba(251,249,245,.86)';c.fillRect(0,PH-h,PW,h);
+  const t=text.length>64?text.slice(0,62)+'\u2026':text;
+  txt(c,t,PW/2,PH-h/2+size*0.36+dy,size,'#24211c',700);c.restore();
+}
 function drawMap(dt){
   if(!V.panes.length)fitMap();
   const c=ctx;
-  c.setTransform(1,0,0,1,0,0);c.fillStyle='#bdbdbd';c.fillRect(0,0,cv.width,cv.height);
+  c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,cv.width,cv.height);
   for(const side of ['you','town']){
     const s=advanceStage(side,dt);
     const [ox,oy]=V.panes[side==='you'?0:1];
     c.setTransform(V.k,0,0,V.k,ox,oy);
-    c.save();c.beginPath();c.roundRect(0,0,PW,PH,10);c.clip();
-    const g=c.createRadialGradient(PW/2,PH/2,40,PW/2,PH/2,PW*0.7);g.addColorStop(0,'#ececec');g.addColorStop(1,'#c4c4c4');c.fillStyle=g;c.fillRect(0,0,PW,PH);
+    // the pane: a soft shadow under it, then everything clipped to its rounded corners
+    c.save();c.shadowColor='rgba(40,30,10,.22)';c.shadowBlur=18;c.shadowOffsetY=6;c.fillStyle='#ece6db';c.beginPath();c.roundRect(0,0,PW,PH,14);c.fill();c.restore();
+    c.save();c.beginPath();c.roundRect(0,0,PW,PH,14);c.clip();
+    const cam=s.tr?s.tr.off*ease(Math.min(1,s.tr.u)):0,world=((R.world&&R.world[side])||0)+cam+(side==='town'?400:0);
+    const g=c.createLinearGradient(0,0,0,250);g.addColorStop(0,'#f7f3eb');g.addColorStop(1,'#e2dbcd');c.fillStyle=g;c.fillRect(0,0,PW,PH);
+    // a warm light that drifts a little with the camera
+    const lx=PW*0.5-((world*0.08)%120)+60,glow=c.createRadialGradient(lx,90,10,lx,90,300);glow.addColorStop(0,'rgba(255,236,196,.55)');glow.addColorStop(1,'rgba(255,236,196,0)');c.fillStyle=glow;c.fillRect(0,0,PW,PH);
+    skyline(c,world*0.35);
     ground(c);
-    let cap;
+    let cap,capNext=null,u=0;
     if(s.tr){
-      const cam=s.tr.off*ease(Math.min(1,s.tr.u));
+      u=ease(Math.min(1,s.tr.u));
       c.save();c.translate(-cam,0);drawScene(c,s,1);c.restore();
       c.save();c.translate(s.tr.off-cam,0);drawScene(c,s.tr.to,0);c.restore();
       // the walker stays put in the world as the camera follows them across
       if(s.tr.dir)person(c,(s.tr.dir>0?AR:AL)-cam,250,{pose:'walk',t:s.tr.u*2,dir:s.tr.dir>0?-1:1});
-      cap=(SCENES[s.tr.to.k]||SCENES.chain).cap(s.tr.to.d||{});
+      cap=(SCENES[s.k]||SCENES.chain).cap(s.d||{});capNext=(SCENES[s.tr.to.k]||SCENES.chain).cap(s.tr.to.d||{});
     }else{
       drawScene(c,s,Math.min(1,s.t/SCENE_SECS));drawWalker(c,s);
       cap=(SCENES[s.k]||SCENES.chain).cap(s.d||{});
     }
-    txt(c,side==='you'?'YOU':'THE TOWN',14,22,11,'#888',800,'left');
-    c.fillStyle='rgba(255,255,255,.75)';c.fillRect(0,PH-30,PW,30);txt(c,cap.length>64?cap.slice(0,62)+'…':cap,PW/2,PH-11,13,'#222',700);
+    // haze at both edges: scenes drift in and out of it rather than off a hard edge
+    for(const [x0,x1] of [[0,26],[PW,PW-26]]){const h=c.createLinearGradient(x0,0,x1,0);h.addColorStop(0,'rgba(236,230,219,.8)');h.addColorStop(1,'rgba(236,230,219,0)');c.fillStyle=h;c.fillRect(Math.min(x0,x1),0,26,PH)}
+    // the pane's label, as a small pill
+    const lab=side==='you'?'YOU':'THE TOWN';c.font='800 11px system-ui,sans-serif';const lw=c.measureText(lab).width+16;
+    c.fillStyle=side==='you'?'rgba(28,27,24,.82)':'rgba(60,138,80,.9)';c.beginPath();c.roundRect(10,10,lw,20,10);c.fill();txt(c,lab,10+lw/2,24,11,'#fff',800);
+    if(capNext){caption(c,cap,1-u,-u*4);caption(c,capNext,u,(1-u)*4)}else caption(c,cap,1,0);
     c.restore();
   }
 }
