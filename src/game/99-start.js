@@ -5,7 +5,7 @@ const WEEK_SECS=2.3;
 function start(){
   if(!load())newGame();
   buildChrome();fitMap();refreshTop();renderPane(true);
-  if(!G.seen.intro)showIntro();else if(isLandlord()&&!G.seen.landlord&&!G.ending)showLandlordIntro();else if(isPartner()&&!G.seen.partner&&!G.ending)showPartnerIntro();else if(isShop()&&!G.seen.shop&&!G.ending)showShopIntro();else if(G.ending)showEnding();
+  if(!G.seen.intro)showIntro();else if(isLandlord()&&!G.seen.landlord&&!G.ending)showLandlordIntro();else if(isPartner()&&!G.seen.partner&&!G.ending)showPartnerIntro();else if(isShop()&&!G.seen.shop&&!G.ending)showShopIntro();else if(isWaiter()&&!G.seen.waiter&&!G.ending)showWaiterIntro();else if(G.ending)showEnding();
   let last=performance.now(),acc=0,ui=0,autoT=0;
   function frame(now){
     const dt=Math.min(0.1,(now-last)/1000);last=now;

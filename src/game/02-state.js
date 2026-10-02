@@ -12,7 +12,7 @@ const FIELDS={
   speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false,
   card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], borrowed:()=>false, senator:()=>false,
   arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
-  aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false,
+  aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false,
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
 };
 const DEFAULT=()=>{const s={};for(const k in FIELDS)s[k]=FIELDS[k]();return s};
@@ -25,9 +25,16 @@ function money(v){
   const s=v<0?'−':'';v=Math.abs(v);
   if(v>=1e9)return s+'$'+(v/1e9).toFixed(v>=1e10?1:2)+'B';
   if(v>=1e6)return s+'$'+(v/1e6).toFixed(v>=1e8?0:1)+'M';
-  if(v>=1e3)return s+'$'+Math.round(v/1e3)+'k';
+  if(v>=1e5)return s+'$'+Math.round(v/1e3)+'k';
+  if(v>=1e3)return s+'$'+Math.round(v).toLocaleString('en-GB');
   return s+'$'+Math.round(v);
 }
+// no rent falls below 40% of what the town's rent would be, however many times it's cut
+const rentFloor=()=>T.rent*grow(0.03)*0.4;
+const cutRent=(r,f)=>{r.rent=Math.max(rentFloor(),r.rent*f)};
+// one household's share of an amount, in today's dollars: a century of the ladder inflates every price, so the
+// household-sized rungs show money as it would be at the start
+const hh=v=>money(v/HH/grow(0.02));
 function emptyYear(){return {gains:0,given:0,tx:0,stock:0,weeks:0,megastore:0,toYou:0}}
 
 // twenty figures: the local landlord, four shop owners, the mill's six, five shop staff, two out of work and two retirees
@@ -55,7 +62,7 @@ const jobless=()=>G.res.filter(r=>r.role==='worker'&&r.job==null);
 const homesOwned=()=>G.res.filter(r=>r.homeOwner==='you').length;
 const shopsOwned=()=>G.shops.filter(s=>s.ownedByYou).length;
 const age=()=>START_AGE+Math.floor((G.week-(G.rungStart||0))/WEEKS);
-const rungYears=()=>G.rung==='billionaire'?END_AGE-START_AGE:20;
+const rungYears=()=>G.rung==='billionaire'?END_AGE-START_AGE:G.rung==='waiter'?15:20;
 const yearNo=()=>Math.min(Math.floor((G.week-(G.rungStart||0))/WEEKS)+1,rungYears());
 // what you're worth: the invested fortune, the homes at today's price and the shops and workshops at their price
 function netWorth(){

@@ -59,12 +59,14 @@ function economyWeek(){
       else if(mine){G.ll.year.lost+=rent;if(r.grace>G.week)r.owed=(r.owed||0)+rent;else{r.arrears++;if(r.arrears>=6&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}}
       // (as the partner: Agnes evicts when the computer says so, sooner if you work for her, and the tenant may ask you first)
       else if(isPartner()&&r.homeOwner==='local'){r.arrears++;if(r.arrears>=Math.max(4,G.aiLandlord.evictAt-2*G.pt.evictionWork)&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}
-      else{r.arrears++;if(r.arrears>=6)evict(r)}
+      else{r.arrears++;if(r.arrears>=(r.homeOwner==='local'&&G.aiLandlord&&G.rung!=='billionaire'?G.aiLandlord.evictAt:6))evict(r)}
     }
     if(r.debt>0){if(gifts.medical){giveOut(r.debt,'medical',i);r.debt=0}else{const p=Math.min(r.debt,T.medicalPay,Math.max(0,r.cash*0.5));r.debt-=p;r.cash-=pay(id,'out',p,'debt')}}
     const mpc=r.role==='owner'?T.mpc.mid:r.income>T.wage*1.4?T.mpc.mid:T.mpc.low;
     // (you, as the shop owner, live on what you take: your savings sit still)
-    let s=Math.max(0,(r.income-rent)*mpc)+r.cash*(isShop()&&r.name==='Bea'?0.0005:T.savingsDraw);
+    // (as the waiter, you spend less of each pound and keep your savings for a rainy day)
+    const you=isShop()&&r.name==='Bea'||isWaiter()&&r===me();
+    let s=Math.max(0,(r.income-rent)*(isWaiter()&&r===me()?0.82:mpc))+r.cash*(you?0.002:T.savingsDraw);
     if(r.homeless)s=Math.min(s,T.povertyLine*0.5);
     s=Math.min(s,Math.max(0,r.cash));r.cash-=s;r.spent=s;
     for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],r['to_'+c]=s*CAT_SHARE[c];
@@ -96,7 +98,7 @@ function economyWeek(){
   let stock=0;for(const r of res)if(r.role!=='landlord')stock+=Math.max(0,r.cash);for(const s of G.shops)if(s.open)stock+=Math.max(0,s.cash);
   G.year.stock+=stock;G.year.weeks++;
 }
-const wageFor=(r,w)=>r.parent&&!G.gifts.childcare?w*T.partTime:w;
+const wageFor=(r,w)=>waiterWage(r,r.parent&&!G.gifts.childcare?w*T.partTime:w);
 
 function evict(r){
   r.arrears=0;townEvent('evicted',r.name);

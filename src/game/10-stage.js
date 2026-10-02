@@ -168,6 +168,23 @@ const SCENES={
   supplier:{cap:()=>G.sh&&G.sh.supply==='local'?'Supplies from the store in town':'Supplies from the megastore',draw(c,t){
     const local=G.sh&&G.sh.supply==='local';counter(c,120,250);person(c,100,250,{});truck(c,PW+60-Math.min(1,t*1.5)*250,250,local?'DEE\u2019S STORE':'MEGASTORE');
     for(let k=0;k<3;k++)flyBill(c,130,190,local?260:PW+30,local?190:90,loopT(t+k/3,1),30)}},
+  waiting:{cap:()=>'Waiting tables: '+hh(G.shops[CAFE].wage)+' a week',draw(c,t){
+    c.fillStyle='#8f8f8f';for(const x of [120,320]){c.fillRect(x-32,214,64,5);c.fillRect(x-2,219,4,31)}
+    person(c,90,250,{pose:'sit',col:'#444'});person(c,150,250,{pose:'sit',dir:-1,col:'#333'});person(c,350,250,{pose:'sit',dir:-1,col:'#444'});
+    const u=loopT(t,1),x=u<0.5?180+u*2*100:280-(u-0.5)*2*100;person(c,x,250,{pose:'give',t:t*6,dir:u<0.5?1:-1});c.fillStyle='#fff';c.fillRect(x+(u<0.5?18:-26),190,10,3)}},
+  nightshift:{cap:()=>'An extra shift, after closing',draw(c,t){
+    c.fillStyle='#9a9aa6';c.fillRect(0,0,PW,250);c.fillStyle='#f3f3d6';c.beginPath();c.arc(410,60,20,0,7);c.fill();
+    c.fillStyle='#8f8f8f';c.fillRect(288,214,64,5);c.fillRect(318,219,4,31);const x=140+Math.sin(t*Math.PI*4)*30;person(c,x,250,{pose:'hammer',t});
+    c.strokeStyle='#555';c.lineWidth=3;c.beginPath();c.moveTo(x+16,200);c.lineTo(x+34,250);c.stroke()}},
+  lender:{cap:()=>'The payday lender: '+Math.round(WT.loanRate*100*52)+'% a year',draw(c,t){
+    building(c,330,250,'LOANS',150);c.fillStyle='#c9a227';c.fillRect(290,140,80,14);person(c,330,250,{dir:-1,col:'#333',hat:true});
+    person(c,180,250,{pose:t<0.5?'raise':'stand'});for(let k=0;k<3;k++)flyBill(c,320,190,190,190,loopT(t+k/3,1),20)}},
+  classes:{cap:()=>'Evening classes',draw(c,t){
+    c.fillStyle='#4f5b52';c.fillRect(300,110,150,80);txt(c,'A + B',375,158,18,'#eee',700);person(c,420,250,{dir:-1,col:'#333',pose:'raise'});
+    for(let k=0;k<3;k++){c.fillStyle='#8f8f8f';c.fillRect(70+k*70,220,44,5);person(c,80+k*70,250,{pose:'sit',col:k===1?INK:'#555'})}}},
+  jobcentre:{cap:()=>'The benefits office',draw(c,t){
+    building(c,330,250,'BENEFITS',160);person(c,330,250,{dir:-1,col:'#555'});const u=Math.min(1,t*1.6);
+    person(c,80+u*150,250,{pose:u<1?'walk':'stand',t:t*6});if(u>=1)for(let k=0;k<3;k++)flyBill(c,320,190,240,190,loopT(t+k/3,1),20)}},
   // ---- endings ----
   bunker:{cap:()=>'Your bunker. Very rich, and very alone',draw(c,t){
     c.fillStyle='#8a8a8a';c.beginPath();c.ellipse(240,250,170,70,0,Math.PI,0);c.fill();c.fillStyle='#6d6d6d';c.fillRect(215,200,50,50);
@@ -251,11 +268,11 @@ function pickTownScene(){
   for(const [k,v] of pool){r-=v;if(r<=0)return k}return 'chain';
 }
 // what you do between decisions: a few scenes per role, never the same one twice running
-const IDLE={billionaire:['desk','yacht','golf'],landlord:['rentbook','collect'],partner:['office','weekend'],shop:['cafe','staff']};
+const IDLE={billionaire:['desk','yacht','golf'],landlord:['rentbook','collect'],partner:['office','weekend'],shop:['cafe','staff'],waiter:['waiting','waiting','nightshift']};
 const idleScene=()=>{const o=IDLE[G.rung]||['desk'],last=R.stage.you&&R.stage.you.k;const pool=o.filter(k=>k!==last);return pool[Math.floor(Math.random()*pool.length)]||o[0]}; // cosmetic
 // what an ending looks like, on each side
-const endingScene=()=>({hero:'cheer',luthor:'bunker',revolt:'mob',fair:'cheer',rentier:'rentbook',bankrupt:'repo',hiredgun:'loophole',counsel:'court',burnout:'weekend',pillar:'cafe',tightfisted:'cafe',closed:'closed',sold:'handshake',founder:'ribbon'})[G.ending.kind]||idleScene();
-const endingTown=()=>({hero:'chain',luthor:'tents',revolt:'protest',fair:'calm',rentier:'rentrise',bankrupt:'evicted',hiredgun:'rentrise',counsel:'chain',burnout:'calm',pillar:'chain',tightfisted:'rentrise',closed:'laidoff',sold:'laidoff',founder:'megastore'})[G.ending.kind]||'chain';
+const endingScene=()=>({hero:'cheer',luthor:'bunker',revolt:'mob',fair:'cheer',rentier:'rentbook',bankrupt:'repo',hiredgun:'loophole',counsel:'court',burnout:'weekend',pillar:'cafe',tightfisted:'cafe',closed:'closed',sold:'handshake',founder:'ribbon',ahead:'classes',by:'waiting',evicted:'evicted'})[G.ending.kind]||idleScene();
+const endingTown=()=>({hero:'chain',luthor:'tents',revolt:'protest',fair:'calm',rentier:'rentrise',bankrupt:'evicted',hiredgun:'rentrise',counsel:'chain',burnout:'calm',pillar:'chain',tightfisted:'rentrise',closed:'laidoff',sold:'laidoff',founder:'megastore',ahead:'chain',by:'rentrise',evicted:'tents'})[G.ending.kind]||'chain';
 // a decision plays its scene on your side and its consequence on the town's, next, ahead of anything else
 function queueScenes(you,town,d){
   const put=(side,k)=>{const s=R.stage[side];const n={k,d};if(!s)R.stage[side]={k,d,t:0};else if(s.tr)s.tr.to.next=n;else s.next=n};

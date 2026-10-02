@@ -27,7 +27,7 @@ const unrestLevel=u=>u<30?'calm':u<55?'grumbling':u<70?'protests':u<T.revoltAt?'
 
 // the end of each game year: rents and pay rise, home prices grow, and the year goes into the history
 function yearEnd(){
-  for(const r of G.res){if(r.homeOwner==='local')r.rent*=1+(isLandlord()?G.ll.rentChange:isPartner()?G.aiLandlord.rise:T.rentRise);else if(r.homeOwner==='you')r.rent*=1+T.yourRentRise}
+  for(const r of G.res){if(r.homeOwner==='local')cutRent(r,1+(isLandlord()?G.ll.rentChange:G.rung!=='billionaire'&&G.aiLandlord?G.aiLandlord.rise:T.rentRise));else if(r.homeOwner==='you')r.rent*=1+T.yourRentRise}
   for(const s of G.shops)if(s.open&&s.profitAvg>0)s.wage*=1+T.wageRise;
   // home prices follow rents (only what the town could pay counts) and the market's mood, which sours when the town
   // strikes or its jobs go, and rises as the rich buy up homes
@@ -40,7 +40,9 @@ function yearEnd(){
   G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
   if(isLandlord()){landlordYearEnd();if(G.ending)return}
   if(isPartner()){partnerYearEnd();if(G.ending)return}
+  if(isShop()||isWaiter()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
   if(isShop()){shopYearEnd();if(G.ending)return}
+  if(isWaiter()){waiterYearEnd();if(G.ending)return}
   reopenShops();
   const y=G.year,stock=y.stock/Math.max(1,y.weeks);
   G.lastGiftCost=y.gc||{};
@@ -68,16 +70,21 @@ function answerTax(choice){
   G.cash-=t.amount;G.taxPaid+=t.amount;G.fund=(G.fund||0)+t.amount;G.anger=(G.anger||0)-15;
   toast('You pay. The town spends it on public works');return 'paid';
 }
-// the tax pays for public works: a share each week is paid as wages to figures out of work, and to everyone else
+// the public purse pays for public works: a wage each week for every figure out of work, while it has money (a full
+// purse does no more than that; benefits draw on it too)
 function fundWeek(){
   if(!(G.fund>0))return;
-  const spend=Math.min(G.fund,Math.max(G.fund/104,T.wage*2));G.fund-=spend;
-  const out=jobless(),to=out.length?out:G.res.filter(r=>r.role!=='landlord');
-  to.forEach(r=>{const i=G.res.indexOf(r);r.cash+=pay('out','r'+i,spend/to.length,'works')});
+  for(const r of jobless()){const w=Math.min(G.fund,T.wage*grow(0.02)*0.8);if(w<=0)break;G.fund-=w;r.income+=0;r.cash+=pay('out','r'+G.res.indexOf(r),w,'works')}
 }
 
 function endLife(kind){
   if(G.ending)return;
+  if(isWaiter()){
+    const v=kind==='death'?waiterVerdict():{kind};
+    G.ending={rung:'waiter',kind:v.kind,week:rungWeek(),worth:waiterWorth(),loan:G.wt.loan,health:G.wt.health,trained:G.wt.trained,union:G.wt.union,name:G.wt.name,unrest:G.unrest};
+    G.ladder.best=Object.assign({},G.ladder.best,{waiter:G.ending.kind});
+    return;
+  }
   if(isShop()){
     const v=kind==='death'?shopVerdict():{kind};
     G.ending={rung:'shop',kind:v.kind,week:rungWeek(),worth:shopWorth(),start:G.sh.startWorth,pay:G.sh.payYears,supply:G.sh.supply,unrest:G.unrest,staff:staffOf(CAFE).length};
@@ -112,6 +119,7 @@ function step(){
   if(G.cash<0&&Object.values(G.gifts).some(Boolean)){for(const k in G.gifts)G.gifts[k]=false;toast(isLandlord()?'The foundation has run out of money':'Your fortune can\u2019t pay for the gifts any more. They\u2019ve stopped')}
   if(isLandlord()){landlordWeek();if(G.ending)return}
   if(isShop()){shopWeek();if(G.ending)return}
+  if(isWaiter()){waiterWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
   G._nw=nw;G._yv=G.year.given;

@@ -17,6 +17,9 @@
 //   pillar  (always the generous option)                                  -> pillar of the high street
 //   seller  (always the accountant: sells to the estate when it can)      -> sold
 //   squeeze (the accountant's prices, pay and supplies, but never sells)  -> closed: squeezing drives the customers off
+// Then the waiter, in the town a pillar shop owner leaves (after passive / fair / counsel):
+//   careful (fewer shifts when worn, the union, evening classes, never a payday loan) -> getting ahead
+//   grind   (extra shifts, payday loans, skips care: what pays most this week)        -> evicted
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
@@ -51,6 +54,9 @@ const ptRows=[];
 const SHOP={pillar:S=>opt(S,o=>o.kind),seller:S=>opt(S,o=>o.acct),squeeze:S=>opt(S,o=>o.acct&&o.k!=='sell'&&o.k!=='found')};
 const shWant={pillar:'pillar',seller:'sold',squeeze:'closed'};
 const shRows=[];
+const WAITER={careful:S=>S.G.card.id==='shifts'?(S.G.wt.health<0.6?'fewer':'regular'):opt(S,o=>o.kind),grind:S=>opt(S,o=>o.acct)};
+const wtWant={careful:'ahead',grind:'evicted'};
+const wtRows=[];
 const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}}
@@ -83,5 +89,11 @@ for(const seed of [1,2,3])for(const [sname,spick] of Object.entries(SHOP)){
   const e=S.G.ending,ok=e.kind===shWant[sname];if(!ok)bad++;
   shRows.push({seed,shop:sname,ending:e.kind,years:Math.floor(e.week/52),worth:'$'+(e.worth/1e6).toFixed(1)+'M',start:'$'+(e.start/1e6).toFixed(1)+'M',staff:e.staff,unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
 }
-console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);
+for(const seed of [1,2,3])for(const [wname,wpick] of Object.entries(WAITER)){
+  const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
+  S.startWaiter();live(S,wpick);
+  const e=S.G.ending,ok=e.kind===wtWant[wname];if(!ok)bad++;
+  wtRows.push({seed,waiter:wname,name:e.name,ending:e.kind,years:Math.floor(e.week/52),saved:'$'+Math.round(e.worth/S.HH),owes:'$'+Math.round(e.loan/S.HH),health:Math.round(e.health*100)+'%',trained:e.trained,ok:ok?'yes':'NO'});
+}
+console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

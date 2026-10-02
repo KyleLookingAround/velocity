@@ -12,9 +12,9 @@ Object.assign(PANES,{
       <p class="lead" style="margin-top:8px">The bank calls in the loan if it grows past what the homes are worth, and takes them if you miss three months of payments.</p>`;
   },
   tenants(){
-    const rows=myHomes().map(r=>{const st=r.homeless?'Evicted, sleeping rough':r.sheltered?'Evicted, in a shelter':r.owed>0?'Owes '+money(r.owed/HH):r.arrears?r.arrears+' weeks behind':'Paying';
+    const rows=myHomes().map(r=>{const st=r.homeless?'Evicted, sleeping rough':r.sheltered?'Evicted, in a shelter':r.owed>0?'Owes '+hh(r.owed):r.arrears?r.arrears+' weeks behind':'Paying';
       const share=r.income>0?Math.round(r.rent/r.income*100)+'% of income':'no income';
-      return `<div class="card"><div class="txt"><b>${r.name}</b><small>Rent ${money(r.rent/HH)} a week · ${share}</small><small>${st}</small></div></div>`}).join('');
+      return `<div class="card"><div class="txt"><b>${r.name}</b><small>Rent ${hh(r.rent)} a week · ${share}</small><small>${st}</small></div></div>`}).join('');
     return `<p class="lead">Your tenants, ${HH} households each.</p>`+(rows||'<p class="lead">You have no tenants. The estate may offer you homes.</p>');
   },
 });
@@ -39,4 +39,17 @@ PANES.cafe=function(){
     <div>Prices<b>${pct(sh.price-1)} on the start</b></div><div>Pay<b>${{minimum:'The minimum',standard:'The going rate',living:'A living wage'}[sh.pay]}</b></div>
     <div>Supplies<b>${sh.supply==='local'?'The local store':'The megastore'}</b></div><div>Staff<b>${staffOf(CAFE).map(r=>r.name).join(', ')||'None'}</b></div>
     <div>Café cash<b>${money(s.cash)}</b></div><div>Your savings<b>${money(bea().cash)}</b></div></div>`;
+};
+
+// the waiter's Budget tab (per household)
+PANES.budget=function(){
+  const w=G.wt,r=me(),pay=G.shops[CAFE].wage*WT.shift[w.shift]*(w.trained?WT.trainedPay:1);
+  return `<p class="lead">Each bar is a year of your savings, less what you owe. Money here is one household\u2019s, in today\u2019s dollars.</p><canvas id="chart"></canvas>
+    <div class="stats" style="margin-top:8px"><div>Pay a week<b>${hh(pay)}</b></div><div>Rent a week<b>${hh(r.rent)}</b></div>
+    <div>Rent takes<b>${Math.round(r.rent/Math.max(1,pay)*100)}% of pay</b></div><div>Shifts<b>${{fewer:'Fewer',regular:'Regular',extra:'Extra'}[w.shift]}</b></div>
+    <div>Savings<b>${hh(r.cash)}</b></div><div>Payday loan<b>${hh(w.loan)}</b></div>
+    <div>Health<b>${Math.round(w.health*100)}%</b></div><div>Medical debt<b>${hh(r.debt)}</b></div>
+    <div>Union<b>${w.union?'A member':'No'}</b></div><div>Classes<b>${w.trained?'Finished':w.classes?Math.ceil(w.classes/WEEKS)+' years to go':'No'}</b></div>
+    <div>Housing benefit<b>${w.benefit?(G.fund>0?'Claimed':'The purse is empty'):'Not claimed'}</b></div><div>Public purse<b>${money(G.fund||0)}</b></div>
+    <div>Getting to work<b>${w.moved?'The bus':'On foot'}</b></div><div>Weeks behind on rent<b>${r.arrears}</b></div></div>`;
 };
