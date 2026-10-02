@@ -31,7 +31,7 @@ function beginPresident(kind){
   r.job='president';r.homeless=false;r.sheltered=false;r.arrears=0;
   G.pub=G.pub||{};
   G.pr={i,name:r.name,approval:kind==='newdeal'?0.56:kind==='dealmaker'?0.5:0.52,congress:kind==='newdeal'?0.5:0.45,
-    bill:null,billStart:0,passed:[],failed:[],lobby:0,struck:[],elections:[],history:[]};
+    loop:!!(G.ladder.laws&&Object.keys(G.ladder.laws).length),bill:null,billStart:0,passed:[],failed:[],lobby:0,struck:[],elections:[],history:[]};
   G.seen.president=false;
   toast('You are '+r.name+', president');
 }

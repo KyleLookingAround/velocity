@@ -89,7 +89,8 @@ function fundWeek(){
   for(const r of hireable()){const w=Math.min(G.fund,T.wage*grow(0.02)*0.8);if(w<=0)break;G.fund-=w;r.income+=0;r.cash+=pay('out','r'+G.res.indexOf(r),w,'works')}
 }
 
-function endLife(kind){
+// (endLife, in the achievements file, wraps this: it awards the ending and its rare form)
+function endLifeCore(kind){
   if(G.ending)return;
   if(isPresident()){
     const v=kind==='death'?presidentVerdict():{kind};const p=G.pr;
@@ -155,9 +156,9 @@ function endLife(kind){
   }
   if(kind==='death'){
     const share=G.given/Math.max(1,G.gains);
-    kind=share>=T.heroGiveShare&&netWorth()>=START_FORTUNE&&G.unrest<50?'hero':'luthor';
+    kind=share>=T.heroGiveShare&&netWorth()>=(G.startNW||START_FORTUNE)&&G.unrest<50?'hero':'luthor';
   }
-  G.ending={rung:'billionaire',kind,week:G.week,nw:netWorth(),given:G.given,gains:G.gains,unrest:G.unrest};
+  G.ending={rung:'billionaire',kind,week:rungWeek(),heir:G.heir||0,start:G.startNW||START_FORTUNE,nw:netWorth(),given:G.given,gains:G.gains,unrest:G.unrest};
   G.ladder.unlocked=Object.assign({},G.ladder.unlocked,{landlord:true});G.ladder.best=Object.assign({},G.ladder.best,{billionaire:kind});
 }
 
@@ -191,4 +192,4 @@ function step(){
 function toast(t){R.toasts.push({t,week:G.week});if(R.toasts.length>6)R.toasts.shift()}
 // a new billionaire life keeps the ladder: what you've unlocked and how each rung ended
 // (and the laws a president passed: a billionaire in that country pays the taxes, and its purse pays the programmes)
-function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder){G.ladder=ladder;if(ladder.laws)G.pub=Object.assign({},ladder.laws)}R.flows=[];R.toasts=[]}
+function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder){G.ladder=ladder;if(ladder.laws&&Object.keys(ladder.laws).length){G.pub=Object.assign({},ladder.laws);award('m:country')}}R.flows=[];R.toasts=[]}

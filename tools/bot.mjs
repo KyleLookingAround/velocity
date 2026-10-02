@@ -100,7 +100,8 @@ const PRESIDENT={rebuilt:S=>opt(S,o=>o.kind),lobbied:S=>opt(S,o=>o.acct),gridloc
 const prRows=[];
 const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
-function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}}
+const rares=new Set();
+function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}if(S.G.ending.rare)rares.add(S.G.ending.rung+':'+S.G.ending.rare)}
 const showYears=process.argv.includes('--years');
 let bad=0;const rows=[],llRows=[];
 for(const [name,pick] of Object.entries(BILLIONAIRE))for(const seed of [1,2,3]){
@@ -192,5 +193,13 @@ for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
   }
   if(hits<2){bad++;prRows.push({president:pname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
 }
+// the rare role: a hero's heir lives a second billionaire life in the same town, and is judged against what it inherited
+const heirRows=[];
+for(const seed of [1,2,3]){
+  const S=loadSim(seed);live(S,BILLIONAIRE.hero,yearly.hero);if(S.G.ending.kind!=='hero')continue;
+  S.startHeir();const start=S.netWorth();live(S,BILLIONAIRE.hero,yearly.hero);const e=S.G.ending,ok=!!e&&e.heir===1&&S.G.ladder.achieved['m:heir'];if(!ok)bad++;
+  heirRows.push({seed,inherited:'$'+(start/1e6).toFixed(0)+'M',ending:e.kind,rare:e.rare||'',worth:'$'+(e.nw/1e6).toFixed(0)+'M',ok:ok?'yes':'NO'});
+}
 console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);console.table(myRows);console.table(gvRows);console.table(prRows);
+console.table(heirRows);console.log('rare endings reached: '+([...rares].sort().join(', ')||'none'));
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

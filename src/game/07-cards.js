@@ -523,7 +523,7 @@ function answerCard(k){
   const o=c.options(G.card.d||{}).find(o=>o.k===k);if(!o)return;
   const title=c.title(G.card.d||{});G.card=null;G.cool[c.id]=G.week;
   o.do();
-  G.choices.push({week:G.week,rung:G.rung,id:c.id,k,title,label:o.label});
+  G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label});
   if(c.id.startsWith('gift-'))G.seenGifts[c.id.slice(5)]=true;
   if(G.choices.length>80)G.choices.shift();
   if(!R.sim)queueScenes(o.scene,o.then,{title,label:o.label});
