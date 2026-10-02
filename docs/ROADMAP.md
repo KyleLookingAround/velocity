@@ -74,7 +74,8 @@ sessions). The owner decides what moves up.
 - **Why did that happen** (S): tap any number in the header to see the three things that moved it this year.
 - **Glossary chips** (S): buy-borrow-die, step-up, velocity: a tap on the word opens a one-line explanation with the
   video's framing.
-- **Accessibility** (S): reduced-motion mode (no parallax, no walkers), larger text setting, full keyboard play.
+- ~~**Accessibility** (S): reduced-motion mode (no parallax, no walkers), larger text setting, full keyboard play.~~ Done:
+  the calm stage, larger text, and keys for every action.
 
 ## 7. Platform
 

@@ -44,8 +44,10 @@ Around the stage: a **header** with your number and how fast it is really growin
 gifts, rents and taxes all show), who you are and how far through the rung you are (tap it for the ladder), and the town's state as chips that explain themselves when tapped; a **transport bar** with pause, speed and
 roughly when the next decision is due; and a **panel** of tabs for your role, the town and the story so far. A waiting
 decision gets a tab of its own and the others stay open while you think; after you answer, the result stays in view
-for a moment. On a phone the chevron in the transport bar gives the panel more of the screen. On a keyboard, space
-pauses, 1 to 4 set the speed or pick an answer, and Escape closes the ladder.
+for a moment. On a phone the chevron in the transport bar gives the panel more of the screen. The whole game plays from
+a keyboard: space pauses, 1 to 5 pick an answer (or set the speed when no decision waits), the left and right arrows
+change tab, Enter takes a pop-up's main answer, Escape closes the ladder or the deck, and ? lists the keys. Tab moves
+through the buttons, with a gold outline on the one in focus.
 
 **Pacing.** At most two decisions a year, half a year apart, on every rung: the yearly review (rent, hours, prices,
 shifts, the levy, the minimum wage) counts as one of them (the vote that ends a campaign you started doesn't), a kind of card you haven't seen on a rung comes up sooner
