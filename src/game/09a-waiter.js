@@ -39,7 +39,8 @@ function beginWaiter(kind){
 function waiterWage(r,w){
   if(!isWaiter()||r!==me())return w;
   const sick=G.wt.health<0.3&&rnd()<(0.3-G.wt.health)*2;
-  return sick?0:w*WT.shift[G.wt.shift]*(G.wt.trained?WT.trainedPay:1)*(G.wt.super?1.15:1)*(G.wt.cityPay?1.2:1);
+  // (a café its staff own shares its profit: a tenth more)
+  return sick?0:w*WT.shift[G.wt.shift]*(G.wt.trained?WT.trainedPay:1)*(G.wt.super?1.15:1)*(G.wt.cityPay?1.2:1)*(G.sh&&G.sh.coop?1.1:1);
 }
 // a week of your own costs: the loan's interest, union dues, the bus if you moved out, evening classes; and your health
 function waiterWeek(){

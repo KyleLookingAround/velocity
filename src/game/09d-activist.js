@@ -33,7 +33,7 @@ function beginActivist(kind){
   r.job='activist';r.homeless=false;r.sheltered=false;r.arrears=0;
   G.pub=G.pub||{};
   // the town remembers how the union ended: a union that won brings people with it, one that sold out costs trust
-  G.ac={i,name:r.name,support:kind==='fairpay'?0.4:kind==='soldout'?0.22:0.3,funds:0,campaign:null,campaignStart:0,
+  G.ac={i,name:r.name,support:(kind==='fairpay'?0.4:kind==='soldout'?0.22:0.3)+threadSupport(),funds:0,campaign:null,campaignStart:0,
     passed:[],lost:[],donor:false,arrests:0,granted:0,base:0,history:[]};
   G.seen.activist=false;
   toast('You are '+r.name+', campaigning for the whole town');

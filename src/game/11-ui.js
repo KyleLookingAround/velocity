@@ -178,7 +178,7 @@ const PANES={
   },
   story(){
     const list=G.choices.slice().reverse().slice(0,30);
-    return achSummary()+advisersHTML()+
+    return achSummary()+threadsHTML()+advisersHTML()+
       (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':c.rung==='governor'?'Governor':c.rung==='president'?'President':'Age '+(c.age||START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
@@ -231,12 +231,18 @@ function showIntro(){
 }
 // a rung's opening card: its place on the ladder, the role's picture, the story, and the endings still to find there
 const RUNG_TAB={billionaire:'fortune',landlord:'books',partner:'career',shop:'cafe',waiter:'budget',out:'days',union:'union',activist:'campaign',mayor:'hall',governor:'state',president:'congress'};
+// the town as earlier lives left it, and what its people remember, on a rung's intro card
+function townSoFarHTML(){
+  const places=townSoFar(),ts=threadLines((G.threads||[]).filter(t=>t.rung!==G.rung).slice(-12)).slice(0,4);
+  if(!places.length&&!ts.length)return '';
+  return `<div class="sofar">${places.length?'<p><b>The town, as you left it:</b> '+places.join('; ')+'.</p>':''}${ts.length?'<p><b>People remember.</b> '+ts.join('. ')+'.</p>':''}</div>`;
+}
 function introWrap(rung,title,body,years){
   const n=RUNG_ORDER.indexOf(rung)+1,ach=G.ladder.achieved||{};
   const ends=Object.keys(ENDINGS[rung]).map(k=>[achId(rung,k),ENDINGS[rung][k],0]),rares=(RARE[rung]||[]).map(x=>[achId(rung,x.k),x.name,1]);
   const notch=([id,name,r])=>`<i class="${r?'gold ':''}${ach[id]?'on':''}" title="${ach[id]?name:'?'}"></i>`,got=[...ends,...rares].filter(([id])=>ach[id]);
   return `<div class="ihead"><span class="ico ${RUNG_TAB[rung]}">${TAB_ICONS[RUNG_TAB[rung]]||''}</span><div><small class="kick">${n===6?'The bottom':n===11?'The top':n<6?'Step down':'Climb'} \u00b7 Rung ${n} of 11</small><h2>${title}</h2></div></div>
-    ${body}
+    ${body}${townSoFarHTML()}
     <div class="endnotches"><span class="notches">${ends.map(notch).join('')}${rares.map(notch).join('')}</span><small>${got.length?got.length+' of '+(ends.length+rares.length)+' endings found here: '+got.map(x=>x[1]).join(', '):(ends.length+rares.length)+' endings to find here, one of them rare'}</small></div>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${years}</small></button></div>`;
 }

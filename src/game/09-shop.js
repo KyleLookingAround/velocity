@@ -43,7 +43,7 @@ function sellCafe(){
   const s=G.shops[CAFE],b=bea(),price=buyoutPrice();
   G.cash-=price;b.cash+=price;G.sh.sold=true;G.sh.soldFor=price;G.sh.pay='minimum';
   b.role='worker';b.job='retired';delete b.shop;s.ownedByYou=true;s.boughtFor=price;
-  const st=staffOf(CAFE);if(st.length){const r=st[st.length-1];r.job=null;G.sh.letGo=G.res.indexOf(r);townEvent('laidoff',r.name)}
+  const st=staffOf(CAFE);if(st.length){const r=st[st.length-1];r.job=null;G.sh.letGo=G.res.indexOf(r);townEvent('laidoff',r.name);remember('letgo',r)}
 }
 // what the café's choices do to the week: price sends some customers to the megastore, pay and supplies cost more or less
 const cafeLeak=()=>Math.max(0,(G.sh.price-1)*1.4)+(G.sh.counter&&!G.sh.loyal?0.08:0);

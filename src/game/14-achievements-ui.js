@@ -14,6 +14,11 @@ function achSummary(){
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${CARDS.length} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>`;
 }
+// the threads: what your lives did to named people, newest first
+function threadsHTML(){
+  const ts=(G.threads||[]).slice(-8).reverse().map(t=>`<div class="story"><small>${RUNG_NAMES[t.rung]||t.rung}</small><b>${threadText(t)}</b></div>`).join('');
+  return ts?`<div class="card"><div class="txt"><b>The town remembers</b><small>What your lives did to people here. It shows on the stage, and the climb counts it.</small></div></div>${ts}`:'';
+}
 // the advisers unlocked so far, one of them in charge or none; locked ones stay hidden, with the next one's price
 function advisersHTML(){
   syncBest();const open=ADVISERS.filter(adviserOpen),next=ADVISERS.find(a=>!a.rung&&!adviserOpen(a)),n=achCount();

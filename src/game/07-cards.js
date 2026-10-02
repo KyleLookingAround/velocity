@@ -287,7 +287,7 @@ const CARDS=[
     title:()=>'Your staff want to buy the caf\u00e9 together',
     body:()=>'They can\u2019t pay what the estate would. They can pay a pound, and run it as a co-operative after you.',
     options:()=>[{k:'sell',label:'Sell it to them, for a pound',you:'You keep running it, and give up its worth',town:'The caf\u00e9 belongs to the people who work in it',scene:'handshake',then:'chain',
-        do:()=>{G.sh.coop=true;toast('The caf\u00e9 is a co-operative now')}},
+        do:()=>{G.sh.coop=true;remember('coop');toast('The caf\u00e9 is a co-operative now')}},
       {k:'keep',label:'Keep it',acct:true,none:true,you:'It stays yours',town:'Nothing changes',scene:'cafe',then:null,do:()=>{}}]},
   {id:'buyout',rung:'shop',cool:3*WEEKS,weight:3,when:()=>rungWeek()>WEEKS&&G.cash>5e6,
     title:()=>'The billionaire\u2019s estate wants to buy the café',

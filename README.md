@@ -126,6 +126,14 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
+## The town remembers
+
+What a life does to named people stays with the town: evictions, time to pay, a rent cut, a council home, a job lost
+in the café's sale, a workshop built, the café made a co-op. The next rung's intro card says what you left standing
+and what people remember; the Story tab lists the threads; the stage names them (the family you evicted is the one in
+the park); and the climb counts them: the people you helped are behind the activist, the ones you put out are not. A
+café its staff own shares its profit with the waiter.
+
 ## Achievements, rare endings, the heir and the deck
 
 Every ending of every rung is an achievement, kept across lives (the Story tab opens them; ones not yet found stay

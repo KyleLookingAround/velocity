@@ -203,7 +203,7 @@ const SCENES={
     const u=loopT(t,1);person(c,40+u*420,250,{pose:'walk',t:t*6});letter(c,60+u*420,170,'CV')}},
   park:{cap:()=>'Another night in the park',draw(c,t){
     c.fillStyle='#9a9aa6';c.fillRect(0,0,PW,250);tree(c,80,250);tree(c,410,250);bench(c,240,250);person(c,240,250,{pose:'slump',col:'#333'});tent(c,330,250)}},
-  foodbank:{cap:()=>'The food bank at the church hall',draw(c,t){
+  foodbank:{cap:()=>{const n=threadWho(['letgo','evicted'],r=>r.job==null);return n?n+', whom you remember, at the food bank':'The food bank at the church hall'},draw(c,t){
     c.fillStyle='#8f8f8f';c.fillRect(220,206,140,8);for(let k=0;k<4;k++){c.fillStyle='#9a8466';c.fillRect(230+k*32,186,24,20)}
     person(c,300,250,{dir:-1,col:'#555'});person(c,340,250,{dir:-1,col:'#666',pose:'give'});const u=Math.min(1,t*1.5);person(c,60+u*130,250,{pose:u<1?'walk':'box',t:t*5})}},
   gig:{cap:()=>'Paid by the drop',draw(c,t){
@@ -241,7 +241,7 @@ const SCENES={
     if(leak>0.25)for(let k=0;k<2;k++)flyBill(c,130,180,PW+30,120,loopT(t+k/2,1),20)}},
   evicted:{cap:()=>(R.recent.evicted?R.recent.evicted+'\u2019s family':'A family')+' is put out on the street',draw(c,t){
     house(c,140,250,{sign:'EVICTED'});const u=t*0.8;person(c,260+u*60,250,{pose:'box',t:t*4});person(c,300+u*60,250,{pose:'walk',t:t*4,s:0.62})}},
-  tents:{cap:()=>{const n=G.res.filter(r=>r.homeless).length;return n?n*HH+' households sleeping in the park':'The park'},draw(c){
+  tents:{cap:()=>{const n=G.res.filter(r=>r.homeless).length,who=threadWho(['evicted'],r=>r.homeless);return who?who+'\u2019s family, whom you evicted, in the park':n?n*HH+' households sleeping in the park':'The park'},draw(c){
     tree(c,60,250);tree(c,430,250);const n=Math.max(1,G.res.filter(r=>r.homeless).length);
     for(let k=0;k<Math.min(6,n);k++){tent(c,120+k*55,250)}person(c,140,250,{pose:'slump',col:'#555'});person(c,300,250,{pose:'slump',col:'#555',dir:-1})}},
   closed:{cap:()=>{const n=R.recent.closed||(G.shops.find(s=>!s.open)||{}).name;return n?'The '+n+' has closed':'A shop closes'},draw(c,t){

@@ -65,7 +65,7 @@ function buyCouncilHome(){
   const r=G.res.find(r=>r.homeOwner==='local'&&r.role!=='landlord')||G.res.find(r=>r.homeOwner==='you');
   if(!r||(G.fund||0)<G.homePrice)return false;
   G.fund-=G.homePrice;if(r.homeOwner==='local')G.res[0].cash+=G.homePrice;else G.cash+=G.homePrice;
-  r.homeOwner='council';r.rent=Math.min(r.rent,councilRent());r.arrears=0;r.owed=0;G.my.council++;
+  r.homeOwner='council';r.rent=Math.min(r.rent,councilRent());r.arrears=0;r.owed=0;G.my.council++;remember('housed',r);
   townEvent('keys',r.name);return true;
 }
 function mayorYearEnd(){

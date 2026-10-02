@@ -102,6 +102,6 @@ function landlordVerdict(){
 // everyone after (it can be changed on the Tenants tab)
 function applyArrears(r,k){
   if(k==='evict'){evict(r);G.ll.year.evictions++}
-  else if(k==='time'){r.arrears=0;r.grace=G.week+26}
-  else{r.arrears=0;cutRent(r,0.8)}
+  else if(k==='time'){r.arrears=0;r.grace=G.week+26;remember('time',r)}
+  else{r.arrears=0;cutRent(r,0.8);remember('cut',r)}
 }
