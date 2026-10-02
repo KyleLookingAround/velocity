@@ -148,6 +148,7 @@ h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.1}
 .day i.in{background:var(--green-soft);color:var(--green-ink)}.day i.out{background:#f6e2dc;color:#9a3a2a}.day i.do{background:var(--paper-2);color:var(--ink-2);font-weight:600}
 .weekleft{font-size:12px;color:var(--muted);margin:0 0 8px}.weekleft b{color:var(--green-ink)}.weekleft b.bad{color:var(--red)}
 .result q{display:block;width:100%;font-style:italic;color:var(--muted);font-size:12px;margin-top:1px}.result q::before{content:'\201C'}.result q::after{content:'\201D'}
+abbr[data-gl]{text-decoration:underline dotted var(--muted);text-underline-offset:3px;cursor:help}
 .twist{font-size:12px;color:var(--muted);background:var(--paper-2);border-left:3px solid var(--gold);border-radius:6px;padding:4px 8px;margin:-2px 0 8px}.twist b{color:var(--ink)}
 .sofar{background:var(--paper-2);border:1px solid var(--line-2);border-radius:12px;padding:8px 10px;margin:8px 0 2px;font-size:12.5px;color:var(--muted);line-height:1.4}.sofar p{margin:0}.sofar p+p{margin-top:4px}.sofar b{color:var(--ink)}
 .tip{display:flex;gap:8px;align-items:flex-start;background:var(--amber-soft);border:1px solid var(--amber-line);border-radius:12px;padding:8px 10px;font-size:12.5px;color:var(--amber-ink);margin:0 0 10px;line-height:1.4}
@@ -186,7 +187,7 @@ h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.1}
 .opt span{display:flex;gap:8px;font-size:12px;color:var(--ink-2);margin-top:3px;line-height:1.35}
 .opt span i{display:inline-block;flex:none;min-width:44px;text-align:center;font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:6px;padding:1px 6px;height:18px;line-height:16px}
 .opt span:nth-of-type(1) i{background:var(--paper-2);color:#4d483f}.opt span:nth-of-type(2) i{background:var(--green-soft);color:#2d5f39}
-@media (hover:hover) and (pointer:fine){.opt::after{content:counter(opt);position:absolute;right:12px;top:12px;width:20px;height:20px;border-radius:6px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:800;display:grid;place-items:center;background:var(--paper)}}
+@media (hover:hover) and (pointer:fine){.opt{padding-right:40px}.opt::after{content:counter(opt);position:absolute;right:12px;top:12px;width:20px;height:20px;border-radius:6px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:800;display:grid;place-items:center;background:var(--paper)}}
 /* ---------- the cards that open and close a rung, and the first screen ---------- */
 #modal{position:fixed;inset:0;background:rgba(28,24,18,.5);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
 #modal.show{display:flex}

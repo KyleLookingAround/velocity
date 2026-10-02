@@ -130,6 +130,12 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
+## The glossary
+
+The video's ideas are underlined wherever a card mentions them (buy-borrow-die, the step-up, a wealth tax, loopholes,
+the megastore, payday loans, the public purse, co-ops, the minimum wage, strike funds, velocity); tap one for a line
+on what it means.
+
 ## The week
 
 The waiter's Budget tab and the out-of-work Days tab open with the week at a glance, Monday to Sunday: the shifts or

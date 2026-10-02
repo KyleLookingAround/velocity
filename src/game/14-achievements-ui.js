@@ -171,5 +171,24 @@ const METER_INFO={
   'Burnout':'Hours over 55 a week push it up, fewer bring it down. At 100% you stop.','A billion in':'At your rate so far, how long a billion would take.'};
 $('#meters').addEventListener('click',e=>{const m=e.target.closest('.meter');if(!m)return;const label=m.firstChild.textContent.trim(),t=METER_INFO[label];if(!t)return;
   const i=$('#info');i.innerHTML='<b>'+label+'</b> \u00b7 '+t;i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),4200)});
+// the glossary: the video's ideas, underlined wherever a card mentions them, explained in a line when tapped
+const GLOSSARY=[
+  [/buy,? borrow,? die/i,'Buy, borrow, die','Never sell: borrow against your shares instead. Loans aren\u2019t income, so there\u2019s no tax, and at death the gains are wiped (the step-up).'],
+  [/step-up/i,'Step-up','When a fortune is inherited, its gains are reset to nothing, so the tax on them is never paid.'],
+  [/wealth tax|tax on fortunes|fortune tax/i,'Wealth tax','A small yearly tax on the biggest fortunes themselves, not just their income.'],
+  [/loophole/i,'Loophole','A gap in the law, written in on purpose, that lets one kind of income pay less.'],
+  [/megastore/i,'The megastore','A chain owned elsewhere: money spent there leaves town instead of becoming someone\u2019s wage here.'],
+  [/payday (loan|lender)/i,'Payday loan','A small, short loan at hundreds of percent a year. Easy to take, hard to leave.'],
+  [/public purse/i,'The public purse','The town\u2019s own money, from the taxes the rich pay. It pays benefits, works and programmes.'],
+  [/co-?operative|co-op/i,'Co-op','A business its workers own together. Its profit stays with them, and in town.'],
+  [/minimum wage/i,'Minimum wage','The least any job may pay. Raise it and every low wage rises with it.'],
+  [/strike fund/i,'Strike fund','Dues saved to pay members while they strike. The longer it lasts, the better the odds.'],
+  [/changes hands|velocity/i,'Velocity','How many times a dollar is spent in a year. Spent locally it becomes wage after wage; hoarded, it stops.'],
+];
+function glossed(text){
+  let out=text;for(const [re,term] of GLOSSARY){if(re.test(out)){out=out.replace(re,m=>`<abbr data-gl="${term}">${m}</abbr>`);}}return out;
+}
+$('#pane').addEventListener('click',e=>{const a=e.target.closest('[data-gl]');if(!a)return;e.stopPropagation();e.preventDefault();const g=GLOSSARY.find(g=>g[1]===a.dataset.gl);if(!g)return;
+  const i=$('#info');i.innerHTML='<b>'+g[1]+'</b> \u00b7 '+g[2];i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),6000)},true);
 // the scenes refit whenever their area changes size (the grip, a rotated phone)
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>fitMap()).observe($('#mapwrap'));
