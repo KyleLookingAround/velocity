@@ -366,6 +366,57 @@ const CARDS=[
     body:()=>'It would cost you some friends on the other side. It would bring you a lot of new ones.',
     options:()=>[{k:'stand',label:'Stand with them',kind:true,you:'Some friends',town:'About 5 points more support',scene:'strike',then:'strike',do:()=>{G.ac.support=Math.min(0.9,G.ac.support+0.05);G.anger=(G.anger||0)+3}},
       {k:'apart',label:'Stay out of it',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]},
+
+  // ---- the mayor ----
+  {id:'levy',rung:'mayor',urgent:true,cool:0,when:()=>G.levyDue,
+    title:()=>'This year\u2019s property tax',
+    body:()=>'A share of every rent the landlords collect, into the public purse ('+money(G.fund||0)+' now). The estate\u2019s money backs whoever runs against a mayor who taxes it.',
+    options:()=>{const set=t=>()=>{G.my.tax=t;G.levyDue=false},odds=t=>Math.round(electionOdds(t)*100)+'% to be re-elected, as things stand';
+      // the town's best: the high tax, while you'd still likely win the next election with it
+      const high=electionOdds('high')>=0.65;return [
+      {k:'high',label:'A fifth of the rents',kind:high,you:odds('high'),town:'The purse fills fastest',scene:'townhall',then:'works',do:set('high')},
+      {k:'fair',label:'A tenth of the rents',none:true,kind:!high,you:odds('fair'),town:'The purse fills',scene:'townhall',then:null,do:set('fair')},
+      {k:'low',label:'Three in a hundred',acct:true,you:odds('low'),town:'The purse barely fills',scene:'handshake',then:'rentrise',do:set('low')}]}},
+  {id:'councilhomes',rung:'mayor',cool:20,weight:3,when:()=>(G.fund||0)>=G.homePrice&&G.res.some(r=>r.homeOwner==='local'&&r.role!=='landlord'||r.homeOwner==='you'),
+    title:()=>'Buy homes for the town?',
+    body:()=>'A home costs '+money(G.homePrice)+' from the purse. The town lets it at a quarter of a wage, never evicts, and the rent comes back to the purse.',
+    options:()=>[{k:'two',label:'Buy two',kind:(G.fund||0)>=2*G.homePrice,you:money(2*G.homePrice)+' from the purse',town:'Two more homes the town can afford',scene:'keys',then:'keys',do:()=>{buyCouncilHome();buyCouncilHome()}},
+      {k:'one',label:'Buy one',kind:(G.fund||0)<2*G.homePrice,you:money(G.homePrice)+' from the purse',town:'One more home the town can afford',scene:'keys',then:'keys',do:()=>{buyCouncilHome()}},
+      {k:'no',label:'Not this year',acct:true,none:true,you:'Nothing',town:'The landlords keep them',scene:'townhall',then:null,do:()=>{}}]},
+  {id:'mill',rung:'mayor',cool:1e6,when:()=>rungWeek()>WEEKS&&millStaff().length>=3,
+    title:()=>'The mill\u2019s owners want a subsidy to stay',
+    body:()=>'Pay them, they say, or they move half the work somewhere cheaper. '+millStaff().length*HH+' households work there.',
+    options:()=>{const cost=millStaff().length*T.wage*grow(0.02)*WEEKS*0.3;return [
+      {k:'pay',label:'Pay the subsidy',none:true,you:money(cost)+' from the purse',town:'The jobs stay, and the owners keep their profit',scene:'handshake',then:'chain',do:()=>{G.fund=Math.max(0,(G.fund||0)-cost);G.my.mill='paid'}},
+      {k:'stake',label:'Pay it, for a share of the mill',kind:true,you:money(cost)+' from the purse',town:'The jobs stay, and some of the profit comes to the town',scene:'handshake',then:'chain',do:()=>{G.fund=Math.max(0,(G.fund||0)-cost);G.my.mill='stake';G.millMul=(G.millMul||1)*1.03}},
+      {k:'refuse',label:'Call their bluff',acct:true,you:'Nothing',town:'Half of them may lose their jobs',scene:'townhall',then:'laidoff',
+        do:()=>{G.my.mill='refused';if(rnd()<0.6){millStaff().slice(0,Math.floor(millStaff().length/2)).forEach(r=>{r.job=null});townEvent('laidoff','The mill')}else toast('The mill stays: it was a bluff')}}]}},
+  {id:'developer',rung:'mayor',cool:2*WEEKS,when:()=>rungWeek()>WEEKS/2,
+    title:()=>'A developer wants the old depot for luxury flats',
+    body:()=>'A fee for the purse and a donation to your campaign. Flats like these pull every rent in town up.',
+    options:()=>{const fee=G.res.length*T.wage*grow(0.02)*2;return [
+      {k:'yes',label:'Approve it',acct:true,you:'A donation to your campaign',town:money(fee)+' to the purse, and rents rise',scene:'ribbon',then:'rentrise',
+        do:()=>{G.fund=(G.fund||0)+fee;G.my.donors++;G.my.deals.push('flats');for(const r of G.res)if(r.homeOwner==='local')r.rent*=1.05}},
+      {k:'third',label:'Only if a third are for the town',kind:true,you:'No donation',town:'A council home, if they agree',scene:'townhall',then:'keys',
+        do:()=>{if(rnd()<0.5){const r=G.res.find(r=>r.homeOwner==='local'&&r.role!=='landlord');if(r){r.homeOwner='council';r.rent=Math.min(r.rent,councilRent());G.my.council++;toast('They agree: '+r.name+' gets a council home')}}else toast('The developer walks away')}},
+      {k:'no',label:'Turn it down',none:true,you:'Nothing',town:'Nothing changes',scene:'townhall',then:null,do:()=>{}}]}},
+  {id:'backer',rung:'mayor',cool:1e6,when:()=>rungWeek()>2*WEEKS&&G.my.tax!=='low',
+    title:()=>'The estate\u2019s friends will pay for your re-election',
+    body:()=>'All you have to do is bring the property tax down.',
+    options:()=>[{k:'take',label:'Take it, and cut the tax',acct:true,you:'Your campaign is paid for',town:'The purse barely fills from now on',scene:'handshake',then:'rentrise',do:()=>{G.my.donors+=2;G.my.tax='low';G.my.deals.push('backer')}},
+      {k:'no',label:'No',kind:true,none:true,you:'You fight the election on your own',town:'The tax stays',scene:'townhall',then:null,do:()=>{}}]},
+  {id:'stategrant',rung:'mayor',cool:WEEKS,when:()=>G.my.granted<4&&rungWeek()>WEEKS/2,
+    title:()=>'The state is giving out grants for towns',
+    body:()=>'For new homes, buses or schools. It takes a season of paperwork, and the state likes to see the town put in its own money.',
+    options:()=>{const grant=G.res.length*T.wage*grow(0.02)*(G.my.council>=2?8:4);return [
+      {k:'apply',label:'Apply',kind:true,you:'A season of paperwork',town:'About '+money(grant)+' into the purse'+(G.my.council>=2?' (doubled: the town builds its own homes)':''),scene:'paperwork',then:'works',
+        do:()=>{G.my.granted++;G.fund=(G.fund||0)+grant;toast('The state grant comes through')}},
+      {k:'skip',label:'Leave it',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'townhall',then:null,do:()=>{}}]}},
+  {id:'crowd',rung:'mayor',cool:3*WEEKS,when:()=>G.unrest>=55,
+    title:()=>'A march is heading for the town hall',
+    body:()=>'The police chief wants to close the square.',
+    options:()=>[{k:'meet',label:'Go out and meet them',kind:true,you:'An afternoon on the steps',town:'Heard, at last',scene:'townhall',then:'protest',do:()=>{G.my.approval=Math.min(0.9,G.my.approval+0.03);G.anger=(G.anger||0)-4}},
+      {k:'close',label:'Close the square',acct:true,none:true,you:'The landlords approve',town:'The anger stays',scene:'townhall',then:'protest',do:()=>{G.anger=(G.anger||0)+5;G.my.approval=Math.max(0.05,G.my.approval-0.02)}}]},
 ];
 const tenantShare=()=>{const t=myHomes().filter(r=>!r.homeless&&!r.sheltered&&r.income>0);return t.length?t.reduce((a,r)=>a+r.rent/r.income,0)/t.length:0};
 const cardDef=id=>CARDS.find(c=>c.id===id);

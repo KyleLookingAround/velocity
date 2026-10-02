@@ -28,6 +28,7 @@ function economyWeek(){
   });
   if(isUnion()){const p=unionPay(unMe());unMe().income+=pay('out','r'+G.un.i,p,'wage')}
   if(isActivist()){const p=activistPay(acMe());acMe().income+=pay('out','r'+G.ac.i,p,'wage')}
+  if(isMayor()){const p=mayorPay(myMe());myMe().income+=pay('out','r'+G.my.i,p,'wage')}
   for(const r of res)if(r.role==='retiree')r.income+=pay('out','r'+res.indexOf(r),T.pension*grow(0.02),'pension');
   // shops pay their staff, and owners take their pay and last week's profit
   G.shops.forEach((s,i)=>{
@@ -56,12 +57,14 @@ function economyWeek(){
     const mine=isLandlord()&&r.homeOwner==='local';
     if(mine&&rent){if(G.unrest>=70)rent*=0.5;if(G.ll.cond<0.4)rent*=0.7}
     if(rent){
-      if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)
+      if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':r.homeOwner==='council'?'out':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else if(r.homeOwner==='council')G.fund=(G.fund||0)+rent;else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)
         if(mine){G.ll.year.rent+=rent;if(r.owed>0){const p=Math.min(r.owed,Math.max(0,(r.cash-rent)*0.2));r.cash-=p;r.owed-=p;res[0].income+=pay(id,'r0',p,'rent')}}}
       // your own tenants who fall six weeks behind come to you as a card; one you've given time builds up what it owes
       else if(mine){G.ll.year.lost+=rent;if(r.grace>G.week)r.owed=(r.owed||0)+rent;else{r.arrears++;if(r.arrears>=6&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}}
       // (as the partner: Agnes evicts when the computer says so, sooner if you work for her, and the tenant may ask you first)
       else if(isPartner()&&r.homeOwner==='local'){r.arrears++;if(r.arrears>=Math.max(4,G.aiLandlord.evictAt-2*G.pt.evictionWork)&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}
+      // (a council home never evicts: what's owed waits)
+      else if(r.homeOwner==='council')r.arrears++;
       else{r.arrears++;if(r.arrears>=(r.homeOwner==='local'&&G.aiLandlord&&G.rung!=='billionaire'?G.aiLandlord.evictAt:6))evict(r)}
     }
     if(r.debt>0){if(gifts.medical){giveOut(r.debt,'medical',i);r.debt=0}else{const p=Math.min(r.debt,T.medicalPay,Math.max(0,r.cash*0.5));r.debt-=p;r.cash-=pay(id,'out',p,'debt')}}

@@ -91,3 +91,13 @@ PANES.campaign=function(){
     <div>Purse<b>${money(G.fund||0)}</b></div><div>Paid out<b>${money(spent)}/yr</b></div></div>
     ${MEASURES.map(m=>`<div class="card"><div class="txt"><b>${m.name}</b><small>${m.note}</small><small>${a.passed.includes(m.k)?'Passed':a.donor&&m.k==='wealthtax'?'Off the table':a.lost.includes(m.k)?'Lost '+a.lost.filter(x=>x===m.k).length+'\u00d7':'Not yet'}</small></div></div>`).join('')}`;
 };
+
+// the mayor's Town hall tab: approval and the next election, the purse and the tax, and the town's own homes
+PANES.hall=function(){
+  const m=G.my,pc=v=>Math.round(v*100)+'%';
+  return `<p class="lead">The property tax takes ${pc(MY.taxes[m.tax])} of the landlords\u2019 rents into the purse. Council homes cost a quarter of a wage, and their rent comes back to the purse.</p>
+    <div class="stats"><div>Approval<b>${pc(m.approval)}</b></div><div>Re-election<b>${m.elections.length?(m.elections[0].won?'Won':'Lost'):pc(electionOdds())}</b></div>
+    <div>Purse<b>${money(G.fund||0)}</b></div><div>Tax so far<b>${money(m.taxTaken)}</b></div>
+    <div>Council homes<b>${m.council}</b></div><div>A home costs<b>${money(G.homePrice)}</b></div>
+    <div>Donors<b>${m.donors?m.donors:'None'}</b></div><div>The mill<b>${{paid:'Subsidised',stake:'Part the town\u2019s',refused:'Refused'}[m.mill]||'\u2013'}</b></div></div>`;
+};

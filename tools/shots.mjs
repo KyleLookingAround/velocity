@@ -33,7 +33,10 @@ const saves=[];
   until(S,()=>false,kind);saves.push(['union-ending',JSON.stringify(S.G),'union']);
   S.startActivist();S.G.seen.activist=true;until(S,()=>!!S.G.card,kind);saves.push(['activist-card',JSON.stringify(S.G),'campaign']);
   until(S,()=>S.G.week>=S.G.rungStart+4*52&&!S.G.card,kind);saves.push(['activist',JSON.stringify(S.G),'campaign']);
-  until(S,()=>false,kind);saves.push(['activist-ending',JSON.stringify(S.G),'campaign'])}
+  until(S,()=>false,kind);saves.push(['activist-ending',JSON.stringify(S.G),'campaign']);
+  S.startMayor();S.G.seen.mayor=true;until(S,()=>!!S.G.card,kind);saves.push(['mayor-card',JSON.stringify(S.G),'hall']);
+  until(S,()=>S.G.week>=S.G.rungStart+2*52+20&&!S.G.card,kind);saves.push(['mayor',JSON.stringify(S.G),'hall']);
+  until(S,()=>false,kind);saves.push(['mayor-ending',JSON.stringify(S.G),'hall'])}
 const browser=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'}).catch(()=>chromium.launch());
 let errors=0;
 for(const [name,w,h] of sizes){

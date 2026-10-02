@@ -32,6 +32,11 @@
 //   steady (the generous option: campaigns, knocks on doors, spends on the final push)   -> the town changed (3+ votes)
 //   donor  (always the easiest: takes the foundation's money)                             -> bought
 //   idle   (never campaigns)                                                              -> ignored
+// Then the mayor, after the steady activist. Elections are a gamble, so any run may end voted out, but each
+// strategy's own ending must come up on at least two of the three seeds:
+//   builder (the generous option: the high tax while re-election looks safe, council homes) -> builder
+//   machine (the donors' way: the backer, low tax, the flats)                               -> machine
+//   idle    (does nothing)                                                                  -> caretaker
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
@@ -78,6 +83,8 @@ const unRows=[];
 const ACTIVIST={steady:S=>opt(S,o=>o.kind),donor:S=>opt(S,o=>o.acct),idle:S=>opt(S,o=>o.none)};
 const acWant={steady:'changed',donor:'bought',idle:'ignored'};
 const acRows=[];
+const MAYOR={builder:S=>opt(S,o=>o.kind),machine:S=>opt(S,o=>o.acct),idle:S=>opt(S,o=>o.none)};
+const myRows=[];
 const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}}
@@ -134,5 +141,14 @@ for(const seed of [1,2,3])for(const [aname,apick] of Object.entries(ACTIVIST)){
   const e=S.G.ending,ok=e.kind===acWant[aname];if(!ok)bad++;
   acRows.push({seed,activist:aname,name:e.name,ending:e.kind,passed:e.passed.length,lost:e.lost,support:Math.round(e.support*100)+'%',unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
 }
-console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);
+for(const [mname,mpick] of Object.entries(MAYOR)){let hits=0;
+  for(const seed of [1,2,3]){
+    const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
+    S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);S.startMayor();live(S,mpick);
+    const e=S.G.ending,want=mname==='idle'?'caretaker':mname,ok=e.kind===want||e.kind==='outvoted';if(e.kind===want)hits++;if(!ok)bad++;
+    myRows.push({seed,mayor:mname,name:e.name,ending:e.kind,terms:e.terms,council:e.council,donors:e.donors,approval:Math.round(e.approval*100)+'%',unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
+  }
+  if(hits<2){bad++;myRows.push({mayor:mname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
+}
+console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);console.table(myRows);
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}
