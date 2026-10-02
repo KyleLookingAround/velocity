@@ -1022,7 +1022,9 @@ function drawCard(){
 }
 function answerCard(k){
   const c=G.card&&cardDef(G.card.id);if(!c)return;
-  const o=c.options(G.card.d||{}).find(o=>o.k===k);if(!o)return;
+  const all=c.options(G.card.d||{}),o=all.find(o=>o.k===k);if(!o)return;
+  // (the answers not taken, as the card put them at the time, for the Story tab's look back)
+  const alts=all.filter(x=>x!==o).map(x=>({label:x.label,you:String(x.you||''),town:String(x.town||'')}));
   const title=c.title(G.card.d||{});G.card=null;G.cool[c.id]=G.week;
   // an offer you turn down backs off for a while, rather than coming straight back
   if(c.backoff&&o.none)G.cool[c.id]=G.week+c.backoff-c.cool;
@@ -1036,7 +1038,8 @@ function answerCard(k){
   if(fresh)L.cards[key]={title,k,label:o.label,week:G.week,life};else{const prev=L.cards[key];Object.assign(prev,{before:prev.life!==life?prev.label:prev.before,title,k,label:o.label,life})}
   R.lastCard={key,fresh,title};
   if(fresh&&Object.keys(L.cards).length>=CARDS.length)award('m:deck');
-  G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label});
+  G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label,you:String(o.you||''),town:String(o.town||''),alts});
+  if(G.choices.length>200)G.choices.splice(0,G.choices.length-200);
   if(c.id.startsWith('gift-'))G.seenGifts[c.id.slice(5)]=true;
   if(G.choices.length>80)G.choices.shift();
   if(!R.sim)queueScenes(o.scene,o.then,{title,label:o.label});
