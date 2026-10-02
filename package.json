@@ -1,0 +1,15 @@
+{
+  "name": "money-makes-money",
+  "private": true,
+  "type": "module",
+  "description": "Money Makes Money: an idle game where you play a billionaire over a town that pays for it",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "bot": "node tools/bot.mjs",
+    "shots": "node tools/build.mjs && node tools/shots.mjs",
+    "check": "node tools/build.mjs && node tools/bot.mjs && node tools/shots.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
