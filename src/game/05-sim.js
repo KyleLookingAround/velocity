@@ -159,7 +159,8 @@ function endLifeCore(kind){
   }
   if(kind==='death'){
     const share=G.given/Math.max(1,G.gains);
-    kind=share>=T.heroGiveShare&&netWorth()>=(G.startNW||START_FORTUNE)&&G.unrest<50?'hero':'luthor';
+    // (giving more than the fortune earns ends poorer than it began: generous, but not the hero, who stays rich)
+    kind=share>=T.heroGiveShare&&netWorth()>=(G.startNW||START_FORTUNE)&&G.unrest<50?'hero':share>=T.heroGiveShare&&netWorth()<(G.startNW||START_FORTUNE)?'giver':'luthor';
   }
   G.ending={rung:'billionaire',kind,week:rungWeek(),heir:G.heir||0,start:G.startNW||START_FORTUNE,nw:netWorth(),given:G.given,gains:G.gains,unrest:G.unrest};
   G.ladder.unlocked=Object.assign({},G.ladder.unlocked,{landlord:true});G.ladder.best=Object.assign({},G.ladder.best,{billionaire:kind});

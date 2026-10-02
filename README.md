@@ -66,7 +66,8 @@ last one left. At the top, the laws a president passes become the law in every b
 
 - **The billionaire** (40 years): $30M at 8% a year. Along the way: a market crash (buy what everyone else must sell,
   hold, or keep the town's shops afloat), a superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be started or stopped on the
-  **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
+  **Commitments** tab. Endings: **Lex Luthor**, **revolt**, **gave it all away** (generous past what the fortune
+  earns, ending poorer than it began), or **hero** (give at least 35% of your gains, keep unrest
   low, still finish richer than $30M). Giving from the start costs you; growing first and giving later pays.
 - **The landlord** (20 years): you play Agnes in the town the billionaire left. Its homes and shops pass to its
   estate, which raises rents 7% a year; a hero's gifts carry on as a foundation. You decide the yearly rent, what to
@@ -129,6 +130,11 @@ last one left. At the top, the laws a president passes become the law in every b
   bills down; the Court may strike the tax on fortunes; the banks fail late in the second term. Endings: **the ladder,
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
+
+## Sharing an ending
+
+Every ending card can be saved as a picture (the role, the verdict, its figure and the rung's notches), shared
+straight from a phone or downloaded elsewhere.
 
 ## The glossary
 

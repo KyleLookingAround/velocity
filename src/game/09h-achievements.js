@@ -4,7 +4,7 @@
 // A few achievements are milestones on the ladder itself. And one rare role: a billionaire who dies a hero can be
 // followed by its heir, a second billionaire life in the same town, starting from the fortune it left.
 const ENDINGS={
-  billionaire:{hero:'Hero',luthor:'Lex Luthor',revolt:'Revolt'},
+  billionaire:{hero:'Hero',luthor:'Lex Luthor',revolt:'Revolt',giver:'Gave it all away'},
   landlord:{fair:'A fair landlord',rentier:'A rentier',bankrupt:'Bankrupt'},
   partner:{counsel:'Counsel for the town',hiredgun:'A hired gun',burnout:'Burnt out'},
   shop:{pillar:'A pillar of the high street',tightfisted:'Kept the lights on',closed:'Closed',sold:'Sold',founder:'Founder'},

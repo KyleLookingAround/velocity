@@ -2,6 +2,7 @@
 // ending the game promises. The billionaire:
 //   passive (takes no offers, funds nothing, pays the tax)        -> Lex Luthor
 //   hoarder (always takes the accountant's advice)                 -> revolt before death
+//   giver   (always the generous option, whatever it costs)         -> gave it all away
 //   hero    (takes the generous option whenever it can afford it)  -> hero, and still richer than at the start
 //   patient (passive for 15 years, then a hero)                    -> hero, and at least four times richer
 // Then the landlord, in the town each billionaire leaves:
@@ -60,6 +61,7 @@ const BILLIONAIRE={
     if(id==='workshop')return S.G.cash>S.START_FORTUNE*1.5?'build':'pass';
     return opt(S,o=>o.kind)},
   patient:S=>S.G.week<15*S.WEEKS?BILLIONAIRE.passive(S):BILLIONAIRE.hero(S),
+  giver:S=>opt(S,o=>o.kind),
 };
 // once a year a hero also uses the Commitments tab: it starts any gift it has been offered that fits its budget, and
 // stops the newest if giving has outgrown what it can afford
@@ -100,7 +102,7 @@ const GOVERNOR={newdeal:S=>opt(S,o=>o.kind),dealmaker:S=>opt(S,o=>o.acct),idle:S
 const gvRows=[];
 const PRESIDENT={rebuilt:S=>opt(S,o=>o.kind),lobbied:S=>opt(S,o=>o.acct),gridlock:S=>opt(S,o=>o.none)};
 const prRows=[];
-const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero'};
+const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero',giver:'giver'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
 const rares=new Set();
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}if(S.G.ending.rare)rares.add(S.G.ending.rung+':'+S.G.ending.rare)}

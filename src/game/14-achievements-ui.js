@@ -93,11 +93,13 @@ function showEnding(){
     opts.insertAdjacentHTML('beforebegin',`<div class="endnotches"><span class="notches">${ids.map(([id,r])=>`<i class="${r?'gold ':''}${G.ladder.achieved[id]?'on':''}"></i>`).join('')}</span><small>${got} of ${ids.length} found on this rung</small></div>`)}
   const fresh=(e.newAch||[]).map(id=>allAchievements().find(a=>a.id===id)).filter(Boolean);
   if(fresh.length&&opts)opts.insertAdjacentHTML('beforebegin',`<div class="ach-new"><b>New achievement${fresh.length>1?'s':''}:</b> ${fresh.map(a=>a.name+(a.rare?' (rare)':'')).join(', ')}</div>`);
+  if(opts)opts.insertAdjacentHTML('beforeend',`<button data-share="1"><b>Save the picture</b><small>This ending as an image, to keep or send</small></button>`);
   // the rare role: a hero's heir, in the same town
   if(e.rung==='billionaire'&&e.kind==='hero'&&opts)opts.insertAdjacentHTML('beforeend',`<button data-heir="1"><b>Play the heir</b><small>A rare role: inherit ${money(e.nw)} and this town</small></button>`);
 }
 $('#box').addEventListener('click',e=>{
   if(e.target.closest('[data-close]')){hideModal();$('#box').classList.remove('wide')}
+  if(e.target.closest('[data-share]')){shareEnding();return}
   const lr=e.target.closest('[data-lr]');if(lr){$('#ldetail').innerHTML=rungDetail(lr.dataset.lr);document.querySelectorAll('.rung.sel').forEach(x=>x.classList.remove('sel'));lr.classList.add('sel')}
   if(e.target.closest('[data-heir]')){startHeir();R.stage={};buildTabs();save();renderPane(true);
     showModal(`<h2>A rare role: the heir</h2><p>You inherit ${money(netWorth())}, the foundation’s gifts, and a town that remembers who you are.</p>
@@ -171,6 +173,32 @@ const METER_INFO={
   'Burnout':'Hours over 55 a week push it up, fewer bring it down. At 100% you stop.','A billion in':'At your rate so far, how long a billion would take.'};
 $('#meters').addEventListener('click',e=>{const m=e.target.closest('.meter');if(!m)return;const label=m.firstChild.textContent.trim(),t=METER_INFO[label];if(!t)return;
   const i=$('#info');i.innerHTML='<b>'+label+'</b> \u00b7 '+t;i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),4200)});
+// an ending as a picture: the role, the verdict, the big number and the notches, drawn on a canvas to share or save
+function endingPicture(){
+  const box=$('#box'),W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const kick=(box.querySelector('.kick')||{}).textContent||'',title=(box.querySelector('h2')||{}).textContent||'',line=(box.querySelector('h2+p')||{}).textContent||'',big=(box.querySelector('.big')||{}).textContent||'';
+  const wrap=(t,font,maxW,y,lh,col)=>{x.font=font;x.fillStyle=col;const words=t.split(' ');let l='';for(const w of words){const tt=l?l+' '+w:w;if(x.measureText(tt).width>maxW&&l){x.fillText(l,90,y);y+=lh;l=w}else l=tt}if(l){x.fillText(l,90,y);y+=lh}return y};
+  x.fillStyle='#f4efe6';x.fillRect(0,0,W,H);x.save();x.beginPath();x.roundRect(50,50,W-100,H-100,40);x.clip();x.fillStyle='#fffdf8';x.fillRect(50,50,W-100,H-100);
+  x.fillStyle='#2e8749';x.fillRect(50,50,W-100,14);x.restore();
+  let y=200;x.textAlign='left';
+  y=wrap(kick.toUpperCase(),'800 34px Inter,system-ui,sans-serif',W-180,y,46,'#8a8478');y+=30;
+  y=wrap(title,'800 96px "Bricolage Grotesque",Inter,system-ui,sans-serif',W-180,y+40,104,'#1b1a17');y+=20;
+  y=wrap(line,'500 40px Inter,system-ui,sans-serif',W-180,y,56,'#4d483f');y+=40;
+  if(big){x.font='800 150px "Bricolage Grotesque",Inter,system-ui,sans-serif';x.fillStyle='#2e8749';x.fillText(big,90,y+120);y+=190}
+  const e=G.ending,ids=e&&ENDINGS[e.rung]?[...Object.keys(ENDINGS[e.rung]).map(k=>[achId(e.rung,k),0]),...(RARE[e.rung]||[]).map(r=>[achId(e.rung,r.k),1])]:[];
+  ids.forEach(([id,r],i)=>{const cx=110+i*70,cy=y+30,on=G.ladder.achieved[id];x.lineWidth=5;x.strokeStyle=r?'#d4a72c':'#b5ac9b';x.fillStyle=on?(r?'#d4a72c':'#2e8749'):'transparent';x.beginPath();
+    if(r){x.moveTo(cx,cy-24);x.lineTo(cx+24,cy);x.lineTo(cx,cy+24);x.lineTo(cx-24,cy);x.closePath()}else x.arc(cx,cy,22,0,7);if(on)x.fill();x.stroke()});
+  const n=found().length,all=allAchievements().length;
+  x.font='600 36px Inter,system-ui,sans-serif';x.fillStyle='#8a8478';x.fillText(n+' of '+all+' achievements on the ladder',90,H-200);
+  x.font='800 56px "Bricolage Grotesque",Inter,system-ui,sans-serif';x.fillStyle='#1b1a17';x.fillText('Money Makes Money',90,H-120);
+  return c;
+}
+function shareEnding(){
+  const c=endingPicture(),name='money-makes-money-'+(G.ending?G.ending.rung+'-'+G.ending.kind:'ending')+'.png';
+  c.toBlob(b=>{if(!b)return;const f=new File([b],name,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'Money Makes Money'}).catch(()=>{});
+    else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}},'image/png');
+}
 // the glossary: the video's ideas, underlined wherever a card mentions them, explained in a line when tapped
 const GLOSSARY=[
   [/buy,? borrow,? die/i,'Buy, borrow, die','Never sell: borrow against your shares instead. Loans aren\u2019t income, so there\u2019s no tax, and at death the gains are wiped (the step-up).'],

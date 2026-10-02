@@ -434,6 +434,7 @@ function showEndingCore(){
   const share=e.gains>0?Math.round(e.given/e.gains*100):0;
   const T0={hero:['Hero','The town fizzes with spending, and you die richer than you started.'],
     luthor:['Lex Luthor','You die in your bunker, very rich, over a grey and quiet town.'],
+    giver:['Gave it all away','You gave faster than the fortune grew. You die with less than you started, and the town has what you gave.'],
     revolt:['Revolt','The town has had enough. Signs fill the streets and your name is on them.']}[e.kind];
   showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.nw)}</div>
     <p>Age ${40+Math.floor(e.week/WEEKS)}. You gave away ${money(e.given)}, ${share}% of everything you gained.</p>
