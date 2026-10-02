@@ -24,7 +24,7 @@ tents in the park, shutters coming down, strikes and marches, kids at the nurser
 
 ## The ladder
 
-The game is a ladder of roles, one per rung: down by money, back up by votes. Three rungs are built; each starts in
+The game is a ladder of roles, one per rung: down by money, back up by votes. Four rungs are built; each starts in
 the town the last one left.
 
 - **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
@@ -40,6 +40,12 @@ the town the last one left.
   them. The rich pay best: loopholes for the estate (which starve the town's public works), Agnes's evictions, the
   mill against its union. The town can't pay: a tenant facing eviction, the union itself. Endings: **hired gun**,
   **counsel for the town**, or **burnt out**.
+- **The shop owner** (20 years): you play Bea, who runs the café. Its customers spend the town's wages, including the
+  ones you pay; rent on the premises goes to Agnes. You set prices (every rise sends customers to the megastore),
+  pay, and where supplies come from (the megastore is cheaper, but that money leaves town). The estate may offer to
+  buy you out; late on, investors may offer to make you a **founder**: the shortcut straight back to a billionaire
+  life, which changes nothing. Endings: **pillar of the high street**, **kept the lights on**, **closed**, **sold**,
+  or **founder**.
 
 ## Building and checking
 
@@ -50,7 +56,8 @@ the town the last one left.
   richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair and a gouging landlord
   in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair. Then
   three partners in the towns those landlords leave: always the accountant → hired gun, always the town → counsel,
-  75-hour weeks → burnt out.
+  75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the accountant's
+  prices, pay and supplies without selling → closed.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, and the landlord.
 - `npm run check` runs all three.

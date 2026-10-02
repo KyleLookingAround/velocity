@@ -13,6 +13,10 @@
 //   hiredgun   (always the accountant)                       -> hired gun
 //   counsel    (always the town's side)                      -> counsel for the town
 //   workaholic (the accountant, but 75-hour weeks)           -> burnt out
+// Then the shop owner, in the town a counsel partner leaves (after passive / fair):
+//   pillar  (always the generous option)                                  -> pillar of the high street
+//   seller  (always the accountant: sells to the estate when it can)      -> sold
+//   squeeze (the accountant's prices, pay and supplies, but never sells)  -> closed: squeezing drives the customers off
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
@@ -44,6 +48,9 @@ const LANDLORD={
 const PARTNER={hiredgun:S=>opt(S,o=>o.acct),counsel:S=>opt(S,o=>o.kind),workaholic:S=>S.G.card.id==='hours'?'75':opt(S,o=>o.acct)};
 const ptWant={hiredgun:'hiredgun',counsel:'counsel',workaholic:'burnout'};
 const ptRows=[];
+const SHOP={pillar:S=>opt(S,o=>o.kind),seller:S=>opt(S,o=>o.acct),squeeze:S=>opt(S,o=>o.acct&&o.k!=='sell'&&o.k!=='found')};
+const shWant={pillar:'pillar',seller:'sold',squeeze:'closed'};
+const shRows=[];
 const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}}
@@ -71,5 +78,10 @@ for(const [bname,lname] of [['passive','fair'],['hero','fair'],['hoarder','gouge
   ptRows.push({after:bname+'/'+lname,seed,partner:pname,ending:e.kind,years:Math.floor(e.week/52),worth:'$'+(e.worth/1e6).toFixed(0)+'M',
     toBillion:Math.round(e.years)+' yrs',forRich:e.forRich,forTown:e.forTown,unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
 }
-console.table(rows);console.table(llRows);console.table(ptRows);
+for(const seed of [1,2,3])for(const [sname,spick] of Object.entries(SHOP)){
+  const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,spick);
+  const e=S.G.ending,ok=e.kind===shWant[sname];if(!ok)bad++;
+  shRows.push({seed,shop:sname,ending:e.kind,years:Math.floor(e.week/52),worth:'$'+(e.worth/1e6).toFixed(1)+'M',start:'$'+(e.start/1e6).toFixed(1)+'M',staff:e.staff,unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
+}
+console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

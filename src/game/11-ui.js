@@ -11,7 +11,7 @@ function buildChrome(){
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
-  const tabs=isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  const tabs=isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
@@ -19,7 +19,12 @@ const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
-  if(isPartner()){
+  if(isShop()){
+    const s=G.shops[CAFE];$('#nw').textContent=money(shopWorth());
+    $('#growth').innerHTML=`takings <b>${money(s.rev*WEEKS)}</b> a year · rent ${money(G.sh.premRent*WEEKS)}`;
+    $('#clock').innerHTML=`<b>Bea, ${age()}</b><br>Year ${yearNo()} of ${SH.years}`;
+    setMeter(1,'Staff',String(staffOf(CAFE).length));setMeter(2,'Lost customers',Math.round(Math.min(1,cafeLeak()+(G.sh.moved?0.1:0))*100)+'%');
+  }else if(isPartner()){
     const p=G.pt;$('#nw').textContent=money(ptWorth());
     $('#growth').innerHTML=`<b>$${PT.rate.toLocaleString('en-GB')}</b> an hour · ${p.hours} hours a week`;
     $('#clock').innerHTML=`<b>Theo, ${age()}</b><br>Year ${yearNo()} of ${PT.years}`;
@@ -46,7 +51,7 @@ function renderPane(force){
   $('#sheet').classList.toggle('deciding',!!G.card);
   for(const b of $('#tabs').children)b.classList.toggle('on',!G.card&&b.dataset.t===R.tab);
   const html=G.card?cardHTML():PANES[R.tab]();
-  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').scrollTop=0;if(['fortune','books','career'].includes(R.tab))drawChart()}
+  if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').scrollTop=0;if(['fortune','books','career','cafe'].includes(R.tab))drawChart()}
 }
 // the decision card: what's happened, and each option's cost to you and to the town
 function cardHTML(){
@@ -87,7 +92,7 @@ const PANES={
     const list=G.choices.slice().reverse().slice(0,30);
     return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes the way that makes the most money, without asking you.</small></div>
       <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
@@ -100,13 +105,13 @@ function onPaneClick(e){
 function drawChart(){
   const el=$('#chart');if(!el)return;const r=el.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);
   el.width=r.width*d;el.height=r.height*d;const c=el.getContext('2d');c.scale(d,d);
-  const L=isLandlord(),P=isPartner(),n=L||P?21:41,W=r.width,H=r.height-18,bw=W/n;
-  const rows=P?G.pt.history.map(y=>({v:y.worth})).concat([{v:ptWorth()}]):L?G.ll.history.map(y=>({v:y.equity})).concat([{v:equity()}]):G.history.map(y=>({v:y.nw,g:y.given})).concat([{v:netWorth(),g:G.year.given}]);
-  const max=Math.max(P?1e6:L?G.ll.startEquity:START_FORTUNE*1.2,...rows.map(y=>Math.abs(y.v)),1);
+  const L=isLandlord()||isShop(),P=isPartner()||isShop(),n=L||P?21:41,W=r.width,H=r.height-18,bw=W/n;
+  const rows=isShop()?G.sh.history.map(y=>({v:y.worth})).concat([{v:shopWorth()}]):P?G.pt.history.map(y=>({v:y.worth})).concat([{v:ptWorth()}]):L?G.ll.history.map(y=>({v:y.equity})).concat([{v:equity()}]):G.history.map(y=>({v:y.nw,g:y.given})).concat([{v:netWorth(),g:G.year.given}]);
+  const max=Math.max(isShop()?G.sh.startWorth:P?1e6:L?G.ll.startEquity:START_FORTUNE*1.2,...rows.map(y=>Math.abs(y.v)),1);
   c.fillStyle='#888';c.font='11px system-ui';c.textAlign='left';c.fillText(money(max),2,10);
   rows.forEach((y,i)=>{const bh=Math.max(1,(Math.max(0,y.v)/max)*(H-14));for(let k=0;k<bh;k+=4){c.fillStyle=k%8?'#5aa86b':'#4c9a5d';c.fillRect(i*bw+1,H-k-3,bw-2,3)}
     if(y.g>0){c.fillStyle='#235f33';c.fillRect(i*bw+1,H+2,bw-2,Math.min(12,2+y.g/max*400))}});
-  if(L){const y0=H-(G.ll.startEquity/max)*(H-14);c.strokeStyle='#999';c.setLineDash([4,4]);c.beginPath();c.moveTo(0,y0);c.lineTo(W,y0);c.stroke();c.setLineDash([])}
+  if(L){const y0=H-((isShop()?G.sh.startWorth:G.ll.startEquity)/max)*(H-14);c.strokeStyle='#999';c.setLineDash([4,4]);c.beginPath();c.moveTo(0,y0);c.lineTo(W,y0);c.stroke();c.setLineDash([])}
   c.fillStyle='#666';c.textAlign='center';c.fillText(L||P?'year 1':'age 40',bw*2.5,H+16);c.fillText(L||P?'20':'80',W-bw,H+16);
 }
 
@@ -136,8 +141,26 @@ function showPartnerIntro(){
     <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
 }
+function showShopIntro(){
+  showModal(`<h2>Step down: the shop owner</h2><p>You are Bea, and the café is yours. Your customers spend the town\u2019s wages, including the ones you pay.</p>
+    <p>You pay rent on the premises to Agnes. You set prices and pay, and choose where your supplies come from. Raise prices and customers drift to the megastore.</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${SH.years} years.</small></button></div>`);
+}
 function showEnding(){
   const e=G.ending;
+  if(e.rung==='shop'){
+    const T0={pillar:['A pillar of the high street','You paid fairly, kept the café open, and the town kept coming back.'],
+      tightfisted:['Kept the lights on','The café survived. Your staff mostly didn\u2019t.'],
+      closed:['Closed','The café couldn\u2019t pay its way. You fall to the next rung: the waiter.'],
+      sold:['Sold','The estate bought the café. Its profit leaves town now.'],
+      founder:['Founder','The café becomes a chain, and you start a new billionaire life. Nothing in the town has changed.']}[e.kind];
+    return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.worth)}</div>
+      <p>After ${Math.max(1,Math.round(e.week/WEEKS))} years. You paid ${e.pay.living?'a living wage for '+e.pay.living+' years':e.pay.minimum?'the minimum for '+e.pay.minimum+' years':'the going rate'}, and bought supplies ${e.supply==='local'?'in town':'from the megastore'}.</p>
+      <p>${e.kind==='closed'?'Next: <b>Waiter</b>. It isn\u2019t built yet.':e.kind==='founder'?'The founder\u2019s shortcut: straight back to the top, with the rules unchanged.':'Next rung: <b>Waiter</b>. It isn\u2019t built yet.'}</p>
+      <div class="opts">${e.kind==='founder'?'<button class="main" data-again="1"><b>Start your billionaire life</b><small>A new town and $30M</small></button>':''}
+      <button class="${e.kind==='founder'?'':'main'}" data-replay3="1"><b>Be the shop owner again</b><small>The same town, as Theo left it</small></button>
+      ${e.kind!=='founder'?'<button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button>':''}</div>`,true);
+  }
   if(e.rung==='partner'){
     const T0={hiredgun:['A hired gun','You were very good at helping the rich keep their money. They paid you well for it.'],
       counsel:['Counsel for the town','You took the cases that couldn’t pay, and turned down the ones that hurt the town.'],
@@ -145,8 +168,8 @@ function showEnding(){
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.worth)}</div>
       <p>After ${Math.max(1,Math.round(e.week/WEEKS))} years at $${PT.rate.toLocaleString('en-GB')} an hour. At that rate a billion would take you <b>${Math.round(e.years)} years</b>.</p>
       <p>${e.loopholes?e.loopholes+' loophole'+(e.loopholes>1?'s':'')+' for the estate. ':''}${e.proBono?e.proBono+' eviction'+(e.proBono>1?'s':'')+' fought for free.':''}</p>
-      <p>Next rung: <b>Shop owner</b>. It isn’t built yet.</p>
-      <div class="opts"><button class="main" data-replay2="1"><b>Be the partner again</b><small>The same town, as Agnes left it</small></button>
+      <div class="opts"><button class="main" data-rung="shop"><b>Step down: the shop owner</b><small>Play Bea, who runs the café, in the town Theo leaves</small></button>
+      <button data-replay2="1"><b>Be the partner again</b><small>The same town, as Agnes left it</small></button>
       <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   if(e.rung==='landlord'){
@@ -173,10 +196,12 @@ function showEnding(){
 }
 $('#box').addEventListener('click',e=>{
   const s=e.target.closest('[data-start]'),a=e.target.closest('[data-again]'),g=e.target.closest('[data-rung]'),rr=e.target.closest('[data-replay]');
-  if(s){G.seen.intro=true;if(isLandlord())G.seen.landlord=true;if(isPartner())G.seen.partner=true;hideModal();save()}
+  if(s){G.seen.intro=true;if(isLandlord())G.seen.landlord=true;if(isPartner())G.seen.partner=true;if(isShop())G.seen.shop=true;hideModal();save()}
   if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true)} // cosmetic
   if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
   if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
+  if(g&&g.dataset.rung==='shop'){startShop();R.stage={};buildTabs();save();renderPane(true);showShopIntro()}
+  if(e.target.closest('[data-replay3]')){restartShop();R.stage={};buildTabs();save();renderPane(true);showShopIntro()}
   if(e.target.closest('[data-replay2]')){restartPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
   if(rr){restartLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
 });

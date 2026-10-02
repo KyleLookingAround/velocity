@@ -20,7 +20,9 @@ const saves=[];
   until(S,()=>false,S=>{const o=S.cardOptions();return (o.find(o=>o.none)||o[0]).k});S.startLandlord();S.G.seen.landlord=true;until(S,()=>false,kind);
   S.startPartner();S.G.seen.partner=true;S.step();saves.push(['partner-card',JSON.stringify(S.G),'career']);
   until(S,()=>S.G.week>=S.G.rungStart+8*52&&!S.G.card,acct);saves.push(['partner',JSON.stringify(S.G),'career']);
-  until(S,()=>false,acct);saves.push(['partner-ending',JSON.stringify(S.G),'career'])}
+  until(S,()=>false,acct);saves.push(['partner-ending',JSON.stringify(S.G),'career']);
+  S.startShop();S.G.seen.shop=true;S.step();saves.push(['shop-card',JSON.stringify(S.G),'cafe']);
+  until(S,()=>S.G.week>=S.G.rungStart+6*52&&!S.G.card,kind);saves.push(['shop',JSON.stringify(S.G),'cafe'])}
 const browser=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'}).catch(()=>chromium.launch());
 let errors=0;
 for(const [name,w,h] of sizes){

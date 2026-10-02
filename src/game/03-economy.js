@@ -30,7 +30,8 @@ function economyWeek(){
   // shops pay their staff, and owners take their pay and last week's profit
   G.shops.forEach((s,i)=>{
     if(!s.open)return;
-    for(const r of staffOf(i)){const w=wageFor(r,s.wage);s.cash-=w;r.income+=pay('s'+i,'r'+res.indexOf(r),w,'wage')}
+    const mul=isShop()&&i===CAFE?cafeWageMul():1;
+    for(const r of staffOf(i)){const w=wageFor(r,s.wage*mul);s.cash-=w;r.income+=pay('s'+i,'r'+res.indexOf(r),w,'wage')}
     if(s.ownedByYou){const take=Math.max(0,s.cash-4*s.wage);if(take>0){s.cash-=take;G.cash+=pay('s'+i,'you',take,'profit')}}
     else{const o=res[s.owner];const draw=T.ownerWage+Math.max(0,(s.cash-6*s.wage)*0.5);s.cash-=draw;o.income+=pay('s'+i,'r'+s.owner,draw,'profit')}
   });
@@ -62,7 +63,8 @@ function economyWeek(){
     }
     if(r.debt>0){if(gifts.medical){giveOut(r.debt,'medical',i);r.debt=0}else{const p=Math.min(r.debt,T.medicalPay,Math.max(0,r.cash*0.5));r.debt-=p;r.cash-=pay(id,'out',p,'debt')}}
     const mpc=r.role==='owner'?T.mpc.mid:r.income>T.wage*1.4?T.mpc.mid:T.mpc.low;
-    let s=Math.max(0,(r.income-rent)*mpc)+r.cash*T.savingsDraw;
+    // (you, as the shop owner, live on what you take: your savings sit still)
+    let s=Math.max(0,(r.income-rent)*mpc)+r.cash*(isShop()&&r.name==='Bea'?0.0005:T.savingsDraw);
     if(r.homeless)s=Math.min(s,T.povertyLine*0.5);
     s=Math.min(s,Math.max(0,r.cash));r.cash-=s;r.spent=s;
     for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],r['to_'+c]=s*CAT_SHARE[c];
@@ -78,10 +80,14 @@ function economyWeek(){
   // spending reaches the shops, or leaks to the megastore
   for(const c of CATS){
     const si=G.shops.findIndex(s=>s.cat===c),s=G.shops[si];
-    const leak=!s.open?1:Math.min(1,CAT_LEAK[c]+(s.ownedByYou?0.05+(G.unrest>=70?0.3:G.unrest>=55?0.12:0):0));
+    const cafe=isShop()&&si===CAFE;
+    const leak=!s.open?1:Math.min(1,CAT_LEAK[c]+(s.ownedByYou?0.05+(G.unrest>=70?0.3:G.unrest>=55?0.12:0):0)+(cafe?cafeLeak()+(G.sh.moved?0.1:0):0));
     res.forEach((r,i)=>{const a=r['to_'+c];if(a>0){pay('r'+i,'s'+si,a*(1-leak),'spend');pay('r'+i,'mega',a*leak,'spend')}});
     const local=spendBy[c]*(1-leak);
-    if(s.open){s.rev=local;s.cash+=local;s.cash-=local*T.supplies;pay('s'+si,'out',local*T.supplies,'supplies')}
+    // (your café's supplies come from the megastore, out of town, or from the local store, where they stay)
+    if(s.open){const sup=local*(cafe?cafeSupplies():T.supplies);s.rev=local;s.cash+=local-sup;
+      if(cafe&&G.sh.supply==='local'&&G.shops[3].open){G.shops[3].cash+=sup;pay('s'+si,'s3',sup,'supplies')}else pay('s'+si,'out',sup,'supplies');
+      if(cafe)G.sh.year.rev+=local}
   }
   // medical bills arrive at random through the year
   for(const r of res)if(r.role!=='landlord'&&rnd()<T.medicalChance/WEEKS)r.debt+=T.medicalBill;
@@ -116,6 +122,7 @@ function staffing(){
 }
 function staffWorkshops(){G.workshops.forEach((w,i)=>{const n=G.res.filter(r=>r.job==='w'+i).length;if(n<T.workshopStaff){const j=jobless()[0];if(j)j.job='w'+i}})}
 function closeShop(i){
+  if(isShop()&&i===CAFE)return endLife('closed');
   const s=G.shops[i];s.open=false;
   for(const r of staffOf(i))r.job=null;
   if(!s.ownedByYou){const o=G.res[s.owner];o.role='worker';o.job=null;delete o.shop}

@@ -30,3 +30,13 @@ PANES.career=function(){
     <div>Agnes’s retainers<b>${p.evictionWork}</b></div><div>The mill’s union<b>${{mill:'Against it',union:'For it',none:'Stayed out'}[p.unionSide]||'–'}</b></div>
     <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>`;
 };
+
+// the shop owner's Café tab
+PANES.cafe=function(){
+  const sh=G.sh,s=G.shops[CAFE];
+  return `<p class="lead">Each bar is a year of what you\u2019re worth: the café\u2019s cash and your savings. The dashed line is where you started.</p><canvas id="chart"></canvas>
+    <div class="stats" style="margin-top:8px"><div>Takings a year<b>${money(s.rev*WEEKS)}</b></div><div>Rent a year<b>${money(sh.premRent*WEEKS)}</b></div>
+    <div>Prices<b>${pct(sh.price-1)} on the start</b></div><div>Pay<b>${{minimum:'The minimum',standard:'The going rate',living:'A living wage'}[sh.pay]}</b></div>
+    <div>Supplies<b>${sh.supply==='local'?'The local store':'The megastore'}</b></div><div>Staff<b>${staffOf(CAFE).map(r=>r.name).join(', ')||'None'}</b></div>
+    <div>Café cash<b>${money(s.cash)}</b></div><div>Your savings<b>${money(bea().cash)}</b></div></div>`;
+};

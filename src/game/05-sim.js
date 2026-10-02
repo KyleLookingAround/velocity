@@ -40,6 +40,7 @@ function yearEnd(){
   G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
   if(isLandlord()){landlordYearEnd();if(G.ending)return}
   if(isPartner()){partnerYearEnd();if(G.ending)return}
+  if(isShop()){shopYearEnd();if(G.ending)return}
   reopenShops();
   const y=G.year,stock=y.stock/Math.max(1,y.weeks);
   G.lastGiftCost=y.gc||{};
@@ -77,6 +78,12 @@ function fundWeek(){
 
 function endLife(kind){
   if(G.ending)return;
+  if(isShop()){
+    const v=kind==='death'?shopVerdict():{kind};
+    G.ending={rung:'shop',kind:v.kind,week:rungWeek(),worth:shopWorth(),start:G.sh.startWorth,pay:G.sh.payYears,supply:G.sh.supply,unrest:G.unrest,staff:staffOf(CAFE).length};
+    G.ladder.best=Object.assign({},G.ladder.best,{shop:G.ending.kind});
+    return;
+  }
   if(isPartner()){
     const v=kind==='death'?partnerVerdict():{kind,forRich:0,forTown:0};
     G.ending={rung:'partner',kind:v.kind,week:rungWeek(),worth:ptWorth(),years:yearsToBillion(),forRich:v.forRich,forTown:v.forTown,unrest:G.unrest,proBono:G.pt.proBono,loopholes:G.pt.loopholes};
@@ -104,6 +111,7 @@ function step(){
   // the gifts stop when the fortune can't pay for them: a fortune never goes below nothing
   if(G.cash<0&&Object.values(G.gifts).some(Boolean)){for(const k in G.gifts)G.gifts[k]=false;toast(isLandlord()?'The foundation has run out of money':'Your fortune can\u2019t pay for the gifts any more. They\u2019ve stopped')}
   if(isLandlord()){landlordWeek();if(G.ending)return}
+  if(isShop()){shopWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
   G._nw=nw;G._yv=G.year.given;
