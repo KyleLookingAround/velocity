@@ -15,7 +15,7 @@ function start(){
     if(!modal&&!G.ending&&!G.card&&G.speed>0){
       acc+=dt*G.speed;
       while(acc>=WEEK_SECS){acc-=WEEK_SECS;step();
-        if(G.week%WEEKS===0)save();if(G.card){renderPane(true);break}if(G.ending){save();showEnding();break}}
+        if(G.week%WEEKS===0)save();if(G.card){renderPane(true);break}if(G.ending){R.stage={};save();showEnding();break}}
     }
     drawMap(dt);
     ui+=dt;if(ui>0.25){ui=0;refreshTop();renderPane(false);showToasts()}

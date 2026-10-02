@@ -90,7 +90,7 @@ function economyWeek(){
 const wageFor=(r,w)=>r.parent&&!G.gifts.childcare?w*T.partTime:w;
 
 function evict(r){
-  r.arrears=0;
+  r.arrears=0;townEvent('evicted',r.name);
   if(G.gifts.shelter){r.homeless=false;r.sheltered=true}else r.homeless=true;
 }
 // the gifts you fund come out of your fortune and into the town
@@ -117,7 +117,7 @@ function closeShop(i){
   for(const r of staffOf(i))r.job=null;
   if(!s.ownedByYou){const o=G.res[s.owner];o.role='worker';o.job=null;delete o.shop}
   s.ownedByYou=false;
-  toast(s.name+' has closed');
+  townEvent('closed',s.name);toast(s.name+' has closed');
 }
 // a closed shop reopens when spending in town can carry it, run by someone out of work
 function reopenShops(){

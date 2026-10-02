@@ -57,7 +57,7 @@ const PANES={
       <div class="stats" style="margin-top:8px"><div>Worth now<b>${money(netWorth())}</b></div><div>Invested<b>${money(G.cash)}</b></div>
       <div>Homes owned<b>${homesOwned()} of 19</b></div><div>Shops owned<b>${shopsOwned()} of 4</b></div>
       <div>Given so far<b>${money(G.given)}</b></div><div>Share of gains<b>${share}%</b></div>
-      <div>Taxes paid<b>${money(G.taxPaid)}</b></div><div>Next tax vote<b>${G.nextTax>G.week?'age '+(START_AGE+Math.floor(G.nextTax/WEEKS)):'now'}</b></div></div>
+      <div>Taxes paid<b>${money(G.taxPaid)}</b></div><div>Next tax vote<b>${G.ending?'–':G.nextTax>G.week?'age '+(START_AGE+Math.floor(G.nextTax/WEEKS)):'now'}</b></div></div>
       <p class="lead" style="margin-top:8px">A hero gives at least ${Math.round(T.heroGiveShare*100)}% of what they gain, keeps the town calm, and still dies richer than $30M.</p>`;
   },
   commit(){
@@ -106,7 +106,8 @@ function drawChart(){
 }
 
 // the cards that open and close a rung
-function showModal(html){$('#box').innerHTML=html;$('#modal').classList.add('show')}
+// (an ending sits low, so its scene stays in view above it)
+function showModal(html,low){$('#box').innerHTML=html;$('#modal').classList.toggle('low',!!low);$('#modal').classList.add('show')}
 function hideModal(){$('#modal').classList.remove('show')}
 function showIntro(){
   showModal(`<h2>Money Makes Money</h2><p>You have <b>$30 million</b>. It earns 8% a year while you do nothing.</p>
@@ -134,7 +135,7 @@ function showEnding(){
       <p>Equity after ${Math.max(1,Math.round(e.week/WEEKS))} years, from ${money(e.start)}. Your tenants paid ${Math.round((e.burden||0)*100)}% of their income in rent, and your homes were ${Math.round(e.cond*100)}% kept up.</p>
       ${e.kind!=='fair'?'<p>A fair landlord keeps rent under about 36% of income, homes at least 65% kept up, and nobody sleeping rough.</p>':''}<p>${next}</p>
       <div class="opts"><button class="main" data-replay="1"><b>Be the landlord again</b><small>The same town, as the billionaire left it</small></button>
-      <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`);
+      <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   const share=e.gains>0?Math.round(e.given/e.gains*100):0;
   const T0={hero:['Hero','The town fizzes with spending, and you die richer than you started.'],
@@ -144,7 +145,7 @@ function showEnding(){
     <p>Age ${40+Math.floor(e.week/WEEKS)}. You gave away ${money(e.given)}, ${share}% of everything you gained.</p>
     ${e.kind!=='hero'?`<p>The hero ending needs you to give at least ${Math.round(T.heroGiveShare*100)}% of your gains, keep unrest low, and still finish richer than $30M.</p>`:''}
     <div class="opts"><button class="main" data-rung="landlord"><b>Step down: the landlord</b><small>Play Agnes, in the town you leave behind</small></button>
-    <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`);
+    <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
 }
 $('#box').addEventListener('click',e=>{
   const s=e.target.closest('[data-start]'),a=e.target.closest('[data-again]'),g=e.target.closest('[data-rung]'),rr=e.target.closest('[data-replay]');

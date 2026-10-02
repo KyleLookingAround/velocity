@@ -16,7 +16,9 @@ const FIELDS={
 };
 const DEFAULT=()=>{const s={};for(const k in FIELDS)s[k]=FIELDS[k]();return s};
 let G;
-const R={sim:false,flows:[],toasts:[],tab:'fortune',stage:{},recent:null};
+const R={sim:false,flows:[],toasts:[],tab:'fortune',stage:{},recent:{},townQ:[]};
+// something happened to someone: remembered for the captions, and shown next on the town's side of the stage
+function townEvent(k,name){R.recent[k]=name;if(!R.sim&&!R.townQ.includes(k))R.townQ.push(k)}
 
 function money(v){
   const s=v<0?'−':'';v=Math.abs(v);

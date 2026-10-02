@@ -29,7 +29,7 @@ function buyRival(keep){
   // the owner stays on as its manager on a wage, or is out; cutting costs also lets one of the staff go
   const i=G.shops.indexOf(s),o=G.res[s.owner];o.role='worker';delete o.shop;
   if(keep){o.job=i;toast('You bought the '+s.name+'. '+o.name+' stays on to run it');return true}
-  o.job=null;
+  o.job=null;townEvent('laidoff',o.name);
   const staff=staffOf(i);if(staff.length>1)staff[staff.length-1].job=null;
   toast('You bought the '+s.name+'. '+o.name+' is out of work');
   return true;

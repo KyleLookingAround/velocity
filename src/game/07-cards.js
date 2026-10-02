@@ -88,7 +88,7 @@ const CARDS=[
     title:d=>G.res[d.i].name+' is six weeks behind on the rent',
     body:d=>{const r=G.res[d.i];return r.name+' earns '+money(r.income/HH)+' a week per household and owes '+money(r.rent/HH)+' a week in rent.'},
     options:d=>{const r=G.res[d.i];return [
-      {k:'evict',label:'Evict',acct:true,you:'The home can be let again, if anyone can afford it',town:r.name+' is out on the street',scene:'notice',then:'evicted',do:()=>{G.arrearsQ.shift();evict(r);G.ll.year.evictions++;R.recent={evict:r.name}}},
+      {k:'evict',label:'Evict',acct:true,you:'The home can be let again, if anyone can afford it',town:r.name+' is out on the street',scene:'notice',then:'evicted',do:()=>{G.arrearsQ.shift();evict(r);G.ll.year.evictions++}},
       {k:'time',label:'Give them six months',none:true,you:'The rent they owe builds up',town:r.name+' stays home',scene:'rentbook',then:null,do:()=>{G.arrearsQ.shift();r.arrears=0;r.grace=G.week+26}},
       {k:'cut',label:'Cut their rent by a fifth',kind:true,you:'Less rent from '+r.name,town:r.name+' can catch up',scene:'letter',then:'chain',do:()=>{G.arrearsQ.shift();r.arrears=0;r.rent*=0.8}}]}},
   {id:'repairs',rung:'landlord',cool:2*WEEKS,when:()=>G.ll.cond<0.62||rungWeek()===8,
