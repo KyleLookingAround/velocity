@@ -23,6 +23,9 @@ const saves=[];
   until(S,()=>false,acct);saves.push(['partner-ending',JSON.stringify(S.G),'career']);
   S.startShop();S.G.seen.shop=true;S.step();saves.push(['shop-card',JSON.stringify(S.G),'cafe']);
   until(S,()=>S.G.week>=S.G.rungStart+6*52&&!S.G.card,kind);saves.push(['shop',JSON.stringify(S.G),'cafe']);
+  // (a silver card: the rare variant of a card already held)
+  {const g=JSON.parse(JSON.stringify(S.G));g.card={id:'sick',d:{name:g.res.find(r=>r.role==='worker').name},week:g.week,rare:1};
+    g.ladder.tipCard=true;g.ladder.cards=Object.assign({},g.ladder.cards,{'shop:sick':{title:'A child is ill',k:'paid',label:'Paid leave',week:0,life:0}});saves.push(['shop-silver',JSON.stringify(g),'decide'])}
   until(S,()=>false,kind);S.startWaiter();S.G.seen.waiter=true;S.step();saves.push(['waiter-card',JSON.stringify(S.G),'budget']);
   until(S,()=>S.G.week>=S.G.rungStart+5*52&&!S.G.card,kind);saves.push(['waiter',JSON.stringify(S.G),'budget']);
   until(S,()=>false,kind);S.startOut();S.G.seen.out=true;S.step();saves.push(['out-card',JSON.stringify(S.G),'days']);

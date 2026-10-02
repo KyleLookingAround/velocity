@@ -11,7 +11,7 @@ const ADVISERS=[
   {k:'kind',voice:['It\u2019s the town\u2019s money too.','You can afford to be decent.','They\u2019ll remember this.'],name:'The conscience',need:4,note:()=>'Every decision goes the way that does most for the town',
     pick:os=>os.find(o=>o.kind)||os.find(o=>!o.acct)||os[0]},
   {k:'memory',voice:['Same as last time.','You\u2019ve been here before.'],name:'Your memory',need:7,note:()=>'Answers each card the way you did last time, and brings a new one to you',
-    pick:(os,c)=>{const e=G.ladder.cards&&G.ladder.cards[cardKey(c)];return e?os.find(o=>o.k===e.k):null}},
+    pick:(os,c)=>{const e=G.ladder.cards&&(G.ladder.cards[cardKey(c)]||G.ladder.cards[c.rung+':'+c.id]);return e?os.find(o=>o.k===e.k):null}},
   {k:'fast',name:'Sixteen times',need:10,note:()=>'A 16× speed on the transport bar',speed:true},
   // the rung's own advisers: each unlocks with that rung's best ending and plays for it, and only works on its rung
   {k:'foundation',voice:['Within what the fortune can carry.','Give, but keep giving next year too.'],rung:'billionaire',name:'The foundation director',ach:'billionaire:hero',note:()=>'Gives what the fortune can carry, funds the workshop when you’re rich, and takes the kind option otherwise',

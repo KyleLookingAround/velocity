@@ -59,8 +59,8 @@ sessions). The owner decides what moves up.
 
 ## 5. Achievements and collection
 
-- **Card variants** (S): some cards have a rare variant (the same ask from a different person, a bigger number) with a
-  silver star; collecting both completes the pair.
+- ~~**Card variants** (S): some cards have a rare variant (the same ask from a different person, a bigger number) with a
+  silver star; collecting both completes the pair.~~ Done: one per rung, the silver pairs.
 - **Towns** (M): a new billionaire life can start in one of three towns (mill town, port, suburb) once unlocked by
   achievements; different shops, different threats, same ladder.
 - **Daily ladder** (M): a seeded daily life with a leaderboard kept on the device (best ending, fewest years to the

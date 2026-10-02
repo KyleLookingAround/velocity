@@ -122,7 +122,14 @@ const CARDS=[
       {k:'buy',label:'Buy it, and change the stories',acct:true,you:money(a)+', and kinder headlines',town:'The anger is still there, just not in print',scene:'handshake',then:'calm',do:()=>{G.cash-=a;G.anger=(G.anger||0)-12;G.paper='owned'}},
       {k:'free',label:'Buy it, and leave it independent',kind:true,you:money(a),town:'The paper survives, and keeps asking questions',scene:'give',then:null,do:()=>{G.cash-=a;G.paper='free'}},
       {k:'no',label:'Let it close',none:true,you:'Nothing',town:'Nobody prints the stories at all',scene:'desk',then:'closed',do:()=>{}}]}},
-  {id:'museum',rung:'billionaire',cool:1e6,when:()=>netWorth()>START_FORTUNE*3,
+  {id:'museum',rung:'billionaire',
+    rare:{title:()=>'The national opera would take your name',
+    body:()=>'Over the door, in gold, in the capital. They ask '+money(netWorth()*0.04)+'. The town’s hospital is asking for the same.',
+    options:()=>{const a=netWorth()*0.04;return [
+      {k:'wing',label:'The opera house',you:'Your name in gold, and a box for life',town:'The town sees none of it',scene:'ribbon',then:null,do:()=>{G.cash-=a}},
+      {k:'school',label:'The town’s hospital',kind:true,you:money(a)+', and a ward with your name',town:'Nurses and a new wing, paid for here',scene:'give',then:'works',do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;purse('gift',a)}},
+      {k:'no',label:'Neither',acct:true,none:true,you:'Your 8% keeps working',town:'Nothing changes',scene:'desk',then:null,do:()=>{}}]}},
+    cool:1e6,when:()=>netWorth()>START_FORTUNE*3,
     title:()=>'A famous museum would name a wing after you',
     body:()=>'In the capital, far from here. They ask '+money(netWorth()*0.02)+'. The town\u2019s school is asking for the same.',
     options:()=>{const a=netWorth()*0.02;return [
@@ -211,7 +218,13 @@ const CARDS=[
         do:()=>{let n=0;for(const r of myHomes()){if(n>=2)break;if(!r.homeless&&!r.sheltered&&r.role!=='landlord'){evict(r);r.rent*=2;n++}}G.ll.year.evictions+=n;G.anger=(G.anger||0)+6}},
       {k:'one',label:'Just one, when it falls empty',you:'A little more rent, later',town:'Nobody is pushed out',scene:'rentbook',then:null,do:()=>{const r=myHomes().find(r=>r.homeless||r.sheltered);if(r){r.rent*=2;toast(r.name+'\u2019s old home becomes a holiday let')}else toast('None of your homes is empty yet')}},
       {k:'no',label:'No',kind:true,none:true,you:'Nothing',town:'The homes stay homes',scene:'refuse',then:null,do:()=>{}}]},
-  {id:'pipe',rung:'landlord',cool:2*WEEKS,when:()=>rungWeek()>WEEKS&&myHomes().length>0,data:()=>({name:myHomes()[Math.floor(rnd()*myHomes().length)].name}),
+  {id:'pipe',rung:'landlord',
+    rare:{title:d=>'A storm has taken the roof off '+d.name+'’s home',
+    body:()=>'The rain is coming in on the beds. The whole street is watching what you do.',
+    options:d=>[{k:'now',label:'A new roof, this week',kind:true,you:money(G.homePrice*0.03),town:'Local roofers, paid this week',scene:'repair',then:'chain',do:()=>{G.res[0].cash-=G.homePrice*0.03;G.ll.cond=Math.min(1,G.ll.cond+0.02)}},
+      {k:'patch',label:'A tarpaulin, for now',none:true,you:money(G.homePrice*0.015),town:'It flaps all winter',scene:'repair',then:null,do:()=>{G.res[0].cash-=G.homePrice*0.015}},
+      {k:'wait',label:'Wait for the insurer',acct:true,you:'Nothing yet',town:'A family in one dry room, and the street remembers',scene:'refuse',then:'damp',do:()=>{G.ll.cond=Math.max(0,G.ll.cond-0.08);G.anger=(G.anger||0)+6}}]},
+    cool:2*WEEKS,when:()=>rungWeek()>WEEKS&&myHomes().length>0,data:()=>({name:myHomes()[Math.floor(rnd()*myHomes().length)].name}),
     title:d=>'A pipe has burst in '+d.name+'’s home',
     body:()=>'The ceiling is down and the floor is soaked.',
     options:d=>[{k:'now',label:'Fix it today, properly',kind:true,you:money(G.homePrice*0.02),town:'Local builders, paid this week',scene:'repair',then:'chain',do:()=>{G.res[0].cash-=G.homePrice*0.02;G.ll.cond=Math.min(1,G.ll.cond+0.02)}},
@@ -293,7 +306,14 @@ const CARDS=[
     body:()=>'A home of your own would cost '+hh(G.homePrice)+'. You pay Agnes '+money(G.pt.rent*grow(0.03)*WEEKS)+' a year.',
     options:()=>[{k:'buy',label:'Buy a home',acct:true,kind:true,you:'No more rent, and a home that grows in value',town:'Agnes loses a tenant who always paid',scene:'deed',then:null,do:()=>{G.pt.cash-=G.homePrice/HH;G.pt.home='own';G.pt.homeValue=G.homePrice/HH}},
       {k:'rent',label:'Keep renting',none:true,you:'Nothing',town:'Nothing changes',scene:'refuse',then:null,do:()=>{}}]},
-  {id:'clinic',rung:'partner',cool:1e6,when:()=>rungWeek()>WEEKS,
+  {id:'clinic',rung:'partner',
+    rare:{title:()=>'A housing charity asks you to lead a test case',
+    body:()=>'One case against the estate’s eviction notices, for every tenant in town at once. Your firm acts for the estate.',
+    options:()=>[{k:'yes',label:'Lead it, and tell the firm',kind:true,you:'Months of evenings, and the estate’s fury',town:'Every notice on hold while it’s heard',scene:'court',then:'chain',
+        do:()=>{G.pt.proBono+=4;G.pt.burn=Math.min(1,G.pt.burn+0.1);if(G.aiLandlord)G.aiLandlord.evictAt+=6}},
+      {k:'month',label:'Advise them quietly',you:'A few evenings',town:'A better-argued case',scene:'court',then:null,do:()=>{G.pt.proBono+=2}},
+      {k:'no',label:'Conflict of interest',acct:true,none:true,you:'Nothing',town:'The notices go out',scene:'office',then:null,do:()=>{}}]},
+    cool:1e6,when:()=>rungWeek()>WEEKS,
     title:()=>'The law school asks you to run a free clinic',
     body:()=>'One evening a week, for people who can’t afford a lawyer: evictions, benefits, wages owed.',
     options:()=>[{k:'yes',label:'Run it every week',kind:true,you:'An evening a week, and more tired',town:'Evictions fought, benefits won',scene:'court',then:'chain',
@@ -350,7 +370,13 @@ const CARDS=[
     body:()=>'The megastore will deliver cheaper. Dee\u2019s store in town costs more, but the money stays here.',
     options:()=>[['mega','The megastore','acct'],['local','The local store','kind']].map(([k,label,f])=>({k,label,acct:f==='acct',kind:f==='kind',none:k===G.sh.supply,
       you:k==='mega'?'Supplies 15% cheaper':'Supplies 10% dearer',town:k==='mega'?'That money leaves town':'That money keeps the store going',scene:'supplier',then:k==='mega'?'megastore':'chain',do:()=>{G.sh.supply=k}}))},
-  {id:'sick',rung:'shop',cool:2*WEEKS,when:()=>staffOf(CAFE).length>0&&rungWeek()>WEEKS,data:()=>({name:staffOf(CAFE)[0].name}),
+  {id:'sick',rung:'shop',
+    rare:{title:d=>d.name+' has been hit by a car',
+    body:d=>d.name+' will live, but needs six weeks off at least.',
+    options:d=>[{k:'paid',label:'Full pay until they’re back',kind:true,you:'Six weeks’ wages for no work',town:d.name+' keeps the flat while they mend',scene:'staff',then:'calm',do:()=>{G.shops[CAFE].cash-=6*G.shops[CAFE].wage}},
+      {k:'cover',label:'Half pay, and cover the shifts yourself',you:'Three weeks’ wages, and six long weeks',town:d.name+' gets by, and the café stays open',scene:'cafe',then:'calm',do:()=>{G.shops[CAFE].cash-=3*G.shops[CAFE].wage}},
+      {k:'unpaid',label:'Unpaid',acct:true,none:true,you:'Nothing',town:d.name+' can’t make the rent',scene:'refuse',then:'rentrise',do:()=>{const r=G.res.find(r=>r.name===d.name);if(r)r.cash-=6*G.shops[CAFE].wage;G.anger=(G.anger||0)+6}}]},
+    cool:2*WEEKS,when:()=>staffOf(CAFE).length>0&&rungWeek()>WEEKS,data:()=>({name:staffOf(CAFE)[0].name}),
     title:d=>d.name+'\u2019s child is ill',
     body:d=>d.name+' needs two weeks off.',
     options:d=>[{k:'paid',label:'Paid leave',kind:true,you:'Two weeks\u2019 wages for no work',town:d.name+' doesn\u2019t fall behind on the rent',scene:'staff',then:'calm',do:()=>{G.shops[CAFE].cash-=2*G.shops[CAFE].wage}},
@@ -445,7 +471,13 @@ const CARDS=[
     options:()=>[{k:'pay',label:'Pay it off slowly',none:true,kind:true,you:'Payments for a while',town:'Nothing changes',scene:'waiting',then:'medical',do:()=>{}},
       {k:'skip',label:'Skip the follow-up',acct:true,you:'Half the bill',town:'Your health suffers',scene:'waiting',then:'medical',do:()=>{me().debt*=0.5;G.wt.health-=0.15}},
       {k:'charity',label:'Ask the hospital\u2019s charity fund',you:'A form, and a wait',town:'A fifth of the bill written off',scene:'medical',then:null,do:()=>{me().debt*=0.8}}]},
-  {id:'trip',rung:'waiter',cool:2*WEEKS,when:()=>me().parent,
+  {id:'trip',rung:'waiter',
+    rare:{title:()=>'A school trip abroad',
+    body:()=>'A week in another country. Your child has never been on a plane.',
+    options:()=>[{k:'pay',label:'Pay for it',kind:true,you:hh(me().rent*4),town:'A week they’ll talk about for years',scene:'nursery',then:null,do:()=>{me().cash-=me().rent*4}},
+      {k:'half',label:'Pay half, and pick up shifts',you:hh(me().rent*2)+', and a month of long days',town:'A week they’ll talk about for years',scene:'nightshift',then:null,do:()=>{me().cash-=me().rent*2;G.wt.health-=0.05}},
+      {k:'no',label:'Say no',acct:true,none:true,you:'Nothing',town:'The only one in the class who stays',scene:'waiting',then:null,do:()=>{G.wt.health-=0.05}}]},
+    cool:2*WEEKS,when:()=>me().parent,
     title:()=>'A school trip',
     body:()=>'Your child\u2019s class is going to the coast. Everyone else is going.',
     options:()=>[{k:'pay',label:'Pay for it',kind:true,you:hh(me().rent*1.5),town:'A good week',scene:'nursery',then:null,do:()=>{me().cash-=me().rent*1.5}},
@@ -554,7 +586,12 @@ const CARDS=[
       {k:'join',label:'Join in',none:true,you:'An evening a week',town:'One more voice',scene:'organising',then:null,do:()=>{G.ow.organised+=0.5}},
       {k:'out',label:'Keep your head down',acct:true,you:'Nothing',town:'Nothing changes',scene:'jobsearch',then:null,do:()=>{}}]},
 
-  {id:'sofa',rung:'out',cool:1e6,when:()=>outMe().homeless&&!outMe().sheltered&&!outMe().sofa,
+  {id:'sofa',rung:'out',
+    rare:{title:()=>'An old friend offers their spare room',
+    body:()=>'For as long as you need it. They won’t take rent, and their landlord is them.',
+    options:()=>[{k:'yes',label:'Accept',kind:true,you:'A door that locks, and a key',town:'One fewer in the park',scene:'calm',then:null,do:()=>{const r=outMe();r.sofa=true;r.homeless=false;r.cash+=r.rent}},
+      {k:'no',label:'Don’t burden them',none:true,acct:true,you:'Nothing',town:'You stay where you are',scene:'park',then:'tents',do:()=>{}}]},
+    cool:1e6,when:()=>outMe().homeless&&!outMe().sheltered&&!outMe().sofa,
     title:()=>'Your sister offers her sofa',
     body:()=>'Her flat is small, and her landlord doesn’t know.',
     options:()=>[{k:'yes',label:'Accept',kind:true,you:'A roof, for now',town:'Two households in one flat',scene:'calm',then:null,do:()=>{const r=outMe();r.sofa=true;r.homeless=false}},
@@ -629,7 +666,13 @@ const CARDS=[
     options:()=>[{k:'fight',label:'Fight it',kind:true,you:'A fifth of the strike fund',town:'The jobs stay full jobs',scene:'court',then:'chain',do:()=>{G.un.fund*=0.8;G.un.members=Math.min(1,G.un.members+0.03)}},
       {k:'terms',label:'Agree, if they train them properly and pay them more each year',you:'A long negotiation',town:'Fewer full jobs, but real training',scene:'meeting',then:null,do:()=>{G.millMul=(G.millMul||1)*0.99}},
       {k:'accept',label:'Accept it',acct:true,none:true,you:'Nothing',town:'The mill’s pay falls, slowly',scene:'meeting',then:'laidoff',do:()=>{G.millMul=(G.millMul||1)*0.96;G.un.members=Math.max(0,G.un.members-0.03)}}]},
-  {id:'reporter',rung:'union',cool:3*WEEKS,when:()=>rungWeek()>WEEKS,
+  {id:'reporter',rung:'union',
+    rare:{title:()=>'A national news crew wants your story',
+    body:()=>'Pay, rents and the strike fund, on the evening news across the country.',
+    options:()=>[{k:'camera',label:'Go on camera',kind:true,you:'Your face on every screen',town:'Workers in other towns call the hall',scene:'smear',then:'protest',do:()=>{G.un.members=Math.min(1,G.un.members+0.08);G.anger=(G.anger||0)+4}},
+      {k:'quiet',label:'Talk, off the record',you:'Nothing',town:'A smaller story',scene:'meeting',then:null,do:()=>{G.un.members=Math.min(1,G.un.members+0.02)}},
+      {k:'no',label:'No comment',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]},
+    cool:3*WEEKS,when:()=>rungWeek()>WEEKS,
     title:()=>'A reporter wants your story',
     body:()=>'Pay, rents and the strike fund. On camera, if you’ll do it.',
     options:()=>[{k:'camera',label:'Go on camera',kind:true,you:'Your face in the papers',town:'More workers join',scene:'smear',then:'protest',do:()=>{G.un.members=Math.min(1,G.un.members+0.04);G.anger=(G.anger||0)+2}},
@@ -711,7 +754,13 @@ const CARDS=[
     options:()=>[{k:'stand',label:'Stand with them',kind:true,you:'Some friends',town:'About 5 points more support',scene:'strike',then:'strike',do:()=>{G.ac.support=Math.min(0.9,G.ac.support+0.05);G.anger=(G.anger||0)+3}},
       {k:'tenants',label:'Stand with them, and bring the tenants',you:'More friends, and more enemies',town:'About 7 points more support, if it holds',scene:'march',then:'strike',do:()=>{G.ac.support=Math.min(0.9,G.ac.support+0.07);G.anger=(G.anger||0)+5;if(rnd()<0.2)G.ac.arrests++}},
       {k:'apart',label:'Stay out of it',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]},
-  {id:'debate',rung:'activist',cool:2*WEEKS,when:()=>rungWeek()>WEEKS,
+  {id:'debate',rung:'activist',
+    rare:{title:()=>'A televised debate with the estate’s owner',
+    body:()=>'Not the spokesman: the owner, who never debates. The whole state will watch.',
+    options:()=>[{k:'go',label:'Debate them yourself',kind:true,you:'Everything, in one evening',town:'The whole state hears the argument',scene:'townhall',then:'protest',do:()=>{G.ac.support=Math.max(0.05,Math.min(0.9,G.ac.support+(rnd()<0.6?0.1:-0.05)))}},
+      {k:'send',label:'Send your best speaker',you:'Smaller stakes',town:'A fair hearing',scene:'meeting',then:null,do:()=>{G.ac.support=Math.min(0.9,G.ac.support+(rnd()<0.6?0.04:-0.02))}},
+      {k:'no',label:'Decline',acct:true,none:true,you:'Nothing',town:'An empty chair, on camera',scene:'meeting',then:null,do:()=>{G.ac.support=Math.max(0.05,G.ac.support-0.03)}}]},
+    cool:2*WEEKS,when:()=>rungWeek()>WEEKS,
     title:()=>'A televised debate with the estate’s spokesman',
     body:()=>'Half the town will watch. He has been doing this for years.',
     options:()=>[{k:'go',label:'Debate him yourself',kind:true,you:'A win or a loss, in front of everyone',town:'The town hears the argument',scene:'townhall',then:'protest',do:()=>{G.ac.support=Math.max(0.05,Math.min(0.9,G.ac.support+(rnd()<0.6?0.05:-0.03)))}},
@@ -796,7 +845,13 @@ const CARDS=[
         do:()=>{G.my.granted++;purse('grant',grant);toast('The state grant comes through')}},
       {k:'match',label:'Apply, and put in matching money',you:money(G.res.length*T.wage*grow(0.02)*2)+' from the purse',town:'The grant comes through bigger',scene:'paperwork',then:'works',do:()=>{const b=G.res.length*T.wage*grow(0.02);G.fund=Math.max(0,G.fund-2*b);G.my.granted++;G.fund+=b*(G.my.council>=2?12:7)}},
       {k:'skip',label:'Leave it',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'townhall',then:null,do:()=>{}}]}},
-  {id:'crowd',rung:'mayor',cool:3*WEEKS,when:()=>G.unrest>=55,
+  {id:'crowd',rung:'mayor',
+    rare:{title:()=>'The whole town is marching on the town hall',
+    body:()=>'Shops shut, the mill is out, and the police chief wants the riot vans.',
+    options:()=>[{k:'meet',label:'Go out and march with them',kind:true,you:'The landlords will never forgive it',town:'Heard, at last, by everyone',scene:'townhall',then:'protest',do:()=>{G.my.approval=Math.min(0.9,G.my.approval+0.06);G.anger=(G.anger||0)-8}},
+      {k:'hall',label:'Open the town hall for a week',you:'A long week of listening',town:'They speak in the council chamber',scene:'townhall',then:'calm',do:()=>{G.my.approval=Math.min(0.9,G.my.approval+0.04);G.anger=(G.anger||0)-12}},
+      {k:'close',label:'Send the vans',acct:true,none:true,you:'The landlords approve',town:'Arrests, and a long memory',scene:'townhall',then:'protest',do:()=>{G.anger=(G.anger||0)+10;G.my.approval=Math.max(0.05,G.my.approval-0.05)}}]},
+    cool:3*WEEKS,when:()=>G.unrest>=55,
     title:()=>'A march is heading for the town hall',
     body:()=>'The police chief wants to close the square.',
     options:()=>[{k:'meet',label:'Go out and meet them',kind:true,you:'An afternoon on the steps',town:'Heard, at last',scene:'townhall',then:'protest',do:()=>{G.my.approval=Math.min(0.9,G.my.approval+0.03);G.anger=(G.anger||0)-4}},
@@ -885,7 +940,13 @@ const CARDS=[
     options:()=>[{k:'sign',label:'Sign it',acct:true,you:'A donor, and savings for the budget',town:'Profit from every prisoner, sent out of state',scene:'handshake',then:'protest',do:()=>{G.gv.donors++;G.gv.budget*=1.03;G.anger=(G.anger||0)+3}},
       {k:'rehab',label:'Spend it on rehabilitation instead',kind:true,you:'A tenth of the budget',town:'Fewer people back inside',scene:'billsign',then:'chain',do:()=>{G.gv.budget*=0.9;G.gv.granted++}},
       {k:'no',label:'Keep prisons public',none:true,you:'Nothing',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]},
-  {id:'college',rung:'governor',cool:1e6,when:()=>rungWeek()>WEEKS/2,
+  {id:'college',rung:'governor',
+    rare:{title:()=>'A tech fortune offers to pay for free college',
+    body:()=>'Half the cost for ten years, if the colleges carry the donor’s name and teach its software.',
+    options:()=>[{k:'free',label:'Take it, and make college free',kind:true,you:'A tenth of the budget, and a name on every door',town:'Anyone out of work can train',scene:'classes',then:'chain',do:()=>{G.gv.budget*=0.9;G.gv.granted++;G.gv.college=true;if(G.ow)G.ow.trained=true}},
+      {k:'loans',label:'Cheap loans instead, and no name',acct:true,you:'Little from the budget',town:'Training, and debt',scene:'bank',then:null,do:()=>{G.gv.budget*=0.97}},
+      {k:'no',label:'No',none:true,you:'Nothing',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]},
+    cool:1e6,when:()=>rungWeek()>WEEKS/2,
     title:()=>'Free community college?',
     body:()=>'Two years of training for anyone, paid from the state’s budget.',
     options:()=>[{k:'free',label:'Make it free',kind:true,you:'A fifth of the budget',town:'Anyone out of work can train',scene:'classes',then:'chain',do:()=>{G.gv.budget*=0.8;G.gv.granted++;G.gv.college=true;if(G.ow)G.ow.trained=true}},
@@ -959,7 +1020,12 @@ const CARDS=[
     options:()=>[{k:'take',label:'Take the support',acct:true,you:'Your re-election is paid for',town:'Every tax bill gets harder',scene:'handshake',then:'rentrise',do:()=>{G.pr.lobby++}},
       {k:'meet',label:'Take the meeting, promise nothing',you:'A little goodwill',town:'Nothing, yet',scene:'handshake',then:null,do:()=>{G.pr.lobby+=0.5}},
       {k:'no',label:'Show them out',kind:true,none:true,you:'Nothing',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]},
-  {id:'address',rung:'president',cool:WEEKS,when:()=>rungWeek()>WEEKS/4,
+  {id:'address',rung:'president',
+    rare:{title:()=>'Every channel offers you prime time',
+    body:()=>'The night of the final. Half the country will be watching anyway.',
+    options:()=>[{k:'speak',label:'Speak plainly',kind:true,you:'The rich won’t forget it',town:'Much of the country with you',scene:'capitol',then:'cheer',do:()=>{G.pr.approval=Math.min(0.9,G.pr.approval+0.06);G.pr.congress=Math.min(0.75,G.pr.congress+0.04)}},
+      {k:'skip',label:'Let them watch the match',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]},
+    cool:WEEKS,when:()=>rungWeek()>WEEKS/4,
     title:()=>'Address the country?',
     body:()=>'About where the money goes: the top 0.1% hold 4% of everything, and it could pay for the whole programme list.',
     options:()=>[{k:'speak',label:'Speak plainly',kind:true,you:'The rich won\u2019t like it',town:'More of the country with you',scene:'capitol',then:'cheer',do:()=>{G.pr.approval=Math.min(0.9,G.pr.approval+0.03);G.pr.congress=Math.min(0.75,G.pr.congress+0.02)}},
@@ -999,8 +1065,12 @@ const CARDS=[
       {k:'wait',label:'Let them fail',none:true,you:'Nothing',town:'Savings lost, and jobs with them',scene:'capitol',then:'laidoff',do:()=>{G.pr.approval=Math.max(0.05,G.pr.approval-0.04);const m=millStaff();if(m.length)m[0].job=null}}]},
 ];
 const tenantShare=()=>{const t=myHomes().filter(r=>!r.homeless&&!r.sheltered&&r.income>0);return t.length?t.reduce((a,r)=>a+r.rent/r.income,0)/t.length:0};
-const cardDef=id=>CARDS.find(c=>c.id===id);
-const cardKey=c=>c.rung+':'+c.id,cardRare=c=>c.cool>=1e6; // (a card that comes once in a life gets a gold star)
+// (a card drawn as its rare variant reads as the variant everywhere: the same answers, asked bigger, by someone else)
+const cardBase=id=>CARDS.find(c=>c.id===id);
+const cardDef=id=>{const c=cardBase(id);return c&&c.rare&&G.card&&G.card.id===id&&G.card.rare?Object.assign({},c,c.rare,{silver:true}):c};
+const cardKey=c=>c.rung+':'+c.id+(c.silver?'*':''),cardRare=c=>c.cool>=1e6; // (a card that comes once in a life gets a gold star)
+// a card with a variant may come as it once you hold the plain one: a silver star, and the pair completes
+const RARE_CHANCE=0.3,silverKey=c=>c.rung+':'+c.id+'*',SILVERS=()=>CARDS.filter(c=>c.rare),deckSize=()=>CARDS.length+SILVERS().length;
 const cardOptions=()=>{const c=G.card&&cardDef(G.card.id);return c?c.options(G.card.d||{}):[]};
 
 // each week: an urgent card at once, otherwise a new card every few months
@@ -1018,7 +1088,8 @@ function drawCard(){
     if(!c)for(const p of pool){pick-=w(p);if(pick<=0){c=p;break}}
     G.nextCard=G.week+(c?26:4); // (nothing to offer: look again in a month)
   }
-  if(c){G.card={id:c.id,d:c.data?c.data():{},week:G.week};if(!c.follow)G.year.cards=(G.year.cards||0)+1}
+  if(c){G.card={id:c.id,d:c.data?c.data():{},week:G.week};if(!c.follow)G.year.cards=(G.year.cards||0)+1;
+    const L=G.ladder.cards||{};if(c.rare&&L[cardKey(c)]&&!L[silverKey(c)]&&peek(G.week*31+c.id.length)<RARE_CHANCE)G.card.rare=1}
 }
 function answerCard(k){
   const c=G.card&&cardDef(G.card.id);if(!c)return;
@@ -1037,7 +1108,8 @@ function answerCard(k){
   const life=L.lives||0;
   if(fresh)L.cards[key]={title,k,label:o.label,week:G.week,life};else{const prev=L.cards[key];Object.assign(prev,{before:prev.life!==life?prev.label:prev.before,title,k,label:o.label,life})}
   R.lastCard={key,fresh,title};
-  if(fresh&&Object.keys(L.cards).length>=CARDS.length)award('m:deck');
+  if(fresh&&CARDS.every(c=>L.cards[cardKey(c)]))award('m:deck');
+  if(fresh&&c.silver&&SILVERS().every(c=>L.cards[silverKey(c)]))award('m:pairs');
   G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label,you:String(o.you||''),town:String(o.town||''),alts});
   if(G.choices.length>200)G.choices.splice(0,G.choices.length-200);
   if(c.id.startsWith('gift-'))G.seenGifts[c.id.slice(5)]=true;

@@ -129,7 +129,7 @@ function renderPane(force){
   for(const b of $('#tabs').children)b.classList.toggle('on',b.dataset.t===R.tab);
   const waiting=G.card&&R.tab!=='decide'?`<button class="waiting" data-t-go="decide"><span class="w"><b>A decision is waiting</b><span>${cardDef(G.card.id).title(G.card.d||{})}</span></span><i>Decide \u203a</i></button>`:'';
   // (the last answer's result stays in view for a few seconds, whichever tab you're on)
-  const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span>${R.lastChoice.quote?`<q>${R.lastChoice.quote}</q>`:''}${R.lastChoice.fresh?`<i class="newcard">\u2605 New card \u00b7 ${R.lastChoice.n} of ${CARDS.length}</i>`:''}</div>`:'';
+  const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span>${R.lastChoice.quote?`<q>${R.lastChoice.quote}</q>`:''}${R.lastChoice.fresh?`<i class="newcard">\u2605 New card \u00b7 ${R.lastChoice.n} of ${deckSize()}</i>`:''}</div>`:'';
   const html=R.tab==='decide'&&G.card?cardHTML():waiting+result+PANES[R.tab]();
   $('#sheet').classList.toggle('deciding',R.tab==='decide'&&!!G.card);
   if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
@@ -143,8 +143,8 @@ function cardHTML(){
   // (a card met in an earlier life says how you answered it then)
   const last=col&&(col.life!==(G.ladder.lives||0)?col.label:col.before);
   const twist=last?`<div class="twist">Last life you chose: <b>${last}</b></div>`:'';
-  const star=`<span class="cstar${col?' on':''}${rare?' gold':''}" title="${col?'Collected':'Not yet collected'}${rare?' \u00b7 a card that comes once in a life':''}">${col?'\u2605':'\u2606'}</span>`;
-  return `<div class="decide">${tip}<div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}${star}</div><h3>${c.title(d)}</h3><p>${glossed(c.body(d))}</p>${twist}`+
+  const star=`<span class="cstar${col?' on':''}${c.silver?' silver':rare?' gold':''}" title="${col?'Collected':'Not yet collected'}${c.silver?' \u00b7 a rare variant':rare?' \u00b7 a card that comes once in a life':''}">${col?'\u2605':'\u2606'}</span>`;
+  return `<div class="decide">${tip}<div class="kicker">${c.silver?'A rare one':'A decision'} · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}${star}</div><h3>${c.title(d)}</h3><p>${glossed(c.body(d))}</p>${twist}`+
     c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }

@@ -11,7 +11,7 @@ function achSummary(){
   const all=allAchievements(),n=found().length,cards=Object.keys(G.ladder.cards||{}).length;
   return `<div class="card"><div class="txt"><b>Achievements</b><small>${n} of ${all.length} found${n<all.length?', some of them rare':''}</small></div>
     <button class="act" data-ach="1">The ladder</button></div>
-    <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${CARDS.length} collected: every kind of decision is one</small></div>
+    <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${deckSize()} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>
     ${prefsHTML()}<div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>`;
 }
@@ -33,13 +33,15 @@ function advisersHTML(){
 // the deck: every kind of card on each rung, collected ones face up with the answer you gave last
 function showDeck(){
   syncBest();
-  const L=G.ladder.cards||{},total=CARDS.length,n=Object.keys(L).length;
+  const L=G.ladder.cards||{},total=deckSize(),n=Object.keys(L).length;
   const rows=RUNG_ORDER.map(r=>{const cs=CARDS.filter(c=>c.rung===r);if(!cs.length)return '';
-    const got=cs.filter(c=>L[cardKey(c)]).length,known=reached(r);
-    return `<div class="dsec"><div class="cap">${known?RUNG_NAMES[r]:'? ? ?'} \u00b7 ${got}/${cs.length}</div><div class="deck">${cs.map(c=>{const e=L[cardKey(c)],rare=cardRare(c);
-      return e?`<div class="dcard on${rare?' gold':''}"><i>\u2605</i><b>${e.title}</b><small>${e.label}</small></div>`:`<div class="dcard${rare?' gold':''}"><i>${rare?'\u2606':'?'}</i><b>${known?'Not yet':'? ? ?'}</b></div>`}).join('')}</div></div>`}).join('');
+    const got=cs.filter(c=>L[cardKey(c)]).length+cs.filter(c=>c.rare&&L[silverKey(c)]).length,all=cs.length+cs.filter(c=>c.rare).length,known=reached(r);
+    // (a card with a rare variant carries a small silver star, lit once you've collected the variant too)
+    const sv=c=>c.rare?`<u class="sv${L[silverKey(c)]?' on':''}" title="${L[silverKey(c)]?'Pair complete':'Has a rare variant'}">\u2605</u>`:'';
+    return `<div class="dsec"><div class="cap">${known?RUNG_NAMES[r]:'? ? ?'} \u00b7 ${got}/${all}</div><div class="deck">${cs.map(c=>{const e=L[cardKey(c)],rare=cardRare(c);
+      return e?`<div class="dcard on${rare?' gold':''}"><i>\u2605</i>${sv(c)}<b>${e.title}</b><small>${e.label}</small></div>`:`<div class="dcard${rare?' gold':''}"><i>${rare?'\u2606':'?'}</i><b>${known?'Not yet':'? ? ?'}</b></div>`}).join('')}</div></div>`}).join('');
   showModal(`<div class="ladhead"><h2>Your cards</h2><div class="score"><b>${n}</b> of ${total}</div></div><div class="bar big"><i style="width:${Math.round(n/total*100)}%"></i></div>
-    <p class="lead">Every kind of decision is a card. Answer it once and it\u2019s yours, on every life after. A gold star marks a card that comes once in a life.</p>
+    <p class="lead">Every kind of decision is a card. Answer it once and it\u2019s yours, on every life after. A gold star marks a card that comes once in a life; a silver one, a rare variant of a card you already hold.</p>
     <div class="achlist">${rows}</div><div class="opts"><button class="main" data-close="1"><b>Back to the game</b></button></div>`);
   $('#box').classList.add('wide');
 }
