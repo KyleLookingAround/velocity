@@ -24,7 +24,9 @@ const ADVISERS=[
       if(c.id==='rent')return os.find(o=>o.k===(share>0.33?'-0.05':share>0.29?'0':'0.03'))||kindOf(os);
       if(c.id==='repairs')return os.find(o=>o.k===(G.res[0].cash>myHomes().length*LL.repairs.full*20?'full':'basic'))||kindOf(os);
       if(c.id==='estate')return os.find(o=>o.k===(G.unrest<70&&G.res[0].cash>G.homePrice*LL.deposit*3?'buy':'pass'))||kindOf(os);
-      return kindOf(os)}},
+      return kindOf(os)},
+    // (and gives a tenant behind on the rent time, as the standing policy on the Tenants tab)
+    year:()=>{if(G.ll&&!G.ll.policy)G.ll.policy='time'}},
   {k:'clerk',rung:'partner',name:'The clerk',ach:'partner:counsel',note:()=>'Takes the town’s cases and turns the rich ones down',pick:os=>kindOf(os)},
   {k:'headwaiter',rung:'shop',name:'The head waiter',ach:'shop:pillar',note:()=>'Runs the café as a pillar of the high street: fair pay, local supplies, no sale',pick:os=>kindOf(os)},
   {k:'steward',rung:'waiter',name:'The shop steward',ach:'waiter:ahead',note:()=>'Picks shifts your health can take, joins the union, and never borrows from the lender',
