@@ -26,8 +26,8 @@ scene and the camera follows them: the figure on the right of one scene is the f
 
 ## The ladder
 
-The game is a ladder of roles, one per rung: down by money, back up by votes. The whole way down is built, six rungs;
-each starts in the town the last one left, and the climb back up is next.
+The game is a ladder of roles, one per rung: down by money, back up by votes. The whole way down is built, six rungs,
+and the first rung of the climb back up; each starts in the town the last one left.
 
 - **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
@@ -56,6 +56,12 @@ each starts in the town the last one left, and the climb back up is next.
   public works and job-centre courses are paid from the **public purse**, which is filled by the taxes the rich paid
   (and emptied by any loopholes the partner wrote); gig work pays and wears you down; job offers come rarer with no
   address. Endings: **back on your feet**, **organiser** (the start of the climb), or **stuck**.
+- **The union organiser** (10 years), the first rung up: the same person, paid by the union to organise the town's
+  workers. Members pay dues into a strike fund; you choose where to recruit, when to strike and whom (the mill, the
+  high street, the estate's shops), whether to fight a sacking, and whether to ask the council for a living-wage rule.
+  A won strike raises a whole workplace's pay by 12%, and that pay is spent in town. The mill's managers will offer a
+  small raise to call it off, and a manager's job for you. Endings: **fair wages**, **sold out**, or **crumbs from the
+  table**.
 
 **Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
 it would be at the start of the game: a century of the ladder inflates every price.
@@ -72,7 +78,7 @@ it would be at the start of the game: a century of the ladder inflates every pri
   75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the accountant's
   prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding → evicted)
   and three people out of work (organising → organiser, scrambling for work → back on your feet, taking nothing →
-  stuck).
+  stuck). Then three union organisers: generous → fair wages, the accountant → sold out, doing nothing → crumbs.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, and the landlord.
 - `npm run check` runs all three.

@@ -67,3 +67,15 @@ PANES.days=function(){
     <div>Trained<b>${o.trained?'Yes':o.course?'On a course':'No'}</b></div><div>Organising<b>${o.organised>=3?'Leading it':o.organised?'Started':'No'}</b></div>
     <div>Food bank visits<b>${o.foodbank}</b></div><div></div></div>`;
 };
+
+// the union organiser's Union tab
+PANES.union=function(){
+  const u=G.un,pc=v=>Math.round(v*100)+'%';
+  return `<p class="lead">A won strike raises a workplace\u2019s pay by ${Math.round(UN.winRaise*100)}%. The odds depend on how many are in and how long the fund can carry them.</p>
+    <div class="stats"><div>Workers in<b>${pc(u.members)}</b></div><div>Strike fund<b>${money(u.fund)}</b></div>
+    <div>A strike costs<b>${money(strikeCost())}</b></div><div>Striking<b>${u.striking?u.striking+' weeks left':'No'}</b></div>
+    <div>Odds at the mill<b>${pc(strikeOdds('mill'))}</b></div><div>On the high street<b>${pc(strikeOdds('street'))}</b></div>
+    ${shopsOwned()?`<div>At the estate\u2019s shops<b>${pc(strikeOdds('estate'))}</b></div><div></div>`:''}
+    <div>Strikes won<b>${u.wins}</b></div><div>Strikes lost<b>${u.losses}</b></div>
+    <div>Pay since you began<b>${(wageRise()>=0?'+':'')+pc(wageRise())}</b></div><div>Public purse<b>${money(G.fund||0)}</b></div></div>`;
+};

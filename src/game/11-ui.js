@@ -11,7 +11,7 @@ function buildChrome(){
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
-  const tabs=isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  const tabs=isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
@@ -19,7 +19,12 @@ const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
-  if(isOut()){
+  if(isUnion()){
+    const u=G.un;$('#nw').textContent=Math.round(u.members*100)+'% in';
+    $('#growth').innerHTML=u.striking?'<b>On strike</b>: '+u.striking+' weeks to go':'strike fund <b>'+money(u.fund)+'</b> · '+u.wins+' won, '+u.losses+' lost';
+    $('#clock').innerHTML=`<b>${u.name}, ${age()}</b><br>Year ${yearNo()} of ${UN.years}`;
+    setMeter(1,'Pay since you began',(wageRise()>=0?'+':'')+Math.round(wageRise()*100)+'%');setMeter(2,'Strikes won',String(u.wins));
+  }else if(isOut()){
     const o=G.ow,r=outMe();$('#nw').textContent=hh(r.cash);
     $('#growth').innerHTML=r.job!=null?'<b>In work</b> again':(o.benefit&&o.sanctioned<=0&&G.fund>0?'on benefit':'no benefit')+(o.works?' · public works':'')+(o.gig?' · gig work':'');
     $('#clock').innerHTML=`<b>${o.name}, ${age()}</b><br>Year ${yearNo()} of ${OW.years}`;
@@ -67,7 +72,7 @@ function renderPane(force){
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   return `<div class="decide"><div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
-    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
+    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='union'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
 const PANES={
@@ -103,7 +108,7 @@ const PANES={
     const list=G.choices.slice().reverse().slice(0,30);
     return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes the way that makes the most money, without asking you.</small></div>
       <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
@@ -152,6 +157,12 @@ function showPartnerIntro(){
     <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
 }
+function showUnionIntro(){
+  const u=G.un;
+  showModal(`<h2>Climb: the union organiser</h2><p>You are ${u.name}. ${Math.round(u.members*100)}% of the town\u2019s workers are with you so far.</p>
+    <p>Members pay dues into a strike fund. A strike wins when enough workers are in and the fund can carry them, and it raises a whole workplace\u2019s pay. Employers will fight back, and one of them will offer you a way out.</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${UN.years} years.</small></button></div>`);
+}
 function showOutIntro(){
   const o=G.ow,r=outMe();
   showModal(`<h2>The bottom rung: out of work</h2><p>You are ${o.name}. ${r.homeless?'You have no job and nowhere to live.':'The café has let you go.'}</p>
@@ -173,14 +184,25 @@ function showShopIntro(){
 }
 function showEnding(){
   const e=G.ending;
+  if(e.rung==='union'){
+    const T0={fairpay:['Fair wages','You won the fights that mattered, and the whole town is paid more for it.'],
+      soldout:['Sold out','You took the manager\u2019s job. The union didn\u2019t last long without you.'],
+      busted:['Crumbs from the table','Small deals, no wins. The town\u2019s pay barely moved.']}[e.kind];
+    return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${(e.rise>=0?'+':'')+Math.round(e.rise*100)}% pay</div>
+      <p>${e.name}, after ${Math.max(1,Math.round(e.week/WEEKS))} years: ${e.wins} strike${e.wins===1?'':'s'} won, ${e.losses} lost, ${Math.round(e.members*100)}% of workers in the union.</p>
+      <p>Next rung up: <b>the activist</b>. It isn\u2019t built yet.</p>
+      <div class="opts"><button class="main" data-replay6="1"><b>Organise again</b><small>The same town, as the bottom rung left it</small></button>
+      <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
+  }
   if(e.rung==='out'){
     const T0={feet:['Back on your feet','A job, and a door of your own.'],
       organiser:['An organiser','You didn\u2019t climb out alone. You brought people with you.'],
       stuck:['Still at the bottom','Five years, and the ladder\u2019s still out of reach.']}[e.kind];
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p>
       <p>${e.name}. ${e.job?'In work.':'Out of work.'} ${e.homeless?'Sleeping rough.':'Housed.'} The town\u2019s public purse has ${money(G.fund||0)} left.</p>
-      <p>This is the bottom of the ladder. The climb back up, by votes rather than money, starts with the <b>union organiser</b>. It isn\u2019t built yet.</p>
-      <div class="opts"><button class="main" data-replay5="1"><b>Live the bottom rung again</b><small>The same town, as you left it</small></button>
+      <p>This is the bottom of the ladder. The climb back up is by votes, not money.</p>
+      <div class="opts"><button class="main" data-rung="union"><b>Climb: the union organiser</b><small>Organise the town\u2019s workers, as ${e.name}</small></button>
+      <button data-replay5="1"><b>Live the bottom rung again</b><small>The same town, as you left it</small></button>
       <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   if(e.rung==='waiter'){
@@ -245,6 +267,8 @@ $('#box').addEventListener('click',e=>{
   if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true)} // cosmetic
   if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
   if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
+  if(g&&g.dataset.rung==='union'){startUnion();R.stage={};buildTabs();save();renderPane(true);showUnionIntro()}
+  if(e.target.closest('[data-replay6]')){restartUnion();R.stage={};buildTabs();save();renderPane(true);showUnionIntro()}
   if(g&&g.dataset.rung==='out'){startOut();R.stage={};buildTabs();save();renderPane(true);showOutIntro()}
   if(e.target.closest('[data-replay5]')){restartOut();R.stage={};buildTabs();save();renderPane(true);showOutIntro()}
   if(g&&g.dataset.rung==='waiter'){startWaiter();R.stage={};buildTabs();save();renderPane(true);showWaiterIntro()}

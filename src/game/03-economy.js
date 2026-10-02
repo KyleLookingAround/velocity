@@ -26,6 +26,7 @@ function economyWeek(){
     const profit=n*T.workshopOutput*grow(0.02)*(1-T.supplies)-paid;
     G.cash+=profit>0?pay('w'+i,'you',profit,'profit'):profit;
   });
+  if(isUnion()){const p=unionPay(unMe());unMe().income+=pay('out','r'+G.un.i,p,'wage')}
   for(const r of res)if(r.role==='retiree')r.income+=pay('out','r'+res.indexOf(r),T.pension*grow(0.02),'pension');
   // shops pay their staff, and owners take their pay and last week's profit
   G.shops.forEach((s,i)=>{

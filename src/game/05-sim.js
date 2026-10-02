@@ -40,10 +40,11 @@ function yearEnd(){
   G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
   if(isLandlord()){landlordYearEnd();if(G.ending)return}
   if(isPartner()){partnerYearEnd();if(G.ending)return}
-  if(isShop()||isWaiter()||isOut()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
+  if(isShop()||isWaiter()||isOut()||isUnion()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
   if(isShop()){shopYearEnd();if(G.ending)return}
   if(isWaiter()){waiterYearEnd();if(G.ending)return}
   if(isOut()){outYearEnd();if(G.ending)return}
+  if(isUnion()){unionYearEnd();if(G.ending)return}
   reopenShops();
   // the purse holds at most two years of the whole town's wages: beyond that the town can't spend it
   G.fund=Math.min(G.fund||0,T.wage*grow(0.02)*G.res.length*WEEKS*2);
@@ -82,6 +83,12 @@ function fundWeek(){
 
 function endLife(kind){
   if(G.ending)return;
+  if(isUnion()){
+    const v=kind==='death'?unionVerdict():{kind};
+    G.ending={rung:'union',kind:v.kind,week:rungWeek(),name:G.un.name,wins:G.un.wins,losses:G.un.losses,members:G.un.members,rise:wageRise(),unrest:G.unrest};
+    G.ladder.best=Object.assign({},G.ladder.best,{union:G.ending.kind});
+    return;
+  }
   if(isOut()){
     const v=kind==='death'?outVerdict():{kind};const r=outMe();
     G.ending={rung:'out',kind:v.kind,week:rungWeek(),name:G.ow.name,job:r.job!=null,homeless:r.homeless&&!r.sheltered,organised:G.ow.organised,cash:r.cash,unrest:G.unrest};
@@ -130,6 +137,7 @@ function step(){
   if(isShop()){shopWeek();if(G.ending)return}
   if(isWaiter()){waiterWeek();if(G.ending)return}
   if(isOut()){outWeek();if(G.ending)return}
+  if(isUnion()){unionWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
   G._nw=nw;G._yv=G.year.given;

@@ -27,7 +27,10 @@ const saves=[];
   until(S,()=>S.G.week>=S.G.rungStart+5*52&&!S.G.card,kind);saves.push(['waiter',JSON.stringify(S.G),'budget']);
   until(S,()=>false,kind);S.startOut();S.G.seen.out=true;S.step();saves.push(['out-card',JSON.stringify(S.G),'days']);
   until(S,()=>S.G.week>=S.G.rungStart+2*52&&!S.G.card,S=>{const o=S.cardOptions();return (o.find(o=>o.none)||o[0]).k});saves.push(['out',JSON.stringify(S.G),'days']);
-  until(S,()=>false,kind);saves.push(['out-ending',JSON.stringify(S.G),'days'])}
+  until(S,()=>false,kind);saves.push(['out-ending',JSON.stringify(S.G),'days']);
+  S.startUnion();S.G.seen.union=true;S.step();saves.push(['union-card',JSON.stringify(S.G),'union']);
+  until(S,()=>S.G.week>=S.G.rungStart+4*52&&!S.G.card,kind);saves.push(['union',JSON.stringify(S.G),'union']);
+  until(S,()=>false,kind);saves.push(['union-ending',JSON.stringify(S.G),'union'])}
 const browser=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'}).catch(()=>chromium.launch());
 let errors=0;
 for(const [name,w,h] of sizes){

@@ -24,6 +24,10 @@
 //   organiser (the generous option: leads the organising)        -> organiser
 //   scrambler (what pays most: gig work, then the first job)     -> back on your feet
 //   passive   (signs on for nothing, takes nothing)              -> stuck
+// Then the union organiser, after the organiser out of work:
+//   steady  (the generous option: recruits, fights sackings, strikes when the odds are good) -> fair pay
+//   manager (always the accountant: takes the manager's job when offered)                 -> sold out
+//   idle    (does nothing: no drives, no strikes)                                         -> crumbs
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
@@ -64,6 +68,9 @@ const wtRows=[];
 const OUT={organiser:S=>opt(S,o=>o.kind),scrambler:S=>opt(S,o=>o.acct),passive:S=>opt(S,o=>o.none)};
 const owWant={organiser:'organiser',scrambler:'feet',passive:'stuck'};
 const owRows=[];
+const UNION={steady:S=>opt(S,o=>o.kind),manager:S=>opt(S,o=>o.acct),idle:S=>opt(S,o=>o.none)};
+const unWant={steady:'fairpay',manager:'soldout',idle:'busted'};
+const unRows=[];
 const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}}
@@ -108,5 +115,11 @@ for(const seed of [1,2,3])for(const [oname,opick] of Object.entries(OUT)){
   const e=S.G.ending,ok=e.kind===owWant[oname];if(!ok)bad++;
   owRows.push({seed,out:oname,name:e.name,ending:e.kind,job:e.job,sleepingRough:e.homeless,organised:e.organised,purse:'$'+(S.G.fund/1e6).toFixed(0)+'M',ok:ok?'yes':'NO'});
 }
-console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);
+for(const seed of [1,2,3])for(const [uname,upick] of Object.entries(UNION)){
+  const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
+  S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,upick);
+  const e=S.G.ending,ok=e.kind===unWant[uname];if(!ok)bad++;
+  unRows.push({seed,union:uname,name:e.name,ending:e.kind,years:Math.floor(e.week/52),won:e.wins,lost:e.losses,members:Math.round(e.members*100)+'%',pay:(e.rise>=0?'+':'')+Math.round(e.rise*100)+'%',ok:ok?'yes':'NO'});
+}
+console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

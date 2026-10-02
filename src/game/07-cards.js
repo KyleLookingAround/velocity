@@ -286,6 +286,38 @@ const CARDS=[
     options:()=>[{k:'lead',label:'Lead it',kind:true,you:'Your time, and your evenings',town:'People stop facing it alone',scene:'organising',then:'protest',do:()=>{G.ow.organised++;G.anger=(G.anger||0)+3}},
       {k:'join',label:'Join in',none:true,you:'An evening a week',town:'One more voice',scene:'organising',then:null,do:()=>{G.ow.organised+=0.5}},
       {k:'out',label:'Keep your head down',acct:true,you:'Nothing',town:'Nothing changes',scene:'jobsearch',then:null,do:()=>{}}]},
+
+  // ---- the union organiser ----
+  {id:'drive',rung:'union',cool:16,weight:3,when:()=>!G.un.striking,
+    title:()=>'Where will you recruit this season?',
+    body:()=>Math.round(G.un.members*100)+'% of the town\u2019s workers are in the union.',
+    options:()=>[{k:'mill',label:'At the mill gate',kind:true,you:'Long evenings',town:'About a tenth more of the workers join',scene:'rally',then:null,do:()=>{G.un.members=Math.min(1,G.un.members+0.1)}},
+      {k:'street',label:'Along the high street',you:'Long evenings',town:'Shop staff join',scene:'rally',then:'chain',do:()=>{G.un.members=Math.min(1,G.un.members+0.08)}},
+      {k:'rest',label:'Take a season off',acct:true,none:true,you:'Your evenings back',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]},
+  {id:'strikevote',rung:'union',cool:30,weight:2,when:()=>G.un.members>=0.35&&!G.un.striking&&G.un.fund>=strikeCost(),
+    title:()=>'Call a strike?',
+    body:()=>'The strike fund has '+money(G.un.fund)+'. A won strike raises a whole workplace\u2019s pay by 12%; a lost one costs members.',
+    options:()=>{const odds={mill:strikeOdds('mill'),street:strikeOdds('street'),estate:strikeOdds('estate')},best=Object.keys(odds).filter(k=>k!=='estate'||shopsOwned()).sort((a,b)=>odds[b]-odds[a])[0];
+      const o=(k,label)=>({k,label,kind:k===best&&odds[k]>=0.5,you:'About '+Math.round(odds[k]*100)+'% to win',town:k==='mill'?'The mill\u2019s owners live elsewhere':k==='estate'?'The estate\u2019s shops send their profit away':'Bea and the others pay it, and it\u2019s spent here',
+        scene:'strike',then:'strike',do:()=>{G.un.target=k;G.un.striking=UN.strikeWeeks}});
+      return [o('mill','Strike the mill'),...(shopsOwned()?[o('estate','Strike the estate\u2019s shops')]:[]),o('street','Strike the high street'),
+        {k:'wait',label:'Not yet',acct:true,none:true,kind:!(odds[best]>=0.5),you:'The fund keeps growing',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]}},
+  {id:'deal',rung:'union',cool:40,weight:3,when:()=>G.un.members>=0.15&&!G.un.striking&&!G.un.soldOut,
+    title:()=>'The mill\u2019s managers want a word',
+    body:()=>'They\u2019ll give everyone 5% if you call off the drive. And there\u2019s a manager\u2019s job, for you.',
+    options:()=>[{k:'take',label:'Take the 5% for everyone',none:true,you:'Nothing for you',town:'A small raise, and the drive stops for now',scene:'handshake',then:'chain',do:()=>{G.millMul=(G.millMul||1)*(1+UN.dealRaise);G.un.members=Math.max(0,G.un.members-0.05)}},
+      {k:'hold',label:'Hold out for more',kind:true,you:'Nothing yet',town:'The drive goes on',scene:'rally',then:null,do:()=>{G.anger=(G.anger||0)+3}},
+      {k:'job',label:'Take the manager\u2019s job',acct:true,you:'A manager\u2019s salary',town:'The union falls apart without you',scene:'handshake',then:'laidoff',do:()=>{G.un.soldOut=true;endLife('soldout')}}]},
+  {id:'sacked',rung:'union',cool:30,when:()=>G.un.members>=0.25&&workers().length>2,data:()=>({name:workers().find(r=>r!==unMe()).name}),
+    title:d=>d.name+' has been sacked for organising',
+    body:()=>'Fighting it costs the strike fund. Letting it go tells everyone what joining costs.',
+    options:d=>[{k:'fight',label:'Fight it',kind:true,you:'A tenth of the strike fund',town:d.name+' gets the job back, and more join',scene:'court',then:null,do:()=>{G.un.fund*=0.9;G.un.members=Math.min(1,G.un.members+0.05)}},
+      {k:'drop',label:'Let it go',acct:true,none:true,you:'Nothing',town:'Members drift away',scene:'meeting',then:'laidoff',do:()=>{G.un.members=Math.max(0,G.un.members-0.08)}}]},
+  {id:'council',rung:'union',cool:1e6,when:()=>rungWeek()>2*WEEKS,
+    title:()=>'Ask the council for a living-wage rule?',
+    body:()=>'It would set a floor under every wage in town. The council listens when the union is strong and the town is angry.',
+    options:()=>[{k:'ask',label:'Make the case',kind:true,you:'A campaign',town:G.un.members>=0.45||G.unrest>=55?'It would likely pass':'It might not pass',scene:'rally',then:'chain',do:()=>{if(G.un.members>=0.45||G.unrest>=55){G.shops.forEach(s=>{s.wage=Math.max(s.wage,T.wage*grow(0.02)*1.1)});G.millMul=Math.max(G.millMul||1,1.1);toast('The council passes a living-wage rule')}else toast('The council turns it down')}},
+      {k:'no',label:'Not worth the fight',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]},
 ];
 const tenantShare=()=>{const t=myHomes().filter(r=>!r.homeless&&!r.sheltered&&r.income>0);return t.length?t.reduce((a,r)=>a+r.rent/r.income,0)/t.length:0};
 const cardDef=id=>CARDS.find(c=>c.id===id);

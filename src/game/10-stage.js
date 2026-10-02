@@ -142,7 +142,7 @@ const SCENES={
   repair:{cap:()=>'Repairs, paid to local builders',draw(c,t){
     house(c,300,250);c.strokeStyle='#777';c.lineWidth=3;c.beginPath();c.moveTo(380,250);c.lineTo(350,150);c.moveTo(395,250);c.lineTo(365,150);c.stroke();
     person(c,360,190,{pose:'hammer',t,dir:-1,col:'#444'});person(c,130,250,{pose:'give'});for(let k=0;k<3;k++)flyBill(c,160,190,340,150,loopT(t+k/3,1),30)}},
-  meeting:{cap:()=>'You sit down with the tenants’ union',draw(c){
+  meeting:{cap:()=>isUnion()?'A union meeting':'You sit down with the tenants’ union',draw(c){
     desk(c,240,250);person(c,170,250,{pose:'stand'});for(let k=0;k<3;k++)person(c,290+k*42,250,{dir:-1,col:k===1?'#444':'#666',pose:k===1?'raise':'stand'})}},
 
   office:{cap:()=>'Billing $'+PT.rate.toLocaleString('en-GB')+' an hour',draw(c,t){
@@ -199,6 +199,12 @@ const SCENES={
     person(c,x,236,{pose:'sit',s:0.9});c.fillStyle='#4c9a5d';c.fillRect(x-24,178,20,20)}},
   organising:{cap:()=>'Organising',draw(c,t){
     person(c,240,250,{pose:loopT(t,2)<0.5?'raise':'stand'});for(let k=0;k<5;k++){const a=Math.PI*(0.15+k*0.175);person(c,240-Math.cos(a)*170,250,{dir:k<2?1:-1,col:['#444','#555','#333','#666','#444'][k],pose:loopT(t+k*0.2,1)>0.8?'raise':'stand'})}}},
+  rally:{cap:()=>'Signing people up at the gate',draw(c,t){
+    c.fillStyle='#8f8f8f';c.fillRect(330,130,10,120);c.fillRect(430,130,10,120);c.fillRect(330,130,110,10);
+    person(c,200,250,{pose:loopT(t,2)<0.5?'raise':'give'});for(let k=0;k<4;k++){const u=Math.max(0,Math.min(1,(t-k*0.18)*2.5));person(c,400-u*130-k*10,250,{pose:u<1?'walk':'stand',t:t*5+k,dir:-1,col:['#333','#444','#555','#3a3a3a'][k]})}}},
+  strikewon:{cap:()=>'The strike is won',draw(c,t){
+    for(let k=0;k<6;k++)person(c,60+k*72,250,{pose:loopT(t+k*0.15,1)<0.5?'raise':'stand',col:k%2?'#333':INK});
+    for(let k=0;k<8;k++)flyBill(c,PW+20,60,60+(k%6)*72,170,loopT(t+k/8,1),30)}},
   // ---- endings ----
   bunker:{cap:()=>'Your bunker. Very rich, and very alone',draw(c,t){
     c.fillStyle='#8a8a8a';c.beginPath();c.ellipse(240,250,170,70,0,Math.PI,0);c.fill();c.fillStyle='#6d6d6d';c.fillRect(215,200,50,50);
@@ -282,11 +288,11 @@ function pickTownScene(){
   for(const [k,v] of pool){r-=v;if(r<=0)return k}return 'chain';
 }
 // what you do between decisions: a few scenes per role, never the same one twice running
-const IDLE={billionaire:['desk','yacht','golf'],landlord:['rentbook','collect'],partner:['office','weekend'],shop:['cafe','staff'],waiter:['waiting','waiting','nightshift'],out:['jobsearch','jobsearch','park']};
+const IDLE={billionaire:['desk','yacht','golf'],landlord:['rentbook','collect'],partner:['office','weekend'],shop:['cafe','staff'],waiter:['waiting','waiting','nightshift'],out:['jobsearch','jobsearch','park'],union:['rally','meeting']};
 const idleScene=()=>{const o=IDLE[G.rung]||['desk'],last=R.stage.you&&R.stage.you.k;const pool=o.filter(k=>k!==last);return pool[Math.floor(Math.random()*pool.length)]||o[0]}; // cosmetic
 // what an ending looks like, on each side
-const endingScene=()=>({hero:'cheer',luthor:'bunker',revolt:'mob',fair:'cheer',rentier:'rentbook',bankrupt:'repo',hiredgun:'loophole',counsel:'court',burnout:'weekend',pillar:'cafe',tightfisted:'cafe',closed:'closed',sold:'handshake',founder:'ribbon',ahead:'classes',by:'waiting',evicted:'evicted',feet:'handshake',organiser:'organising',stuck:'park'})[G.ending.kind]||idleScene();
-const endingTown=()=>({hero:'chain',luthor:'tents',revolt:'protest',fair:'calm',rentier:'rentrise',bankrupt:'evicted',hiredgun:'rentrise',counsel:'chain',burnout:'calm',pillar:'chain',tightfisted:'rentrise',closed:'laidoff',sold:'laidoff',founder:'megastore',ahead:'chain',by:'rentrise',evicted:'tents',feet:'chain',organiser:'protest',stuck:'tents'})[G.ending.kind]||'chain';
+const endingScene=()=>({hero:'cheer',luthor:'bunker',revolt:'mob',fair:'cheer',rentier:'rentbook',bankrupt:'repo',hiredgun:'loophole',counsel:'court',burnout:'weekend',pillar:'cafe',tightfisted:'cafe',closed:'closed',sold:'handshake',founder:'ribbon',ahead:'classes',by:'waiting',evicted:'evicted',feet:'handshake',organiser:'organising',stuck:'park',fairpay:'strikewon',soldout:'handshake',busted:'meeting'})[G.ending.kind]||idleScene();
+const endingTown=()=>({hero:'chain',luthor:'tents',revolt:'protest',fair:'calm',rentier:'rentrise',bankrupt:'evicted',hiredgun:'rentrise',counsel:'chain',burnout:'calm',pillar:'chain',tightfisted:'rentrise',closed:'laidoff',sold:'laidoff',founder:'megastore',ahead:'chain',by:'rentrise',evicted:'tents',feet:'chain',organiser:'protest',stuck:'tents',fairpay:'chain',soldout:'laidoff',busted:'rentrise'})[G.ending.kind]||'chain';
 // a decision plays its scene on your side and its consequence on the town's, next, ahead of anything else
 function queueScenes(you,town,d){
   const put=(side,k)=>{const s=R.stage[side];const n={k,d};if(!s)R.stage[side]={k,d,t:0};else if(s.tr)s.tr.to.next=n;else s.next=n};
