@@ -25,7 +25,10 @@ director (gives what the fortune can carry, year by year), the managing agent, t
 steward, the caseworker, the branch secretary, the campaign manager, the chief of staff, the state treasurer and the
 whip. Each answers in its own voice on the result strip ("Numbers don't vote"), and the one in charge can be left
 to finish the rung: the years go by fast with their answers, and a card they leave to you, or pause, stops it.
-Switch them off to decide everything yourself.
+Advisers aren't perfect: about one money-first answer in sixteen backfires (the town notices, and unrest rises), and
+about one kind answer in sixteen costs a billionaire more than they said. Each adviser keeps a record across your
+lives on the Story tab: how many answers, how many went the town's way or yours, and how many went wrong (and what
+that cost). Switch them off to decide everything yourself.
 
 The screen is a **stage** of two scenes, drawn like the video, one above the other on a phone and side by side on a
 wide screen: **you** (at your desk with the vault filling, signing a deed, shaking a senator's hand, loading the moving

@@ -39,11 +39,14 @@ function threadsHTML(){
   return ts?`<div class="card"><div class="txt"><b>The town remembers</b><small>What your lives did to people here. It shows on the stage, and the climb counts it.</small></div></div>${ts}`:'';
 }
 // the advisers unlocked so far, one of them in charge or none; locked ones stay hidden, with the next one's price
+// an adviser's record across your lives: how often they answered, whose way, and how often a pick went wrong
+function advRecord(a){const r=(G.ladder.advLog||{})[a.k];if(!r||!r.n)return '';
+  return `<span class="rec">${r.n} answer${r.n===1?'':'s'}${r.town?' \u00b7 '+r.town+' the town\u2019s way':''}${r.you?' \u00b7 '+r.you+' yours':''}${r.slips?' \u00b7 '+r.slips+' went wrong'+(r.cost?' (cost '+money(r.cost)+')':''):''}</span>`}
 function advisersHTML(){
   syncBest();const open=ADVISERS.filter(adviserOpen),next=ADVISERS.find(a=>!a.rung&&!adviserOpen(a)),n=achCount();
   const here=ADVISERS.find(a=>a.rung===G.rung),hereOpen=here&&adviserOpen(here);
-  const row=a=>a.speed?`<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}</small></div><span class="kick">Unlocked</span></div>`:
-    `<div class="card"><div class="txt"><b>${a.name}${a.rung?' <span class="kick">'+RUNG_NAMES[a.rung]+'</span>':''}</b><small>${a.note()}</small></div><button class="toggle ${G.adviser===a.k?'on':''}" data-adv="${a.k}" aria-label="${a.name}" aria-pressed="${G.adviser===a.k}"></button></div>`;
+  const row=a=>a.speed?`<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}${advRecord(a)}</small></div><span class="kick">Unlocked</span></div>`:
+    `<div class="card"><div class="txt"><b>${a.name}${a.rung?' <span class="kick">'+RUNG_NAMES[a.rung]+'</span>':''}</b><small>${a.note()}${advRecord(a)}</small></div><button class="toggle ${G.adviser===a.k?'on':''}" data-adv="${a.k}" aria-label="${a.name}" aria-pressed="${G.adviser===a.k}"></button></div>`;
   return `<div class="card"><div class="txt"><b>Advisers</b><small>${open.length?open.length+' unlocked by your achievements. One can run things for you; switch them off to decide everything yourself.':'Achievements unlock advisers who can run things for you.'}${next?' Next: <b>'+next.name+'</b> at '+next.need+' achievement'+(next.need===1?'':'s')+' (you have '+n+').':''}${here&&!hereOpen?' This rung’s own adviser, <b>'+here.name+'</b>, comes with its best ending.':''}</small></div></div>`+
     (adviserOn()&&!adviserOn().speed&&!G.ending?`<div class="card"><div class="txt"><b>Let ${adviserOn().name.toLowerCase()} finish this rung</b><small>Years go by fast with their answers; a card they leave to you stops it, and so does pause.</small></div><button class="act" data-skip="1">${R.skip?'Stop':'Run it'}</button></div>`:'')+
     open.filter(a=>!a.rung).map(row).join('')+open.filter(a=>a.rung).sort((a,b)=>(a.rung===G.rung?0:1)-(b.rung===G.rung?0:1)).map(row).join('');
