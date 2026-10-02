@@ -5,7 +5,7 @@ const WEEK_SECS=2.3;
 function start(){
   if(!load())newGame();
   buildChrome();fitMap();refreshTop();renderPane(true);
-  if(!G.seen.intro)showIntro();else if(G.ending)showEnding();else if(G.tax)showTax();
+  if(!G.seen.intro)showIntro();else if(isLandlord()&&!G.seen.landlord&&!G.ending)showLandlordIntro();else if(G.ending)showEnding();else if(G.tax)showTax();
   let last=performance.now(),acc=0,ui=0;
   function frame(now){
     const dt=Math.min(0.1,(now-last)/1000);last=now;

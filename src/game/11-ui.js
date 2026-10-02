@@ -1,22 +1,21 @@
 /* ================= panels ================= */
 // The top bar (fortune, age, speed, the town's meters), the bottom sheet's tabs, the tax vote and the endings.
-function money(v){
-  const s=v<0?'−':'';v=Math.abs(v);
-  if(v>=1e9)return s+'$'+(v/1e9).toFixed(v>=1e10?1:2)+'B';
-  if(v>=1e6)return s+'$'+(v/1e6).toFixed(v>=1e8?0:1)+'M';
-  if(v>=1e3)return s+'$'+Math.round(v/1e3)+'k';
-  return s+'$'+Math.round(v);
-}
 const SPEEDS=[0,1,2,4,8];
 function buildChrome(){
   $('#speed').innerHTML=SPEEDS.map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}">${s?s+'×':'❚❚'}</button>`).join('');
   $('#speed').onclick=e=>{const b=e.target.closest('button');if(b){G.speed=+b.dataset.s;refreshTop()}};
-  const tabs=[['moves','Moves'],['gifts','Gifts'],['fortune','Fortune'],['town','Town']];
-  $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
+  buildTabs();
   $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){R.tab=b.dataset.t;renderPane(true)}};
   $('#pane').onclick=onPaneClick;
 }
+// each rung has its own tabs; the Town tab is the same on all of them
+function buildTabs(){
+  const tabs=isLandlord()?[['homes','Homes'],['tenants','Tenants'],['books','Books'],['town','Town']]:[['moves','Moves'],['gifts','Gifts'],['fortune','Fortune'],['town','Town']];
+  if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
+  $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
+}
 function refreshTop(){
+  if(isLandlord())return refreshTopLandlord();
   $('#nw').textContent=money(netWorth());
   const last=G.history.at(-1),given=last?last.given:0;
   $('#growth').innerHTML=`growing <b>${Math.round(G.rate*100)}%</b> a year`+(given>0?` · gave ${money(given)} last year`:'');
@@ -25,6 +24,7 @@ function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u);
   $('#unrestT').textContent=lv[0].toUpperCase()+lv.slice(1);
   const ub=$('#unrestB');ub.style.width=Math.min(100,u)+'%';ub.style.background=u>=70?'var(--red)':u>=55?'var(--amber)':u>=30?'#c9a227':'var(--green)';
+  $('#meters').children[1].firstChild.textContent='Jobs ';$('#meters').children[2].firstChild.textContent='Town spends ';
   const work=G.res.filter(r=>r.role==='worker'||r.role==='owner');
   $('#jobsT').textContent=work.filter(r=>r.role==='owner'||r.job!=null).length+' of '+work.length;
   $('#spendT').textContent=money(weeklySpend()*WEEKS)+'/yr';
@@ -108,6 +108,7 @@ function showTax(){
     <button data-tax="move"><b>Move your money out of state · ${money(nw*T.moveCost)}</b><small>No tax at all. Unrest jumps.</small></button></div>`);
 }
 function showEnding(){
+  if(G.ending.rung==='landlord')return showLandlordEnding();
   const e=G.ending,share=e.gains>0?Math.round(e.given/e.gains*100):0;
   const T0={hero:['Hero','The town fizzes with spending, and you die richer than you started.'],
     luthor:['Lex Luthor','You die in your bunker, very rich, over a grey and quiet town.'],
@@ -115,7 +116,8 @@ function showEnding(){
   showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.nw)}</div>
     <p>Age ${40+Math.floor(e.week/WEEKS)}. You gave away ${money(e.given)}, ${share}% of everything you gained.</p>
     ${e.kind!=='hero'?`<p>The hero ending needs you to give at least ${Math.round(T.heroGiveShare*100)}% of your gains, keep unrest low, and still finish richer than $30M.</p>`:''}
-    <div class="opts"><button class="main" data-again="1"><b>Live another life</b><small>A new town and $30M</small></button></div>`);
+    <div class="opts"><button class="main" data-rung="landlord"><b>Step down: the landlord</b><small>Play Agnes, in the town you leave behind</small></button>
+    <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`);
 }
 function showIntro(){
   showModal(`<h2>Money Makes Money</h2><p>You have <b>$30 million</b>. It earns 8% a year while you do nothing.</p>
@@ -126,8 +128,11 @@ function showIntro(){
 $('#box').addEventListener('click',e=>{
   const t=e.target.closest('[data-tax]'),a=e.target.closest('[data-again]'),s=e.target.closest('[data-start]');
   if(t){answerTax(t.dataset.tax);hideModal();save();renderPane(true)}
-  if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.bills=[];hideModal();save();renderPane(true)} // cosmetic
-  if(s){G.seen.intro=true;hideModal();save()}
+  if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.bills=[];hideModal();buildTabs();save();renderPane(true)} // cosmetic
+  const g=e.target.closest('[data-rung]'),rr=e.target.closest('[data-replay]');
+  if(g){startLandlord();R.bills=[];buildTabs();save();renderPane(true);showLandlordIntro()}
+  if(rr){restartLandlord();R.bills=[];buildTabs();save();renderPane(true);showLandlordIntro()}
+  if(s){G.seen.intro=true;if(isLandlord())G.seen.landlord=true;hideModal();save()}
 });
 // tapping the map shows who or what is there
 function showTip(px,py){

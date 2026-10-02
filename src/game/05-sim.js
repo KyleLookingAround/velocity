@@ -11,22 +11,34 @@ function unrestTarget(){
   const kept=1-Math.min(1,(G.givenAvg||0)/Math.max(1,(G.gainsAvg||0)*T.heroGiveShare));
   const seen=Math.min(1,Math.max(0,Math.log10(Math.max(1,netWorth())/START_FORTUNE)/1.5));
   R.parts={poor,out,rough,burden,kept,seen};
-  return 100*(0.3*poor+0.25*out+0.3*rough+0.25*Math.max(0,burden-0.3)+0.32*kept*seen)+(G.anger||0);
+  // as the landlord: the estate's hoarding counts for half, and your homes' state and your evictions count too
+  let ll=0;
+  if(isLandlord()){const mine=myHomes();ll=mine.length?(0.12*(1-G.ll.cond)+0.1*mine.filter(r=>r.homeless||r.owed>0).length/mine.length)*mine.length/19:0}
+  return 100*(0.3*poor+0.25*out+0.3*rough+0.25*Math.max(0,burden-0.3)+0.32*kept*seen*(isLandlord()?0.5:1)+ll)+(G.anger||0);
 }
 function unrestWeek(){
   const t=Math.min(100,Math.max(0,unrestTarget()));
   G.unrest+=(t-G.unrest)*0.05;
   G.anger=(G.anger||0)*0.98;
-  if(G.unrest>=T.revoltAt){G.revoltWeeks++;if(G.revoltWeeks>=T.revoltWeeks)endLife('revolt')}
+  if(G.unrest>=T.revoltAt&&!isLandlord()){G.revoltWeeks++;if(G.revoltWeeks>=T.revoltWeeks)endLife('revolt')}
   else G.revoltWeeks=Math.max(0,G.revoltWeeks-1);
 }
 const unrestLevel=u=>u<30?'calm':u<55?'grumbling':u<70?'protests':u<T.revoltAt?'strikes':'revolt';
 
 // the end of each game year: rents and pay rise, home prices grow, and the year goes into the history
 function yearEnd(){
-  for(const r of G.res){if(r.homeOwner==='local')r.rent*=1+T.rentRise;else if(r.homeOwner==='you')r.rent*=1+T.yourRentRise}
+  for(const r of G.res){if(r.homeOwner==='local')r.rent*=1+(isLandlord()?G.ll.rentChange:T.rentRise);else if(r.homeOwner==='you')r.rent*=1+T.yourRentRise}
   for(const s of G.shops)if(s.open&&s.profitAvg>0)s.wage*=1+T.wageRise;
-  G.homePrice*=1+T.homeGrowth;
+  // home prices follow rents (only what the town could pay counts) and the market's mood, which sours when the town
+  // strikes or its jobs go, and rises as the rich buy up homes
+  const work=G.res.filter(r=>r.role==='worker'||r.role==='owner'),jobs=work.filter(r=>r.role==='owner'||r.job!=null).length/Math.max(1,work.length);
+  // (an empty home, or one whose tenant owes rent, earns nothing, so it counts for nothing)
+  const homes=G.res.filter(r=>r.homeOwner!=='self'),cap=0.45*T.wage*grow(0.02);
+  const rent=homes.reduce((a,r)=>a+(r.homeless||r.sheltered||r.owed>0?0:Math.min(r.rent,cap)),0)/Math.max(1,homes.length);
+  const mood=1+G.pricePush-(G.unrest>=70?0.3:G.unrest>=55?0.12:0)-(jobs<0.6?0.15:0);
+  G.priceMood+=(mood-G.priceMood)*0.35;
+  G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
+  if(isLandlord()){landlordYearEnd();if(G.ending)return}
   reopenShops();
   const y=G.year,stock=y.stock/Math.max(1,y.weeks);
   G.lastGiftCost=y.gc||{};
@@ -63,17 +75,27 @@ function fundWeek(){
 
 function endLife(kind){
   if(G.ending)return;
+  if(isLandlord()){
+    const v=kind==='death'?landlordVerdict():{kind};
+    G.ending={rung:'landlord',kind:v.kind,week:rungWeek(),equity:equity(),start:G.ll.startEquity,burden:v.burden,unrest:G.unrest,cond:G.ll.cond,homes:myHomes().length};
+    G.ladder.best=Object.assign({},G.ladder.best,{landlord:G.ending.kind});
+    return;
+  }
   if(kind==='death'){
     const share=G.given/Math.max(1,G.gains);
     kind=share>=T.heroGiveShare&&netWorth()>=START_FORTUNE&&G.unrest<50?'hero':'luthor';
   }
-  G.ending={kind,week:G.week,nw:netWorth(),given:G.given,gains:G.gains,unrest:G.unrest};
+  G.ending={rung:'billionaire',kind,week:G.week,nw:netWorth(),given:G.given,gains:G.gains,unrest:G.unrest};
+  G.ladder.unlocked=Object.assign({},G.ladder.unlocked,{landlord:true});G.ladder.best=Object.assign({},G.ladder.best,{billionaire:kind});
 }
 
 // one week of everything, in order
 function step(){
   if(G.ending||G.tax)return;
   economyWeek();fundWeek();fortuneWeek();
+  // the gifts stop when the fortune can't pay for them: a fortune never goes below nothing
+  if(G.cash<0&&Object.values(G.gifts).some(Boolean)){for(const k in G.gifts)G.gifts[k]=false;toast(isLandlord()?'The foundation has run out of money':'Your fortune can\u2019t pay for the gifts any more. They\u2019ve stopped')}
+  if(isLandlord()){landlordWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
   G._nw=nw;G._yv=G.year.given;
@@ -82,8 +104,9 @@ function step(){
   G.givenAvg=(G.givenAvg||0)*0.98+givenW*WEEKS*0.02;
   unrestWeek();
   if(G.week%WEEKS===0){yearEnd();G._yv=0}
-  if(G.week>=LIFE_WEEKS)endLife('death');
+  if(rungWeek()>=rungWeeks()&&!G.ending)endLife('death');
   if(taxDue())proposeTax();
 }
 function toast(t){R.toasts.push({t,week:G.week});if(R.toasts.length>6)R.toasts.shift()}
-function newGame(seed){if(seed!=null)seedRandom(seed);G=DEFAULT();R.flows=[];R.toasts=[]}
+// a new billionaire life keeps the ladder: what you've unlocked and how each rung ended
+function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder)G.ladder=ladder;R.flows=[];R.toasts=[]}

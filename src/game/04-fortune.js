@@ -13,7 +13,7 @@ function canBuyHomes(){return G.res.some(r=>r.homeOwner==='local')&&G.cash>=G.ho
 function buyHomes(){
   const r=G.res.find(r=>r.homeOwner==='local');if(!r||G.cash<G.homePrice)return false;
   G.cash-=G.homePrice;r.homeOwner='you';
-  G.homePrice*=1+T.homeBuyPush;
+  G.homePrice*=1+T.homeBuyPush;G.pricePush+=T.homeBuyPush;
   for(const o of G.res)if(o.homeOwner==='local')o.rent*=1+T.homeBuyPush; // the landlord follows the market up
   toast('You own '+r.name+"'s homes");
   return true;

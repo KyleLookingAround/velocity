@@ -48,9 +48,14 @@ function economyWeek(){
     if(rent&&gifts.vouchers&&r.income<T.wage*grow(0.02)*0.9){const v=rent/3;giveTo(i,v,'vouchers')}
     if(gifts.poverty){const short=T.povertyLine+rent-r.income;if(short>0)giveTo(i,short,'poverty')}
     r.cash+=r.income;
+    // the landlord's tenants pay less in a rent strike, and less again for a home falling apart
+    const mine=isLandlord()&&r.homeOwner==='local';
+    if(mine&&rent){if(G.unrest>=70)rent*=0.5;if(G.ll.cond<0.4)rent*=0.7}
     if(rent){
-      if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)}
-      else{r.arrears++;if(r.arrears>=6)evict(r)}
+      if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)
+        if(mine){G.ll.year.rent+=rent;if(r.owed>0){const p=Math.min(r.owed,Math.max(0,(r.cash-rent)*0.2));r.cash-=p;r.owed-=p;res[0].income+=pay(id,'r0',p,'rent')}}}
+      else if(mine&&!G.ll.evict){r.owed=(r.owed||0)+rent;G.ll.year.lost+=rent}
+      else{r.arrears++;if(r.arrears>=6){evict(r);if(mine)G.ll.year.evictions++}}
     }
     if(r.debt>0){if(gifts.medical){giveOut(r.debt,'medical',i);r.debt=0}else{const p=Math.min(r.debt,T.medicalPay,Math.max(0,r.cash*0.5));r.debt-=p;r.cash-=pay(id,'out',p,'debt')}}
     const mpc=r.role==='owner'?T.mpc.mid:r.income>T.wage*1.4?T.mpc.mid:T.mpc.low;
@@ -60,8 +65,12 @@ function economyWeek(){
     for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],r['to_'+c]=s*CAT_SHARE[c];
   });
   // the landlord lives on the rent, spending a little and saving the rest
-  {const ll=res[0];ll.cash+=res[0].income;const s=res[0].income*T.mpc.high+Math.max(0,ll.cash-200000*HH)*0.004;ll.cash-=s;ll.spent=s;
-    for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],ll['to_'+c]=s*CAT_SHARE[c]}
+  // (as the landlord rung, you: what's left after interest and repairs, and the repairs are bought in town)
+  {const ll=res[0];ll.cash+=res[0].income;let s;
+    if(isLandlord()){const net=res[0].income-llInterestWeek()-llRepairsWeek();s=Math.max(0,net*T.mpc.high);const fix=llRepairsWeek();ll.cash-=fix;
+      ll.cash-=s;ll.spent=s+fix;for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],ll['to_'+c]=s*CAT_SHARE[c];spendBy.goods+=fix;ll.to_goods+=fix}
+    else{s=res[0].income*T.mpc.high+Math.max(0,ll.cash-200000*HH)*0.004;ll.cash-=s;ll.spent=s;
+      for(const c of CATS)spendBy[c]+=s*CAT_SHARE[c],ll['to_'+c]=s*CAT_SHARE[c]}}
   // spending reaches the shops, or leaks to the megastore
   for(const c of CATS){
     const si=G.shops.findIndex(s=>s.cat===c),s=G.shops[si];

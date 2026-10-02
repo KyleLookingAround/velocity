@@ -3,17 +3,26 @@
 const FIELDS={
   v:()=>1, week:()=>0, cash:()=>START_FORTUNE, rate:()=>T.baseReturn,
   homePrice:()=>T.homePrice,       // what one figure's homes cost now
+  priceMood:()=>1, pricePush:()=>0, // the market's mood, and how far your buying has pushed it
   res:()=>makeResidents(), shops:()=>makeShops(), workshops:()=>[],
   gifts:()=>({poverty:false,shelter:false,vouchers:false,childcare:false,medical:false}),
   unrest:()=>18, revoltWeeks:()=>0, ending:()=>null,
   year:()=>emptyYear(), history:()=>[], gains:()=>0, given:()=>0, taxPaid:()=>0,
   nextTax:()=>T.taxEvery*WEEKS, tax:()=>null, moved:()=>0, lobbied:()=>0,
   speed:()=>1, seen:()=>({intro:false}),
+  rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
 };
 const DEFAULT=()=>{const s={};for(const k in FIELDS)s[k]=FIELDS[k]();return s};
 let G;
 const R={sim:false,flows:[],bills:[],weekT:0,last:0,toasts:[],sel:null,tab:'moves'};
 
+function money(v){
+  const s=v<0?'−':'';v=Math.abs(v);
+  if(v>=1e9)return s+'$'+(v/1e9).toFixed(v>=1e10?1:2)+'B';
+  if(v>=1e6)return s+'$'+(v/1e6).toFixed(v>=1e8?0:1)+'M';
+  if(v>=1e3)return s+'$'+Math.round(v/1e3)+'k';
+  return s+'$'+Math.round(v);
+}
 function emptyYear(){return {gains:0,given:0,tx:0,stock:0,weeks:0,megastore:0,toYou:0}}
 
 // twenty figures: the local landlord, four shop owners, the mill's six, five shop staff, two out of work and two retirees
@@ -40,8 +49,8 @@ const workingAge=r=>r.role==='worker'||r.role==='owner'&&r.shop==null;
 const jobless=()=>G.res.filter(r=>r.role==='worker'&&r.job==null);
 const homesOwned=()=>G.res.filter(r=>r.homeOwner==='you').length;
 const shopsOwned=()=>G.shops.filter(s=>s.ownedByYou).length;
-const age=()=>START_AGE+Math.floor(G.week/WEEKS);
-const yearNo=()=>Math.floor(G.week/WEEKS)+1;
+const age=()=>START_AGE+Math.floor((G.week-(G.rungStart||0))/WEEKS);
+const yearNo=()=>Math.min(Math.floor((G.week-(G.rungStart||0))/WEEKS)+1,isLandlord()?LL.years:END_AGE-START_AGE);
 // what you're worth: the invested fortune, the homes at today's price and the shops and workshops at their price
 function netWorth(){
   let v=G.cash+homesOwned()*G.homePrice;

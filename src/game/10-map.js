@@ -74,7 +74,7 @@ function drawVault(c,L){
   c.restore();
   c.strokeStyle='#777';c.lineWidth=3;c.beginPath();c.arc(x,y,R0-6,0,7);c.stroke();
   for(let k=0;k<5;k++){c.beginPath();c.moveTo(x-R0+14+k*22,y-R0+12);c.lineTo(x-R0+14+k*22,y+R0-12);c.strokeStyle='rgba(90,90,90,.55)';c.lineWidth=2;c.stroke()}
-  label(c,'Your fortune',x,y+R0+26,13,'#333',700);
+  label(c,isLandlord()?'The estate':'Your fortune',x,y+R0+26,13,'#333',700);
 }
 function drawMega(c,L){
   const [x,y]=L.mega;
@@ -90,7 +90,7 @@ function drawMansion(c,L){
   c.fillStyle='#8f8f8f';c.beginPath();c.moveTo(x-48,y-6);c.lineTo(x,y-38);c.lineTo(x+48,y-6);c.fill();
   c.fillStyle='#bcbcbc';c.fillRect(x-42,y-6,84,44);
   c.fillStyle='#e9e9e9';for(let k=0;k<3;k++)c.fillRect(x-34+k*26,y+2,14,12);c.fillRect(x-7,y+20,14,18);
-  label(c,'Landlord',x,y+56,11.5,'#555');
+  label(c,isLandlord()?'You, the landlord':'Landlord',x,y+56,11.5,isLandlord()?'#151515':'#555',isLandlord()?800:600);
 }
 function drawMill(c,L){
   const [x,y]=L.mill;
@@ -103,7 +103,9 @@ function drawMill(c,L){
 function drawHome(c,L,i){
   const [x,y]=L.home(homeSlot(i)),r=G.res[i];
   const yours=r.homeOwner==='you';
-  c.fillStyle=yours?'#4c9a5d':'#8d8d8d';c.beginPath();c.moveTo(x-20,y-2);c.lineTo(x,y-20);c.lineTo(x+20,y-2);c.fill();
+  // as the landlord, your own roofs show how well the homes are kept up: grey when sound, rust as they fall apart
+  const kept=isLandlord()&&r.homeOwner==='local'?G.ll.cond:1;
+  c.fillStyle=yours?'#4c9a5d':kept<1?`rgb(${Math.round(141+(1-kept)*60)},${Math.round(141-(1-kept)*50)},${Math.round(141-(1-kept)*80)})`:'#8d8d8d';c.beginPath();c.moveTo(x-20,y-2);c.lineTo(x,y-20);c.lineTo(x+20,y-2);c.fill();
   c.fillStyle=r.homeless?'#d5d5d5':'#b9b9b9';c.fillRect(x-16,y-2,32,20);
   c.fillStyle='#ececec';c.fillRect(x-4,y+6,8,12);
   if(r.homeless){c.fillStyle='#b23a3a';c.fillRect(x-17,y+1,34,10);label(c,'EVICTED',x,y+9,6.5,'#fff',800)}

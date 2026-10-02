@@ -22,8 +22,8 @@ const T={
   yourRentRise:0.07,      // yours, once you own the homes
   wageRise:0.02,          // a healthy business's yearly pay rise
   homePrice:150000*HH,    // a figure's homes (HH of them) at the start
-  homeGrowth:0.04,        // yearly growth in home prices, before your buying
-  homeBuyPush:0.012,      // each figure's homes you buy push all prices up by this much
+  homeYield:0.0589,       // a home's price is about its rent over this: prices follow rents, and the town's mood
+  homeBuyPush:0.012,      // each figure's homes you buy push all prices (and the landlord's rents) up by this much
   rivalMultiple:9,        // a shop's price, in years of profit
   workshopCost:12e6, workshopOutput:1060*HH, workshopStaff:3, maxWorkshops:3,
   medicalChance:0.12,     // a figure's yearly chance of a medical bill

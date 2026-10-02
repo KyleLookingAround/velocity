@@ -63,6 +63,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .stats div{display:flex;justify-content:space-between;border-bottom:1px solid #e2e2e2;padding:4px 0}
 .stats b{font-variant-numeric:tabular-nums}
 #chart{width:100%;height:170px;display:block}
+.seg{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:48px;border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 4px;font-weight:700;font-size:13px}
+.seg button.on{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
 /* modal */
 #modal{position:fixed;inset:0;background:rgba(20,20,20,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
 #modal.show{display:flex}
