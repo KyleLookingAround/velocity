@@ -124,7 +124,7 @@ let paneKey='';
 function renderPane(force){
   // a new decision opens its tab; once answered, you're back where you were
   const cid=G.card?G.card.id+':'+G.card.week:null;
-  if(cid&&cid!==R.cardSeen){R.cardSeen=cid;if(R.tab!=='decide')R.prevTab=R.tab;R.tab='decide';force=true}
+  if(cid&&cid!==R.cardSeen){R.cardSeen=cid;if(R.tab!=='decide')R.prevTab=R.tab;R.tab='decide';force=true;if(typeof sfx==='function')sfx('card',[18])}
   if(!!G.card!==R.decideTab){if(!G.card&&R.tab==='decide')R.tab=R.prevTab||'';buildTabs();force=true}
   for(const b of $('#tabs').children)b.classList.toggle('on',b.dataset.t===R.tab);
   const waiting=G.card&&R.tab!=='decide'?`<button class="waiting" data-t-go="decide"><span class="w"><b>A decision is waiting</b><span>${cardDef(G.card.id).title(G.card.d||{})}</span></span><i>Decide \u203a</i></button>`:'';
@@ -188,7 +188,7 @@ const PANES={
 function onPaneClick(e){
   const go=e.target.closest('[data-t-go]');if(go){R.tab=go.dataset.tGo;renderPane(true);return}
   const k=e.target.closest('[data-card]'),g=e.target.closest('[data-gift]');
-  if(k&&G.card){G.ladder.tipCard=true;const o=cardOptions().find(x=>x.k===k.dataset.card);answerCard(k.dataset.card);if(o)R.lastChoice={label:o.label,town:o.town,at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true);refreshTop()}
+  if(k&&G.card){G.ladder.tipCard=true;if(typeof sfx==='function')sfx('coin');const o=cardOptions().find(x=>x.k===k.dataset.card);answerCard(k.dataset.card);if(o)R.lastChoice={label:o.label,town:o.town,at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true);refreshTop()}
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
   if(e.target.closest('[data-skip]')){R.skip=!R.skip;renderPane(true)}
   const adv=e.target.closest('[data-adv]');if(adv){G.adviser=G.adviser===adv.dataset.adv?null:adv.dataset.adv;save();renderPane(true)}

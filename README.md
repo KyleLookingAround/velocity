@@ -139,8 +139,10 @@ the roads not taken beside the one you took.
 
 ## Settings
 
-The Story tab has two settings, kept on the device: **larger text** in the panel and modals, and **a calm stage**
-(no passers-by, weather, drift or confetti; on by itself when the device asks for reduced motion).
+The Story tab has settings, kept on the device: **larger text** in the panel and modals, and **a calm stage**
+(no passers-by, weather, drift or confetti; on by itself when the device asks for reduced motion), **sound** (soft
+chimes made in the browser: a decision arriving, an answer, an achievement, the end of a life) and, on a phone,
+**a buzz** when a decision arrives. Sound and buzz are off until turned on.
 
 ## Why it moved
 
