@@ -12,9 +12,17 @@ function start(){
   function frame(now){
     const dt=Math.min(0.1,(now-last)/1000);last=now;
     const modal=$('#modal').classList.contains('show');
+    // letting the adviser finish the rung: a few weeks a frame, their answers, stopping at a card they leave to you
+    if(R.skip&&!modal&&!G.ending){
+      for(let n=0;n<4&&R.skip;n++){
+        if(G.card){const k=adviserAnswer();if(!k){R.skip=false;renderPane(true);break}answerCard(k)}
+        else{step();if(G.week%WEEKS===0){adviserYear();save()}}
+        if(G.ending){R.skip=false;R.stage={};R.endSoon=true;break}}
+      if(R.townQ.length>3)R.townQ.splice(0,R.townQ.length-3);
+    }
     // with an adviser in charge, a waiting card is answered after a moment (one they can't answer waits for you)
     if(G.card&&G.adviser&&!modal){autoT+=dt;if(autoT>1.2){autoT=0;const k=adviserAnswer();if(k){const o=cardOptions().find(x=>x.k===k),a=ADVISERS.find(a=>a.k===G.adviser);answerCard(k);
-        R.lastChoice={label:a.name+': '+o.label,town:o.town,at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true)}}}
+        R.lastChoice={label:a.name+': '+o.label,town:o.town,quote:adviserLine(a),at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true)}}}
     if(!modal&&!G.ending&&!G.card&&G.speed>0){
       acc+=dt*G.speed;
       while(acc>=weekSecs()){acc-=weekSecs();step();

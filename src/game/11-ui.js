@@ -27,7 +27,7 @@ const TAB_ICONS={
 function buildSpeed(){$('#speed').innerHTML=speeds().map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}" title="${s?s+'\u00d7 speed (key '+SPEEDS.indexOf(s)+')':'Pause (space)'}">${s?s+'×':'❚❚'}</button>`).join('')}
 function buildChrome(){
   buildSpeed();
-  $('#speed').onclick=e=>{const b=e.target.closest('button');if(b){G.speed=+b.dataset.s;refreshTop()}};
+  $('#speed').onclick=e=>{const b=e.target.closest('button');if(b){G.speed=+b.dataset.s;R.skip=false;refreshTop()}};
   buildTabs();
   $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){R.tab=b.dataset.t;renderPane(true)}};
   $('#pane').onclick=onPaneClick;
@@ -129,7 +129,7 @@ function renderPane(force){
   for(const b of $('#tabs').children)b.classList.toggle('on',b.dataset.t===R.tab);
   const waiting=G.card&&R.tab!=='decide'?`<button class="waiting" data-t-go="decide"><span class="w"><b>A decision is waiting</b><span>${cardDef(G.card.id).title(G.card.d||{})}</span></span><i>Decide \u203a</i></button>`:'';
   // (the last answer's result stays in view for a few seconds, whichever tab you're on)
-  const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span>${R.lastChoice.fresh?`<i class="newcard">\u2605 New card \u00b7 ${R.lastChoice.n} of ${CARDS.length}</i>`:''}</div>`:'';
+  const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span>${R.lastChoice.quote?`<q>${R.lastChoice.quote}</q>`:''}${R.lastChoice.fresh?`<i class="newcard">\u2605 New card \u00b7 ${R.lastChoice.n} of ${CARDS.length}</i>`:''}</div>`:'';
   const html=R.tab==='decide'&&G.card?cardHTML():waiting+result+PANES[R.tab]();
   $('#sheet').classList.toggle('deciding',R.tab==='decide'&&!!G.card);
   if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
@@ -190,6 +190,7 @@ function onPaneClick(e){
   const k=e.target.closest('[data-card]'),g=e.target.closest('[data-gift]');
   if(k&&G.card){G.ladder.tipCard=true;const o=cardOptions().find(x=>x.k===k.dataset.card);answerCard(k.dataset.card);if(o)R.lastChoice={label:o.label,town:o.town,at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true);refreshTop()}
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
+  if(e.target.closest('[data-skip]')){R.skip=!R.skip;renderPane(true)}
   const adv=e.target.closest('[data-adv]');if(adv){G.adviser=G.adviser===adv.dataset.adv?null:adv.dataset.adv;save();renderPane(true)}
   const pol=e.target.closest('[data-policy]');if(pol&&G.ll){G.ll.policy=pol.dataset.policy;save();renderPane(true)}
 }

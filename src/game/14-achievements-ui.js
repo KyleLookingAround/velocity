@@ -26,6 +26,7 @@ function advisersHTML(){
   const row=a=>a.speed?`<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}</small></div><span class="kick">Unlocked</span></div>`:
     `<div class="card"><div class="txt"><b>${a.name}${a.rung?' <span class="kick">'+RUNG_NAMES[a.rung]+'</span>':''}</b><small>${a.note()}</small></div><button class="toggle ${G.adviser===a.k?'on':''}" data-adv="${a.k}" aria-label="${a.name}" aria-pressed="${G.adviser===a.k}"></button></div>`;
   return `<div class="card"><div class="txt"><b>Advisers</b><small>${open.length?open.length+' unlocked by your achievements. One can run things for you; switch them off to decide everything yourself.':'Achievements unlock advisers who can run things for you.'}${next?' Next: <b>'+next.name+'</b> at '+next.need+' achievement'+(next.need===1?'':'s')+' (you have '+n+').':''}${here&&!hereOpen?' This rung’s own adviser, <b>'+here.name+'</b>, comes with its best ending.':''}</small></div></div>`+
+    (adviserOn()&&!adviserOn().speed&&!G.ending?`<div class="card"><div class="txt"><b>Let ${adviserOn().name.toLowerCase()} finish this rung</b><small>Years go by fast with their answers; a card they leave to you stops it, and so does pause.</small></div><button class="act" data-skip="1">${R.skip?'Stop':'Run it'}</button></div>`:'')+
     open.filter(a=>!a.rung).map(row).join('')+open.filter(a=>a.rung).sort((a,b)=>(a.rung===G.rung?0:1)-(b.rung===G.rung?0:1)).map(row).join('');
 }
 // the deck: every kind of card on each rung, collected ones face up with the answer you gave last
@@ -119,6 +120,7 @@ function topExtras(){
   // what's next: a decision waiting, or roughly when the next one comes
   let long,short;
   if(G.ending){long='The end of this life';short='The end'}
+  else if(R.skip){const a=adviserOn();long='<b>'+(a?a.name:'Your adviser')+'</b> runs it \u00b7 tap pause to take over';short='<b>'+(a?a.name.replace(/^The /,''):'Adviser')+'</b> runs it'}
   else if(G.card){long='<b>Your turn</b> \u00b7 time waits while you decide';short='<b>Your turn</b><span class="tw"> \u00b7 time waits</span>'}
   else{const w=Math.max(0,G.nextCard-G.week),m=w<9?2:Math.round(w/4.33),p=G.speed===0?'<b>Paused</b> \u00b7 ':'';
     long=p+(p?'n':'N')+'ext decision '+(w<=2?'any week now':w<6?'in a few weeks':'in about '+(m===2?'two':m)+' months');

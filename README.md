@@ -23,7 +23,9 @@ memory (7) answers each card the way you did last time and brings a new one to y
 has its own adviser too, unlocked by that rung's best ending and playing for it on that rung only: the foundation
 director (gives what the fortune can carry, year by year), the managing agent, the clerk, the head waiter, the shop
 steward, the caseworker, the branch secretary, the campaign manager, the chief of staff, the state treasurer and the
-whip. Switch them off to decide everything yourself.
+whip. Each answers in its own voice on the result strip ("Numbers don't vote"), and the one in charge can be left
+to finish the rung: the years go by fast with their answers, and a card they leave to you, or pause, stops it.
+Switch them off to decide everything yourself.
 
 The screen is a **stage** of two scenes, drawn like the video, one above the other on a phone and side by side on a
 wide screen: **you** (at your desk with the vault filling, signing a deed, shaking a senator's hand, loading the moving
