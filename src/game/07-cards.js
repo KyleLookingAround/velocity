@@ -1110,7 +1110,7 @@ function answerCard(k){
   R.lastCard={key,fresh,title};
   if(fresh&&CARDS.every(c=>L.cards[cardKey(c)]))award('m:deck');
   if(fresh&&c.silver&&SILVERS().every(c=>L.cards[silverKey(c)]))award('m:pairs');
-  G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label,you:String(o.you||''),town:String(o.town||''),alts});
+  G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label,tag:o.kind?'kind':o.acct?'acct':o.none?'none':'',you:String(o.you||''),town:String(o.town||''),alts});
   if(G.choices.length>200)G.choices.splice(0,G.choices.length-200);
   if(c.id.startsWith('gift-'))G.seenGifts[c.id.slice(5)]=true;
   if(G.choices.length>80)G.choices.shift();
