@@ -4,7 +4,7 @@
 // Tenants; Town and Story are shared.
 const SPEEDS=[0,1,2,4,8];
 function buildChrome(){
-  $('#speed').innerHTML=SPEEDS.map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}">${s?s+'×':'❚❚'}</button>`).join('');
+  $('#speed').innerHTML=SPEEDS.map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}" title="${s?s+'\u00d7 speed (key '+SPEEDS.indexOf(s)+')':'Pause (space)'}">${s?s+'×':'❚❚'}</button>`).join('');
   $('#speed').onclick=e=>{const b=e.target.closest('button');if(b){G.speed=+b.dataset.s;refreshTop()}};
   buildTabs();
   $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b&&!G.card){R.tab=b.dataset.t;renderPane(true)}};

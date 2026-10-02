@@ -87,3 +87,16 @@ function topExtras(){
   $('#yearbar').style.width=Math.min(100,rungWeek()/Math.max(1,rungWeeks())*100)+'%';
 }
 $('#lad').addEventListener('click',()=>{if(!$('#modal').classList.contains('show'))showAchievements()});
+
+// the keyboard, for desktops: space pauses and plays, 1 to 4 set the speed (or pick a waiting decision's options),
+// and Escape closes the ladder
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+  const modal=$('#modal').classList.contains('show');
+  if(e.key==='Escape'&&modal&&$('#box').querySelector('[data-close]')){hideModal();e.preventDefault();return}
+  if(modal)return;
+  if(e.key===' '){G.speed=G.speed?0:(R.lastSpeed||1);if(G.speed)R.lastSpeed=G.speed;refreshTop();e.preventDefault();return}
+  const n=+e.key;if(!(n>=1&&n<=4))return;
+  if(G.card){const b=document.querySelectorAll('#pane [data-card]')[n-1];if(b)b.click();return}
+  G.speed=SPEEDS[n];R.lastSpeed=G.speed;refreshTop();
+});

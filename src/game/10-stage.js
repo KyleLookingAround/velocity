@@ -392,10 +392,12 @@ function skyline(c,x0){
 }
 // a scene's caption, sized to stay readable on a phone, fading as the next one arrives
 function caption(c,text,a,dy){
-  const k=V.k/V.dpr,size=Math.max(13,Math.min(19,12.5/k)),h=size*2.2;
+  const k=V.k/V.dpr,t=text.length>64?text.slice(0,62)+'\u2026':text;
+  // as large as a phone needs, but never wider than the pane
+  let size=Math.max(13,Math.min(19,12.5/k));c.font='700 '+size+'px system-ui,sans-serif';const w=c.measureText(t).width;if(w>PW-24)size*=(PW-24)/w;
+  const h=Math.max(26,size*2.2);
   c.save();c.globalAlpha=a;
   c.fillStyle='rgba(251,249,245,.86)';c.fillRect(0,PH-h,PW,h);
-  const t=text.length>64?text.slice(0,62)+'\u2026':text;
   txt(c,t,PW/2,PH-h/2+size*0.36+dy,size,'#24211c',700);c.restore();
 }
 function drawMap(dt){
