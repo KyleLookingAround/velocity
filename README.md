@@ -235,6 +235,12 @@ same town, starting from the fortune it left (and judged against it). Three gene
 star in the card's corner from then on (gold for a card that comes once in a life). The Story tab opens the deck,
 one row per rung, collected cards face up with the answer you gave last; the full deck is a milestone.
 
+**Silver pairs.** Eleven cards, one on each rung, have a rare variant: the same question, asked bigger or by someone
+else (a storm takes the roof off instead of a pipe bursting; the estate's owner turns up to the debate instead of the
+spokesman). Once you hold the plain card, it can come as its variant about one time in three, marked "A rare one"
+with a silver star. The variant has the same answers, so an adviser who remembers your plain answer gives it again.
+In the deck, a small silver star on a card lights up once you've collected its variant; every pair is a milestone.
+
 **Seasons.** The year turns on the stage: winter light and a little snow around the turn of the year, warm light at
 midsummer.
 

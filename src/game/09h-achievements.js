@@ -39,6 +39,7 @@ const MILESTONES={
   heir:{name:'The heir',note:'Play a hero’s heir to the end'},
   everyrole:{name:'Every rung',note:'Finish every role on the ladder at least once'},
   deck:{name:'The full deck',note:'Answer every kind of card on the ladder'},
+  pairs:{name:'Silver pairs',note:'Collect every card\u2019s rare variant, the one with the silver star'},
   hundredb:{name:'A hundred billion',note:'A fortune of $100B, in one life or down the generations'},
   trillion:{name:'Trillionaire',note:'A fortune of a trillion dollars: heirs of heirs, compounding for a century or more'},
 };
