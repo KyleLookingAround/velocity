@@ -255,13 +255,16 @@ Saves stay on the device.
 - `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html` (and copies the
   fonts next to it). It fails,
   naming the file and line, on a slip, and rejects `Math.random()` in anything that changes the game (use `rnd()`).
-- `npm run bot` plays whole lives headless on seeds 1–3, answering every card by a strategy, and checks each reaches
+- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in six groups at once (`down`, `climb`,
+  `mayor`, `governor`, `president`, `hunt`; one process each, as many at a time as there are cores: about two minutes
+  on four), and `node tools/bot.mjs --group <name>` plays one. It answering every card by a strategy, and checks each reaches
   its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its means → hero and still
   richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair and a gouging landlord
   in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair. Then
   three partners in the towns those landlords leave: always the accountant → hired gun, always the town → counsel,
   75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the accountant's
-  prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding → evicted)
+  prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding → evicted,
+  or just getting by under a fair landlord's rent)
   and three people out of work (organising → organiser, scrambling for work → back on your feet, taking nothing →
   stuck). Then three union organisers: generous → fair wages, the accountant → sold out, doing nothing → crumbs. Then three
   activists: generous → the town changed, the easiest way → bought, never campaigning → ignored. Then three mayors
@@ -275,11 +278,15 @@ Saves stay on the device.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
   first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.
-- `npm run check` runs all three.
+- `npm run check` runs all three. On GitHub, the Checks workflow runs on every pull request and every push to `main`:
+  each bot group and the screenshots are parallel jobs, and a `check` job passes only when all of them do. A newer
+  push cancels the older run.
+
+Changes ship as pull requests (a branch, the Checks green, then a squash merge), as `CLAUDE.md` describes.
 
 Files `src/game/00-` to `09-` are the simulation (economy, fortune, landlord, cards): no DOM, so `tools/sim.mjs` can
 load them in Node. `10-` onwards draw the stage and the panels. A new card is one entry in `CARDS` (`07-cards.js`); a
 new scene is one entry in `SCENES` (`10-stage.js`). `G` is the saved state (each field with its default in `FIELDS`, `02-state.js`) and
 `R` is runtime only. The save stays on the device.
 
-Every push to `main` publishes the page to GitHub Pages.
+Every merge to `main` publishes the page to GitHub Pages.
