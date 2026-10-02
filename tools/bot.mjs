@@ -52,7 +52,7 @@
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 // --group <name> plays one group only (down: the billionaire to out of work; climb: the union and activist; mayor;
-// governor; president, with the heir; hunt: the rare endings). tools/bot-all.mjs plays every group at once, in parallel.
+// governor; president, with the heir; hunt: the rare endings; towns: the port and the suburb). tools/bot-all.mjs plays every group at once, in parallel.
 const gi=process.argv.indexOf('--group'),GROUP=gi>0?process.argv[gi+1]:null,on=g=>!GROUP||GROUP===g;
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
 const budget=S=>S.netWorth()*S.G.rate*0.65; // what a hero lets itself give a year
@@ -241,4 +241,17 @@ if(on('hunt')){const hunted=new Set(),k2=S=>opt(S,o=>o.kind);
       if(S.G.ending.rare)hunted.add(S.G.ending.rung+':'+S.G.ending.rare)}}
   const need=['shop:coop','waiter:thriving','union:general','governor:landslide'],missing=need.filter(x=>!hunted.has(x));
   console.log('rare endings a hunter reached: '+[...hunted].sort().join(', '));if(missing.length){bad++;console.error('rare endings out of reach: '+missing.join(', '))}}console.log('rare endings reached: '+([...rares].sort().join(', ')||'none'));
+// the other towns: the port and the suburb. Each billionaire strategy, then after the hero the fair landlord and the
+// whole way down and up to the activist with the generous answers
+if(on('towns')){const twRows=[],k2=S=>opt(S,o=>o.kind);
+  for(const town of ['port','suburb'])for(const seed of [1,2,3]){
+    const row={town,seed};
+    for(const name of ['passive','hoarder','hero']){const S=loadSim(seed);S.newGame(seed,town);live(S,BILLIONAIRE[name],yearly[name]);const e=S.G.ending;
+      const ok=e.kind===want[name]&&(name!=='hero'||e.nw>=S.START_FORTUNE);if(!ok)bad++;row[name]=e.kind+' $'+(e.nw/1e6).toFixed(0)+'M'+(ok?'':' NO');
+      if(name==='hero'){S.startLandlord();live(S,LANDLORD.fair);const f=S.G.ending.kind;if(f!=='fair')bad++;row.landlord=f+(f==='fair'?'':' NO');
+        S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);
+        S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);
+        const o=S.G.ending.kind;row.activist=o;if(!o)bad++;row.purse='$'+((S.G.fund||0)/1e6).toFixed(0)+'M'}}
+    twRows.push(row)}
+  console.table(twRows)}
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

@@ -64,6 +64,14 @@ recommends (some rare endings need those).
 The game is a ladder of roles, one per rung: six down by money, five back up by votes, each starting in the town the
 last one left. At the top, the laws a president passes become the law in every billionaire life after.
 
+**Three towns.** The first lives are in Millbrook, a mill town. At 3 achievements a port opens (Saltby: the cannery
+pays better, rents are higher, and more of what people buy comes off the ships), and at 6 a suburb (Elm Park: dear
+homes, retirees on good pensions, and a retail park that takes the high street's trade). Each new billionaire life
+moves on to the next town you've opened, and the lives that step down from it stay there. There's no choice to make at
+the start: the town is part of the life you're dealt. A town changes a few numbers and the name of the big employer
+(the mill, the cannery or the depot); the ladder, the cards and the endings are the same. The port is the hardest town
+for a hero: gifts cost more where wages are higher. The Story tab lists the towns you've opened.
+
 - **The billionaire** (40 years): $30M at 8% a year. Along the way: a boom (borrow and ride it, sell a third at the
   top, or sit tight), then a market crash that takes more from those who rode it on borrowed money (buy what everyone else must sell,
   hold, or keep the town's shops afloat), a superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be started or stopped on the
@@ -268,9 +276,9 @@ Saves stay on the device.
 - `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html` (and copies the
   fonts next to it). It fails,
   naming the file and line, on a slip, and rejects `Math.random()` in anything that changes the game (use `rnd()`).
-- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in six groups at once (`down`, `climb`,
-  `mayor`, `governor`, `president`, `hunt`; one process each, as many at a time as there are cores: about two minutes
-  on four), and `node tools/bot.mjs --group <name>` plays one. It answering every card by a strategy, and checks each reaches
+- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in seven groups at once (`down`, `climb`,
+  `mayor`, `governor`, `president`, `hunt`, `towns`; one process each, as many at a time as there are cores: about two minutes
+  on four), and `node tools/bot.mjs --group <name>` plays one. It answers every card by a strategy, and checks each reaches
   its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its means → hero and still
   richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair and a gouging landlord
   in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair. Then

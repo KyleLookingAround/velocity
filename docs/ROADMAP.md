@@ -61,8 +61,8 @@ sessions). The owner decides what moves up.
 
 - ~~**Card variants** (S): some cards have a rare variant (the same ask from a different person, a bigger number) with a
   silver star; collecting both completes the pair.~~ Done: one per rung, the silver pairs.
-- **Towns** (M): a new billionaire life can start in one of three towns (mill town, port, suburb) once unlocked by
-  achievements; different shops, different threats, same ladder.
+- ~~**Towns** (M): a new billionaire life can start in one of three towns (mill town, port, suburb) once unlocked by
+  achievements; different shops, different threats, same ladder.~~ Done: Millbrook, Saltby and Elm Park, in turn.
 - **Daily ladder** (M): a seeded daily life with a leaderboard kept on the device (best ending, fewest years to the
   top).
 - **Share card** (S): an ending card as an image to save or share (the stage scene plus the verdict), drawn on canvas.

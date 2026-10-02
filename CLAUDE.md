@@ -22,7 +22,7 @@ says how each rung plays; this file is the short core every session needs.
 ## Shipping
 
 1. Work on a branch from `main`, one change per branch.
-2. Prove it locally: `npm run build`, then `npm run bot` (all six groups in parallel, about two minutes) for
+2. Prove it locally: `npm run build`, then `npm run bot` (all seven groups in parallel, about two minutes) for
    anything that touches `src/game/00-` to `09-`, and screenshots (`node tools/shots.mjs <scene>`, or a small
    Playwright script in `build/`) for anything a player sees, at phone and desktop sizes at least.
 3. Push and open a pull request with a plain title and description. The Checks workflow runs every bot group and

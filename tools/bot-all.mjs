@@ -9,7 +9,7 @@ import {fileURLToPath} from 'node:url';
 
 const here=dirname(fileURLToPath(import.meta.url));
 // (the slowest first, so the long ones aren't left running alone at the end)
-const ALL=['hunt','president','governor','mayor','climb','down'];
+const ALL=['hunt','towns','president','governor','mayor','climb','down'];
 const groups=process.argv.slice(2).length?process.argv.slice(2):ALL;
 const width=Math.max(1,Math.min(groups.length,availableParallelism()));
 const results={};let next=0,failed=0;const t0=Date.now();

@@ -202,4 +202,4 @@ function step(){
 function toast(t){R.toasts.push({t,week:G.week});if(R.toasts.length>6)R.toasts.shift()}
 // a new billionaire life keeps the ladder: what you've unlocked and how each rung ended
 // (and the laws a president passed: a billionaire in that country pays the taxes, and its purse pays the programmes)
-function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder){G.ladder=ladder;ladder.lives=(ladder.lives||0)+1;if(ladder.laws&&Object.keys(ladder.laws).length){G.pub=Object.assign({},ladder.laws);award('m:country')}}R.flows=[];R.toasts=[]}
+function newGame(seed,town){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);applyTown(town);G=DEFAULT();G.town=TOWNS[town]?town:'mill';if(ladder){G.ladder=ladder;ladder.lives=(ladder.lives||0)+1;if(ladder.laws&&Object.keys(ladder.laws).length){G.pub=Object.assign({},ladder.laws);award('m:country')}}R.flows=[];R.toasts=[]}

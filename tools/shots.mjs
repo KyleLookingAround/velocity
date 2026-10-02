@@ -10,6 +10,10 @@ const out=join(root,'build/shots');mkdirSync(out,{recursive:true});
 const acct=S=>{const o=S.cardOptions();return (o.find(o=>o.acct)||o[0]).k};
 const until=(S,f,pick)=>{while(!f()&&!S.G.ending){if(S.G.card)S.answerCard(pick(S));else S.step()}};
 const saves=[];
+// (the other towns: the port's town tab, and the suburb's Story tab with every town open)
+for(const [town,seed,tab] of [['port',12,'town'],['suburb',13,'story']]){const S=loadSim(seed);S.newGame(seed,town);S.G.seen.intro=true;
+  S.G.ladder.achieved={'billionaire:luthor':1,'billionaire:revolt':1,'billionaire:hero':1,'landlord:fair':1,'landlord:rentier':1,'partner:counsel':1};
+  until(S,()=>S.G.week>=8*52&&!S.G.card,acct);saves.push([town,JSON.stringify(S.G),tab])}
 {const S=loadSim(5);S.G.seen.intro=true;until(S,()=>!!S.G.card,acct);saves.push(['card',JSON.stringify(S.G),'fortune'])}
 {const S=loadSim(6);S.G.seen.intro=true;until(S,()=>S.G.week>=22*52&&!S.G.card,acct);saves.push(['hoarder',JSON.stringify(S.G),'town'])}
 {const S=loadSim(7);S.G.seen.intro=true;until(S,()=>S.G.week>=20*52&&!S.G.card,S=>{const o=S.cardOptions();return (o.find(o=>o.kind)||o[0]).k});saves.push(['giver',JSON.stringify(S.G),'commit'])}

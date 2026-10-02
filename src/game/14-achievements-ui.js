@@ -11,9 +11,15 @@ function achSummary(){
   const all=allAchievements(),n=found().length,cards=Object.keys(G.ladder.cards||{}).length;
   return `<div class="card"><div class="txt"><b>Achievements</b><small>${n} of ${all.length} found${n<all.length?', some of them rare':''}</small></div>
     <button class="act" data-ach="1">The ladder</button></div>
+    ${townsHTML()}
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${deckSize()} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>
     ${prefsHTML()}<div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>`;
+}
+// the towns: the ones your achievements opened, which one you're in, and what opens the next
+function townsHTML(){
+  const o=townsOpen(),locked=TOWN_ORDER.find(k=>!o.includes(k));
+  return `<div class="card"><div class="txt"><b>Towns</b><small>${TOWN_ORDER.filter(k=>o.includes(k)).map(k=>k===(G.town||'mill')?TOWNS[k].name+' (you\u2019re here)':TOWNS[k].name).join(' \u00b7 ')}${o.length>1?'. Each new billionaire life moves on to the next.':''}${locked?' Another town opens at '+TOWNS[locked].need+' achievements.':''}</small></div></div>`;
 }
 // the threads: what your lives did to named people, newest first
 function threadsHTML(){
@@ -137,8 +143,8 @@ function topExtras(){
   else{const w=Math.max(0,G.nextCard-G.week),m=w<9?2:Math.round(w/4.33),p=G.speed===0?'<b>Paused</b> \u00b7 ':'';
     long=p+(p?'n':'N')+'ext decision '+(w<=2?'any week now':w<6?'in a few weeks':'in about '+(m===2?'two':m)+' months');
     short='Next: '+(w<=2?'any week':w<6?'a few weeks':'~'+m+' months')}
-  const next=`<span class="long">${long}</span><span class="short">${short}</span>`;
-  const t=$('#nextup');if(t.innerHTML!==next)t.innerHTML=next;$('#ticker').classList.toggle('dec',!!G.card&&!G.ending);
+  let next=`<span class="long">${long}</span><span class="short">${short}</span>`;
+  const t=$('#nextup');next=townText(next);if(t.dataset.k!==next){t.dataset.k=next;t.innerHTML=next}$('#ticker').classList.toggle('dec',!!G.card&&!G.ending);
 }
 $('#who').addEventListener('click',()=>{if(!$('#modal').classList.contains('show'))showAchievements()});
 
@@ -245,7 +251,7 @@ function whyHeadline(){
   }else if(G.plast||G.pyear){const p=G.pyear||{};lines=Object.entries(p).filter(([k,v])=>Math.abs(v)>1).map(([k,v])=>[PURSE_NAMES[k]||k,v]);if(lines.length)lines.unshift(['The public purse this year',null])}
   if(!lines.length)return;
   const body=lines.map(([l,v])=>v==null?`<b>${l}</b>`:`${l} <b>${f(v)}</b>`).join(' \u00b7 ');
-  const i=$('#info');i.innerHTML=(G.rung==='billionaire'?'<b>Year '+yr+' so far</b> \u00b7 ':'')+body;i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),7000);
+  const i=$('#info');i.innerHTML=(G.rung==='billionaire'?'<b>Year '+yr+' so far</b> \u00b7 ':'')+body;townDom(i);i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),7000);
 }
 $('#fortune').addEventListener('click',whyHeadline);$('#fortune').style.cursor='pointer';$('#fortune').title='Why it moved';
 // the glossary: the video's ideas, underlined wherever a card mentions them, explained in a line when tapped
