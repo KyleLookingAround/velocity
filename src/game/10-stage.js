@@ -63,6 +63,24 @@ function stack(c,x,y,n){for(let i=0;i<n;i++){c.fillStyle=i%2?GREEN2:GREEN;c.fill
 const season=()=>(1-Math.cos((G.week%WEEKS)/WEEKS*2*Math.PI))/2;
 function mix(a,b,t){const h=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));const p=h(a),q=h(b);return 'rgb('+p.map((v,i)=>Math.round(v+(q[i]-v)*t)).join(',')+')'}
 function ground(c){const s=season();c.fillStyle=mix('#e4e2dc','#d6cfc1',s);c.fillRect(0,250,PW,50);c.fillStyle='rgba(120,100,70,.12)';c.fillRect(0,250,PW,2)}
+// the weather: rain on some autumn and spring weeks (the week decides, so it's the same for both panes), and some
+// scene changes fall at dusk
+const raining=()=>{const s=season();return s>0.3&&s<0.75&&((G.week*7919)%10)<3};
+function rain(c,dt){
+  if(!raining())return;
+  if(!R.rain)R.rain=Array.from({length:70},()=>({x:Math.random()*PW,y:Math.random()*PH,v:380+Math.random()*120})); // cosmetic
+  c.strokeStyle='rgba(90,110,140,.35)';c.lineWidth=1.2;c.beginPath();
+  for(const d of R.rain){d.y+=d.v*dt;d.x-=d.v*dt*0.15;if(d.y>PH){d.y=-8;d.x=Math.random()*(PW+40)} // cosmetic
+    c.moveTo(d.x,d.y);c.lineTo(d.x-1.5,d.y+9)}
+  c.stroke();
+}
+// dusk: a bluer, darker sky with lit windows in the far town and a first star or two
+function dusk(c,world){
+  c.fillStyle='rgba(40,44,80,.38)';c.fillRect(0,0,PW,PH);
+  c.fillStyle='rgba(255,230,160,.9)';const W=900,x0=world*0.35,start=Math.floor(x0/W)-1;
+  for(let n=start;n<start+3;n++)for(let k=0;k<12;k++){const r=((n*12+k)*2654435761>>>0)%1000/1000;if(r<0.3||((k*31+n)%3))continue;const x=n*W-x0+k*75+12,h=40+((r*7)%1)*70;c.fillRect(x,250-h-20,6,6);c.fillRect(x+16,250-h-6,6,6)}
+  c.fillStyle='rgba(255,255,255,.8)';c.fillRect(70,40,2,2);c.fillRect(300,28,2,2);c.fillRect(410,60,2,2);
+}
 // snow in the weeks around the new year: a few flakes drifting down each pane
 function snow(c,dt){
   const s=season();if(s>0.1)return;
@@ -252,7 +270,8 @@ const SCENES={
     shop(c,120,250,'STRIKE',{awn:GREEN});for(let k=0;k<4;k++){const x=210+((k*60+t*120)%240);person(c,x,250,{pose:'sign',march:true,t:t*4+k,text:'STRIKE'})}}},
   protest:{cap:()=>['waiter','out','union','activist'].includes(G.rung)?'You march with the town':G.rung==='billionaire'||G.rung==='landlord'?'The town marches against you':'The town marches',draw(c,t){
     const words=isLandlord()?['RENT','FAIR','HOMES','RENT','FIX IT','FAIR']:['TAX','FAIR','PAY','TAX US','RENT','FAIR'];
-    for(let k=0;k<6;k++){const x=((k*80+t*160)%(PW+80))-40;person(c,x,250,{pose:'sign',march:true,t:t*4+k*0.3,text:words[k],col:k%2?'#333':INK})}}},
+    const n=Math.min(10,4+Math.floor(G.unrest/18)),gap=(PW+80)/n;
+    for(let k=0;k<n;k++){const x=((k*gap+t*160)%(PW+80))-40;person(c,x,250,{pose:'sign',march:true,t:t*4+k*0.3,text:words[k%6],col:k%2?'#333':INK})}}},
   nursery:{cap:()=>'Childcare: parents work full time',draw(c,t){
     building(c,330,250,'NURSERY',130);const u=Math.min(1,t*1.6);person(c,60+u*180,250,{pose:'walk',t:t*5});if(u<1)person(c,90+u*180,250,{pose:'walk',t:t*5,s:0.62});
     else person(c,250-(t-0.62)*500,250,{pose:'walk',t:t*5,dir:-1})}},
@@ -393,7 +412,7 @@ const WALKERS=[
   {k:'shopper',w:2,draw:(c,x,t,w)=>person(c,x,250,{pose:'box',t:t*1.6,col:w.col})},
   {k:'elder',w:1.5,pace:0.75,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.1,col:w.col});c.strokeStyle=w.col;c.lineWidth=2.5;c.beginPath();c.moveTo(x+8,208);c.lineTo(x+16,250);c.stroke()}},
   {k:'scooter',w:1,pace:1.5,draw:(c,x,t,w)=>{person(c,x,246,{pose:'stand',s:0.62,col:w.col});c.fillStyle='#444';c.fillRect(x-12,245,26,3);wheel(c,x-11,248,3);wheel(c,x+13,248,3)}},
-  {k:'umbrella',w:0,when:()=>season()<0.3?1.8:0.2,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.6,col:w.col});c.strokeStyle=w.col;c.lineWidth=2;c.beginPath();c.moveTo(x+6,228);c.lineTo(x+6,186);c.stroke();
+  {k:'umbrella',w:0,when:()=>raining()?4:season()<0.3?1.2:0.1,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.6,col:w.col});c.strokeStyle=w.col;c.lineWidth=2;c.beginPath();c.moveTo(x+6,228);c.lineTo(x+6,186);c.stroke();
     c.fillStyle='#8a6d3b';c.beginPath();c.arc(x+6,186,22,Math.PI,0);c.fill()}},
   {k:'picket',w:0,when:()=>G.unrest>=55?3:G.unrest>=40?0.8:0,draw:(c,x,t,w)=>person(c,x,250,{pose:'sign',march:true,t:t*1.6,text:['FAIR','RENT','PAY','TAX'][w.n%4],col:w.col})},
   {k:'movers',w:0,when:()=>G.res.some(r=>r.homeless)?1.8:0.3,draw:(c,x,t,w)=>{person(c,x,250,{pose:'box',t:t*1.6,col:w.col});person(c,x-30,250,{pose:'box',t:t*1.6+0.5,col:'#333'})}},
@@ -406,6 +425,14 @@ const WALKERS=[
   {k:'birds',w:1.5,pace:1.6,draw:(c,x,t,w)=>{c.strokeStyle='#6f6f6f';c.lineWidth=2;for(let k=0;k<3;k++){const bx=x-k*22,by=72+k*9+Math.sin(t*3+k)*4,f=Math.sin(t*9+k)*3;
     c.beginPath();c.moveTo(bx-6,by);c.lineTo(bx,by-3+f);c.lineTo(bx+6,by);c.stroke()}}},
   {k:'bill',w:0.8,pace:1.3,draw:(c,x,t,w)=>bill(c,x,215+Math.sin(t*2.5)*18,t*2)},
+  // the rung's own
+  {k:'agent',w:0,when:()=>isLandlord()||G.rung==='billionaire'&&homesOwned()?1.5:0,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.6,col:'#333'});c.fillStyle='#f4f4f4';c.fillRect(x+8,200,14,18);c.fillStyle='#999';c.fillRect(x+8,200,14,3)}},
+  {k:'rider',w:0,pace:2.4,when:()=>isShop()||isWaiter()?2:0,draw:(c,x,t,w)=>{bike(c,x,250,t,w.col);c.fillStyle='#c0392b';c.fillRect(x-26,196,20,18);txt(c,'EATS',x-16,209,8,'#fff',800)}},
+  {k:'leafleter',w:0,when:()=>isActivist()||isUnion()?2.5:0,draw:(c,x,t,w)=>{person(c,x,250,{pose:'give',col:w.col});letter(c,x+30,206,isUnion()?'JOIN':'VOTE')}},
+  {k:'police',w:0,pace:3,when:()=>G.unrest>=70?2:0,draw:(c,x,t,w)=>{c.fillStyle='#e9e9e9';c.beginPath();c.roundRect(x-40,214,80,30,6);c.fill();c.fillStyle='#3b5bdb';c.fillRect(x-40,222,80,7);c.fillStyle=(Math.floor(t*6)%2)?'#3b5bdb':'#d33';c.fillRect(x-8,206,16,6);
+    c.fillStyle='#333';c.beginPath();c.arc(x-26,246,6,0,7);c.arc(x+26,246,6,0,7);c.fill()}},
+  {k:'removal',w:0,pace:2.6,when:()=>R.recent.evicted||G.res.some(r=>r.homeless)?1.5:0,draw:(c,x,t,w)=>truck(c,x,250,'MOVING')},
+  {k:'motorcade',w:0,pace:3,when:()=>isGovernor()||isPresident()?1.2:0,draw:(c,x,t,w)=>{for(let k=0;k<2;k++){c.fillStyle='#222';c.beginPath();c.roundRect(x-40+k*90,216,76,28,6);c.fill();c.fillStyle='#555';c.fillRect(x-30+k*90,220,56,10);c.fillStyle='#111';c.beginPath();c.arc(x-26+k*90,246,6,0,7);c.arc(x+22+k*90,246,6,0,7);c.fill()}}},
 ];
 function walker(k,prev){
   const sc=SCENES[k];if(sc&&sc.nowalk)return null;
@@ -426,12 +453,12 @@ function advanceStage(dt){
   const st=R.stage;st.t=st.t||0;
   for(const side of ['you','town'])if(!st[side]){const n=nextScene(side);st[side]=Object.assign(n,{walk:walker(n.k)})}
   if(st.tr){st.tr.u+=dt/TR;
-    if(st.tr.u>=1){R.world=(R.world||0)+st.tr.off;for(const side of ['you','town']){const s=st[side];st[side]=Object.assign(s.to,{walk:walker(s.to.k,s.walk&&s.walk.x1===AR?s.walk:null)})}st.tr=null;st.t=0}
+    if(st.tr.u>=1){R.world=(R.world||0)+st.tr.off;for(const side of ['you','town']){const s=st[side];st[side]=Object.assign(s.to,{walk:walker(s.to.k,s.walk&&s.walk.x1===AR?s.walk:null)})}st.dusk=st.duskNext;st.tr=null;st.t=0}
     return}
   st.t+=dt;
   if(st.t>=SCENE_SECS||st.you.next||st.town.next){
     for(const side of ['you','town']){const s=st[side],n=s.next||nextScene(side);s.next=null;s.to={k:n.k,d:n.d||{}}}
-    st.tr={u:0,t0:st.t,from:DRIFT*st.t,off:STEP};
+    st.tr={u:0,t0:st.t,from:DRIFT*st.t,off:STEP};st.duskNext=Math.random()<0.15; // cosmetic
   }
 }
 function drawScene(c,s,t){const sc=SCENES[s.k]||SCENES.chain;try{sc.draw(c,t,s.d||{})}catch(e){}}
@@ -474,6 +501,7 @@ function drawMap(dt){
     // a warm light that drifts a little with the camera
     const lx=PW*0.5-((world*0.08)%120)+60,glow=c.createRadialGradient(lx,90,10,lx,90,300);glow.addColorStop(0,'rgba(255,236,196,'+(0.2+0.4*se).toFixed(2)+')');glow.addColorStop(1,'rgba(255,236,196,0)');c.fillStyle=glow;c.fillRect(0,0,PW,PH);
     skyline(c,world*0.35);
+    if(st.dusk&&!st.tr)dusk(c,world);
     ground(c);
     let cap,capNext=null;
     if(st.tr){
@@ -488,7 +516,7 @@ function drawMap(dt){
       cap=(SCENES[s.k]||SCENES.chain).cap(s.d||{});
     }
     // haze at both edges: scenes drift in and out of it rather than off a hard edge
-    snow(c,dt);
+    snow(c,dt);rain(c,dt);
     for(const [x0,x1] of [[0,26],[PW,PW-26]]){const h=c.createLinearGradient(x0,0,x1,0);h.addColorStop(0,'rgba(236,230,219,.8)');h.addColorStop(1,'rgba(236,230,219,0)');c.fillStyle=h;c.fillRect(Math.min(x0,x1),0,26,PH)}
     // the pane's label, as a small pill
     const lab=side==='you'?'YOU':'THE TOWN';c.font='800 11px Inter,system-ui,sans-serif';const lw=c.measureText(lab).width+16;

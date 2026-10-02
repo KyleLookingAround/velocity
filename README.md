@@ -33,7 +33,9 @@ money pays for). The stage is one camera travelling through one long town, both 
 past while it plays, then the camera moves on and the next slides in. Most of the time someone passes through: the
 street's cast (walkers, families, couples, dogs, prams, shoppers, the elderly, kids on scooters, umbrellas in winter,
 pickets when the town is restless, movers when families are losing their homes, joggers, cyclists, couriers, vans,
-buses, birds, a bill on the wind), weighted by how the town is doing. Those on foot reach the edge as the scene ends,
+buses, birds, a bill on the wind; and the rung's own: a letting agent, a food rider, a leafleter, a police car when
+the town is restless, a removal van after an eviction, a motorcade), weighted by how the town is doing. Rain falls on
+some spring and autumn weeks, snow around the new year, some scene changes fall at dusk, and marches grow with unrest. Those on foot reach the edge as the scene ends,
 and the camera follows them into the next scene, where they walk on; the quick ones cross and are gone.
 
 Around the stage: a **header** with your number and how fast it is really growing (measured over the last year:
