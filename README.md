@@ -22,9 +22,11 @@ wide screen: **you** (at your desk with the vault filling, signing a deed, shaki
 truck), and **the town**: the spending chain from shopper to cashier to barber to café, or the consequences of what
 you've done (families evicted, tents in the park, shutters coming down, strikes and marches, kids at the nursery your
 money pays for). The stage is one camera travelling through one long town, both scenes in step: a scene drifts slowly
-past while it plays, then the camera moves on and the next slides in. Most of the time a passer-by (now and then with a
-child in tow) walks ahead of it, reaches the edge as the scene ends, and the camera follows them into the next scene,
-where they walk on.
+past while it plays, then the camera moves on and the next slides in. Most of the time someone passes through: the
+street's cast (walkers, families, couples, dogs, prams, shoppers, the elderly, kids on scooters, umbrellas in winter,
+pickets when the town is restless, movers when families are losing their homes, joggers, cyclists, couriers, vans,
+buses, birds, a bill on the wind), weighted by how the town is doing. Those on foot reach the edge as the scene ends,
+and the camera follows them into the next scene, where they walk on; the quick ones cross and are gone.
 
 Around the stage: a **header** with your number and how fast it is really growing (measured over the last year:
 gifts, rents and taxes all show), who you are and how far through the rung you are (tap it for the ladder), and the town's state as chips that explain themselves when tapped; a **transport bar** with pause, speed and

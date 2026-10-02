@@ -375,16 +375,53 @@ function nextScene(side){
   if(side==='you')return {k:G.ending?endingScene():idleScene(),d:{}};
   return {k:G.ending?endingTown():R.townQ.length?R.townQ.shift():pickTownScene(),d:{}};
 }
-// a scene's passer-by: the one the camera brought, walking on from the left edge (and sometimes off before the scene
-// ends), or a new one in from beyond it, most of the time; none where there's no ground to walk on
+// who passes through: the cast of the street, each with its own gait and pace, weighted by how the town is doing
+// (pickets when it's restless, movers when families are losing their homes, couriers when the work is by the drop,
+// umbrellas in winter). Those on foot at the camera's pace are carried into the next scene; the quick ones cross and go.
+const dog=(c,x,y,t,col)=>{c.fillStyle=col;c.beginPath();c.roundRect(x-10,y-15,20,9,4);c.fill();c.beginPath();c.arc(x+12,y-16,5,0,7);c.fill();
+  c.strokeStyle=col;c.lineWidth=3;c.lineCap='round';const sw=Math.sin(t*Math.PI*4)*4;c.beginPath();c.moveTo(x-7,y-8);c.lineTo(x-7+sw,y);c.moveTo(x+6,y-8);c.lineTo(x+6-sw,y);c.moveTo(x-10,y-13);c.lineTo(x-16,y-20);c.stroke()};
+const wheel=(c,x,y,r)=>{c.strokeStyle='#333';c.lineWidth=2.5;c.beginPath();c.arc(x,y,r,0,7);c.stroke()};
+const bike=(c,x,y,t,col,box)=>{wheel(c,x-15,y-9,9);wheel(c,x+15,y-9,9);c.strokeStyle=col;c.lineWidth=2.5;c.beginPath();c.moveTo(x-15,y-9);c.lineTo(x-2,y-28);c.lineTo(x+15,y-9);c.moveTo(x-2,y-28);c.lineTo(x+10,y-30);c.stroke();
+  person(c,x-4,y-12,{pose:'sit',s:0.8,col});if(box){c.fillStyle=GREEN;c.fillRect(x-24,y-54,18,16)}};
+const WALKERS=[
+  {k:'walker',w:3,draw:(c,x,t,w)=>person(c,x,250,{pose:'walk',t:t*1.6,col:w.col})},
+  {k:'family',w:2,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.6,col:w.col});person(c,x-22,250,{pose:'walk',t:t*2.2,s:0.62,col:w.col})}},
+  {k:'couple',w:1.5,draw:(c,x,t,w)=>{person(c,x-14,250,{pose:'walk',t:t*1.6,col:w.col});person(c,x+12,250,{pose:'walk',t:t*1.6+0.4,col:'#333'})}},
+  {k:'dog',w:2,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.6,col:w.col});dog(c,x+30,250,t,w.col)}},
+  {k:'pram',w:1.2,draw:(c,x,t,w)=>{person(c,x,250,{pose:'give',col:w.col});c.strokeStyle=w.col;c.lineWidth=3;c.beginPath();c.moveTo(x+22,222);c.lineTo(x+34,236);c.stroke();
+    c.fillStyle=w.col;c.beginPath();c.roundRect(x+22,234,26,12,[8,8,2,2]);c.fill();wheel(c,x+27,248,3);wheel(c,x+44,248,3)}},
+  {k:'shopper',w:2,draw:(c,x,t,w)=>person(c,x,250,{pose:'box',t:t*1.6,col:w.col})},
+  {k:'elder',w:1.5,pace:0.75,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.1,col:w.col});c.strokeStyle=w.col;c.lineWidth=2.5;c.beginPath();c.moveTo(x+8,208);c.lineTo(x+16,250);c.stroke()}},
+  {k:'scooter',w:1,pace:1.5,draw:(c,x,t,w)=>{person(c,x,246,{pose:'stand',s:0.62,col:w.col});c.fillStyle='#444';c.fillRect(x-12,245,26,3);wheel(c,x-11,248,3);wheel(c,x+13,248,3)}},
+  {k:'umbrella',w:0,when:()=>season()<0.3?1.8:0.2,draw:(c,x,t,w)=>{person(c,x,250,{pose:'walk',t:t*1.6,col:w.col});c.strokeStyle=w.col;c.lineWidth=2;c.beginPath();c.moveTo(x+6,228);c.lineTo(x+6,186);c.stroke();
+    c.fillStyle='#8a6d3b';c.beginPath();c.arc(x+6,186,22,Math.PI,0);c.fill()}},
+  {k:'picket',w:0,when:()=>G.unrest>=55?3:G.unrest>=40?0.8:0,draw:(c,x,t,w)=>person(c,x,250,{pose:'sign',march:true,t:t*1.6,text:['FAIR','RENT','PAY','TAX'][w.n%4],col:w.col})},
+  {k:'movers',w:0,when:()=>G.res.some(r=>r.homeless)?1.8:0.3,draw:(c,x,t,w)=>{person(c,x,250,{pose:'box',t:t*1.6,col:w.col});person(c,x-30,250,{pose:'box',t:t*1.6+0.5,col:'#333'})}},
+  {k:'jogger',w:1.2,pace:2.2,when:()=>G.unrest<45?1.5:0.4,draw:(c,x,t,w)=>{c.save();c.translate(x,250);c.rotate(0.12);person(c,0,0,{pose:'walk',t:t*3.4,col:w.col});c.restore()}},
+  {k:'cyclist',w:1.5,pace:2.6,draw:(c,x,t,w)=>bike(c,x,250,t,w.col)},
+  {k:'courier',w:0,pace:2.6,when:()=>isOut()||isWaiter()?2:0.6,draw:(c,x,t,w)=>bike(c,x,250,t,w.col,true)},
+  {k:'van',w:1,pace:3,draw:(c,x,t,w)=>truck(c,x,250,'')},
+  {k:'bus',w:0.9,pace:2.3,draw:(c,x,t,w)=>{c.fillStyle='#7d7d7d';c.beginPath();c.roundRect(x-60,194,120,50,6);c.fill();c.fillStyle='#d9d9d9';for(let k=0;k<4;k++)c.fillRect(x-52+k*28,202,20,16);
+    c.fillStyle='#333';c.beginPath();c.arc(x-40,246,7,0,7);c.arc(x+40,246,7,0,7);c.fill()}},
+  {k:'birds',w:1.5,pace:1.6,draw:(c,x,t,w)=>{c.strokeStyle='#6f6f6f';c.lineWidth=2;for(let k=0;k<3;k++){const bx=x-k*22,by=72+k*9+Math.sin(t*3+k)*4,f=Math.sin(t*9+k)*3;
+    c.beginPath();c.moveTo(bx-6,by);c.lineTo(bx,by-3+f);c.lineTo(bx+6,by);c.stroke()}}},
+  {k:'bill',w:0.8,pace:1.3,draw:(c,x,t,w)=>bill(c,x,215+Math.sin(t*2.5)*18,t*2)},
+];
 function walker(k,prev){
   const sc=SCENES[k];if(sc&&sc.nowalk)return null;
-  if(prev)return {x0:AL,x1:Math.random()<0.4?PW+60:AR,child:prev.child,col:prev.col}; // cosmetic
-  if(Math.random()>0.6)return null; // cosmetic
-  // (from somewhere further off, so the two panes' walkers don't arrive as twins)
-  return {x0:-40-Math.random()*140,x1:AR,child:Math.random()<0.3,col:['#555','#444','#666'][Math.floor(Math.random()*3)]}; // cosmetic
+  // (the one the camera brought walks on from the left edge, and sometimes off before the scene ends)
+  if(prev)return Object.assign({},prev,{x0:AL,x1:Math.random()<0.4?PW+60:AR}); // cosmetic
+  if(Math.random()>0.65)return null; // cosmetic
+  const pool=WALKERS.map(w=>[w,w.when?w.when():w.w]);let r=Math.random()*pool.reduce((a,x)=>a+x[1],0),kind=WALKERS[0]; // cosmetic
+  for(const [w,v] of pool){r-=v;if(r<=0){kind=w;break}}
+  const col=['#555','#444','#666'][Math.floor(Math.random()*3)],n=Math.floor(Math.random()*4); // cosmetic
+  // on foot at the camera's pace: in from the left (from somewhere further off, so the panes' walkers aren't twins) to the
+  // far edge, where the camera picks them up; the quick ones cross either way and are gone
+  if(!kind.pace)return {kind:kind.k,col,n,x0:-40-Math.random()*140,x1:AR}; // cosmetic
+  const left=kind.k==='birds'||Math.random()<0.6; // cosmetic
+  return {kind:kind.k,col,n,pace:kind.pace,dir:left?1:-1,x0:left?-80:PW+80,x1:left?PW+80:-80};
 }
-const walkerX=(w,u)=>w.x0+(w.x1-w.x0)*u;
+const walkerX=(w,u)=>w.x0+(w.x1-w.x0)*u*(w.pace||1);
 function advanceStage(dt){
   const st=R.stage;st.t=st.t||0;
   for(const side of ['you','town'])if(!st[side]){const n=nextScene(side);st[side]=Object.assign(n,{walk:walker(n.k)})}
@@ -398,8 +435,7 @@ function advanceStage(dt){
   }
 }
 function drawScene(c,s,t){const sc=SCENES[s.k]||SCENES.chain;try{sc.draw(c,t,s.d||{})}catch(e){}}
-// the passer-by, walking right, the child a step behind
-function drawWalker(c,w,x,t){person(c,x,250,{pose:'walk',t:t*1.6,col:w.col});if(w.child)person(c,x-22,250,{pose:'walk',t:t*2.2,s:0.62,col:w.col})}
+function drawWalker(c,w,x,t){const k=WALKERS.find(k=>k.k===w.kind)||WALKERS[0];if(w.dir<0){c.save();c.translate(x,0);c.scale(-1,1);k.draw(c,0,t,w);c.restore()}else k.draw(c,x,t,w)}
 // the far town behind every scene: rooftops, chimneys and trees, drawn faint and panned slower than the scene, so the
 // camera seems to travel through one long town rather than cut between pictures
 function skyline(c,x0){
