@@ -1,6 +1,7 @@
 name: Checks
-# Every pull request, and every push to main: the bot's groups and the screenshots run as parallel jobs, and `check`
-# passes only when all of them do (the one status a ruleset needs to require). A newer push cancels the older run.
+# Every pull request, and every push to main: the bot's groups and the screenshots (one job per screen size) run as
+# parallel jobs, and `check` passes only when all of them do (the one status a ruleset needs to require). A newer
+# push cancels the older run.
 on:
   pull_request:
   push:
@@ -26,7 +27,12 @@ jobs:
       - run: node tools/build.mjs
       - run: node tools/bot.mjs --group ${{ matrix.group }}
   shots:
+    name: shots (${{ matrix.size }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        size: [phone-320, phone, phone-landscape, tablet, desktop]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,10 +43,12 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node tools/build.mjs
       - run: node tools/shots.mjs
+        env:
+          SIZES: ${{ matrix.size }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: screenshots
+          name: screenshots-${{ matrix.size }}
           path: build/shots
   check:
     needs: [bot, shots]
