@@ -98,3 +98,10 @@ function landlordVerdict(){
   const fair=tenants.length>0&&burden<=0.36&&G.ll.cond>=0.65&&rough===0;
   return {kind:fair?'fair':'rentier',burden,rough};
 }
+// what happens to a tenant six weeks behind: the first time, a card asks you; your answer becomes the policy for
+// everyone after (it can be changed on the Tenants tab)
+function applyArrears(r,k){
+  if(k==='evict'){evict(r);G.ll.year.evictions++}
+  else if(k==='time'){r.arrears=0;r.grace=G.week+26}
+  else{r.arrears=0;cutRent(r,0.8)}
+}

@@ -22,7 +22,7 @@ function giftEstimate(k){
   if(k==='poverty')return people.reduce((a,r)=>a+Math.max(0,T.povertyLine+rentOf(r)-r.income),0)*WEEKS;
   return 0;
 }
-const giftCard=(k,when,title,body,then)=>({id:'gift-'+k,rung:'billionaire',cool:3*WEEKS,when:()=>!G.gifts[k]&&when(),
+const giftCard=(k,when,title,body,then)=>({id:'gift-'+k,rung:'billionaire',cool:3*WEEKS,backoff:6*WEEKS,when:()=>!G.gifts[k]&&G.week-(G.giftAsked??-1e9)>=2*WEEKS&&when(),
   title:()=>title,body:()=>body(),
   options:()=>{const c=giftEstimate(k);return [
     {k:'fund',label:'Fund it',kind:true,you:'About '+money(c)+' a year. Your fortune would grow '+pctYr(growthAfter(c+giftsRunning())),town:then,scene:'give',then:'gift-'+k,do:()=>setGift(k,true)},
@@ -31,13 +31,13 @@ const giftsRunning=()=>Object.keys(G.gifts).filter(k=>G.gifts[k]).reduce((a,k)=>
 
 const CARDS=[
   // ---- the billionaire ----
-  {id:'homes',rung:'billionaire',cool:12,weight:4,when:()=>G.res.some(r=>r.homeOwner==='local')&&G.cash>=G.homePrice,
+  {id:'homes',rung:'billionaire',cool:12,backoff:3*WEEKS,weight:4,when:()=>G.res.some(r=>r.homeOwner==='local')&&G.cash>=G.homePrice,
     data:()=>({name:G.res.find(r=>r.homeOwner==='local').name}),
     title:d=>'A developer offers you '+d.name+'’s street',
     body:()=>'A block of homes for '+money(G.homePrice)+'. The rent would come to you, and you could raise it faster than the old landlord.',
     options:d=>[{k:'buy',label:'Buy it',acct:true,you:'Rent of about '+money(G.res.find(r=>r.name===d.name).rent*WEEKS)+' a year, rising 7% a year',town:'Their rent climbs faster than their pay. Prices rise for everyone',scene:'deed',then:'rentrise',do:()=>buyHomes()},
       {k:'pass',label:'Pass',none:true,kind:true,you:'Nothing',town:'Nothing changes',scene:'refuse',then:null,do:()=>{}}]},
-  {id:'shop',rung:'billionaire',cool:30,weight:2,when:()=>{const s=rivalTarget();return !!s&&G.cash>=shopPrice(s)*1.05},
+  {id:'shop',rung:'billionaire',cool:30,backoff:5*WEEKS,weight:2,when:()=>{const s=rivalTarget();return !!s&&G.cash>=shopPrice(s)*1.05},
     data:()=>({i:G.shops.indexOf(rivalTarget())}),
     title:d=>G.res[G.shops[d.i].owner].name+' will sell you the '+G.shops[d.i].name,
     body:d=>'Asking '+money(shopPrice(G.shops[d.i]))+'. Your accountant says it would make more with fewer staff.',
@@ -45,7 +45,7 @@ const CARDS=[
       {k:'cut',label:'Buy it and cut costs',acct:true,you:'Its profit, with one wage fewer',town:o+' and one of the staff are out of work',scene:'handshake',then:'laidoff',do:()=>buyRival()},
       {k:'keep',label:'Buy it and keep everyone',you:'A smaller profit',town:o+' stays on to run it. Nobody loses their job',scene:'handshake',then:'chain',do:()=>buyRival(true)},
       {k:'pass',label:'Pass',none:true,kind:true,you:'Nothing',town:o+' keeps the '+s.name,scene:'refuse',then:null,do:()=>{}}]}},
-  {id:'workshop',rung:'billionaire',cool:40,when:()=>G.workshops.length<T.maxWorkshops&&jobless().length>0&&G.cash>=T.workshopCost*1.1,
+  {id:'workshop',rung:'billionaire',cool:40,backoff:4*WEEKS,when:()=>G.workshops.length<T.maxWorkshops&&jobless().length>0&&G.cash>=T.workshopCost*1.1,
     title:()=>'The council asks you to open a workshop',
     body:()=>jobless().length*HH+' households are out of work. A workshop would cost '+money(T.workshopCost)+' and sell what it makes outside the town.',
     options:()=>[{k:'build',label:'Build it',kind:true,you:'About 5% a year back on '+money(T.workshopCost),town:'Up to three jobs, and wages spent in town',scene:'ribbon',then:'workshop',do:()=>build()},
@@ -70,6 +70,38 @@ const CARDS=[
   giftCard('childcare',()=>G.res.some(r=>r.parent&&r.job!=null)&&G.week>2*WEEKS,'Parents can only work part time',()=>'Without childcare, '+G.res.filter(r=>r.parent&&r.job!=null).length*HH+' working parents earn '+Math.round(T.partTime*100)+'% of a full wage.','Parents work full time and earn full wages'),
   giftCard('vouchers',()=>G.res.some(r=>!r.homeless&&r.homeOwner!=='self'&&r.income>0&&r.rent/r.income>0.33),'Rent is eating wages',()=>'Some households pay more than a third of what they earn in rent.','A third of the rent paid for low earners'),
   giftCard('poverty',()=>R.parts&&R.parts.poor>0.15,'A charity asks you to end poverty here',()=>Math.round(R.parts.poor*19)*HH+' households live below the poverty line.','Everyone is topped up to the poverty line'),
+  // the crash: everyone's fortune falls, and those with cash to spare buy what everyone else has to sell
+  {id:'crash',rung:'billionaire',urgent:true,cool:1e6,when:()=>!G.crashed&&G.week>=22*WEEKS&&G.cash>0,
+    title:()=>'The markets crash',
+    body:()=>'Your fortune is down a quarter overnight. Everyone is selling: homes, shops, shares, at any price.',
+    options:()=>{const cheap=G.homePrice*0.5,can=Math.min(3,Math.floor(Math.max(0,G.cash*0.75)/cheap),G.res.filter(r=>r.homeOwner==='local').length);return [
+      {k:'buy',label:can?'Buy '+can+' streets of homes at half price':'Buy shares at the bottom',acct:true,you:'You come out of it richer than you went in',town:can?'More rents go to you, and keep rising':'The crash passes you by',scene:'deed',then:'evicted',
+        do:()=>{G.crashed=true;G.cash*=0.75;let n=can;for(const r of G.res){if(n<=0)break;if(r.homeOwner==='local'){r.homeOwner='you';G.cash-=cheap;n--}}G.rate+=0.004}},
+      {k:'hold',label:'Hold your nerve',none:true,you:'Most of it comes back, in time',town:'The town takes the hit alone',scene:'desk',then:'laidoff',do:()=>{G.crashed=true;G.cash*=0.85}},
+      {k:'town',label:'Keep the town\u2019s shops afloat',kind:true,you:'Half a year of their wages, from your fortune',town:'Nobody loses their job to the crash',scene:'give',then:'chain',
+        do:()=>{G.crashed=true;G.cash*=0.8;let a=0;for(const s of G.shops)if(s.open){const w=s.wage*26;s.cash+=w;a+=w}G.cash-=a;G.given+=a;G.year.given+=a}}]}},
+  {id:'yacht',rung:'billionaire',cool:1e6,when:()=>netWorth()>START_FORTUNE*2&&G.week>5*WEEKS,
+    title:()=>'A shipyard abroad offers you a superyacht',
+    body:()=>money(netWorth()*0.03)+'. It would be the biggest in the harbour.',
+    options:()=>{const a=netWorth()*0.03;return [
+      {k:'buy',label:'Buy it',you:'A yacht, and '+money(a)+' gone',town:'The money goes abroad',scene:'yacht',then:'megastore',do:()=>{G.cash-=a}},
+      {k:'local',label:'Have the town\u2019s boatyard build it',kind:true,you:'A smaller yacht, and the same '+money(a),town:'A year of wages for the yard, spent here',scene:'ribbon',then:'chain',
+        do:()=>{G.cash-=a;const w=G.res.filter(r=>r.role==='worker');w.forEach(r=>{r.cash+=pay('you','r'+G.res.indexOf(r),a/w.length,'wage')})}},
+      {k:'no',label:'No',acct:true,none:true,you:'Your 8% keeps working',town:'Nothing changes',scene:'desk',then:null,do:()=>{}}]}},
+  {id:'paper',rung:'billionaire',cool:1e6,when:()=>G.week>8*WEEKS&&G.unrest>=40,
+    title:()=>'The town\u2019s newspaper is for sale',
+    body:()=>'It has been printing stories about you. The owner wants '+money(netWorth()*0.01)+'.',
+    options:()=>{const a=netWorth()*0.01;return [
+      {k:'buy',label:'Buy it, and change the stories',acct:true,you:money(a)+', and kinder headlines',town:'The anger is still there, just not in print',scene:'handshake',then:'calm',do:()=>{G.cash-=a;G.anger=(G.anger||0)-12;G.paper='owned'}},
+      {k:'free',label:'Buy it, and leave it independent',kind:true,you:money(a),town:'The paper survives, and keeps asking questions',scene:'give',then:null,do:()=>{G.cash-=a;G.paper='free'}},
+      {k:'no',label:'Let it close',none:true,you:'Nothing',town:'Nobody prints the stories at all',scene:'desk',then:'closed',do:()=>{}}]}},
+  {id:'museum',rung:'billionaire',cool:1e6,when:()=>netWorth()>START_FORTUNE*3,
+    title:()=>'A famous museum would name a wing after you',
+    body:()=>'In the capital, far from here. They ask '+money(netWorth()*0.02)+'. The town\u2019s school is asking for the same.',
+    options:()=>{const a=netWorth()*0.02;return [
+      {k:'wing',label:'The museum wing',you:'Your name in marble, and the gala',town:'The town sees none of it',scene:'ribbon',then:null,do:()=>{G.cash-=a}},
+      {k:'school',label:'The town\u2019s school',kind:true,you:money(a)+', and a plaque by the door',town:'Public works and teachers, paid for here',scene:'give',then:'works',do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;G.fund=(G.fund||0)+a}},
+      {k:'no',label:'Neither',acct:true,none:true,you:'Your 8% keeps working',town:'Nothing changes',scene:'desk',then:null,do:()=>{}}]}},
   {id:'tax',rung:'billionaire',urgent:true,cool:0,when:()=>!!G.tax,
     title:()=>'The town votes on a wealth tax',
     body:()=>'A one-off '+Math.round(T.taxRate*100)+'% of your fortune, '+money(G.tax.amount)+', for public works. At '+Math.round(G.rate*100)+'% a year you’d earn it back in about '+(G.tax.payback<1?Math.round(G.tax.payback*12)+' months':G.tax.payback.toFixed(1)+' years')+'.',
@@ -86,11 +118,11 @@ const CARDS=[
       scene:v>0?'letter':'rentbook',then:v>0.05?'rentrise':null,do:()=>{G.ll.rentChange=v;G.rentDue=false}}))},
   {id:'arrears',rung:'landlord',urgent:true,cool:0,when:()=>G.arrearsQ.length>0,data:()=>({i:G.arrearsQ[0]}),
     title:d=>G.res[d.i].name+' is six weeks behind on the rent',
-    body:d=>{const r=G.res[d.i];return r.name+' earns '+hh(r.income)+' a week per household and owes '+hh(r.rent)+' a week in rent.'},
+    body:d=>{const r=G.res[d.i];return r.name+' earns '+hh(r.income)+' a week per household and owes '+hh(r.rent)+' a week in rent. Whatever you choose becomes your policy for every tenant who falls behind (you can change it on the Tenants tab).'},
     options:d=>{const r=G.res[d.i];return [
-      {k:'evict',label:'Evict',acct:true,you:'The home can be let again, if anyone can afford it',town:r.name+' is out on the street',scene:'notice',then:'evicted',do:()=>{G.arrearsQ.shift();evict(r);G.ll.year.evictions++}},
-      {k:'time',label:'Give them six months',none:true,you:'The rent they owe builds up',town:r.name+' stays home',scene:'rentbook',then:null,do:()=>{G.arrearsQ.shift();r.arrears=0;r.grace=G.week+26}},
-      {k:'cut',label:'Cut their rent by a fifth',kind:true,you:'Less rent from '+r.name,town:r.name+' can catch up',scene:'letter',then:'chain',do:()=>{G.arrearsQ.shift();r.arrears=0;cutRent(r,0.8)}}]}},
+      {k:'evict',label:'Evict',acct:true,you:'The home can be let again, if anyone can afford it',town:r.name+' is out on the street',scene:'notice',then:'evicted',do:()=>{G.arrearsQ.shift();applyArrears(r,'evict');G.ll.policy='evict'}},
+      {k:'time',label:'Give them six months',none:true,you:'The rent they owe builds up',town:r.name+' stays home',scene:'rentbook',then:null,do:()=>{G.arrearsQ.shift();applyArrears(r,'time');G.ll.policy='time'}},
+      {k:'cut',label:'Cut their rent by a fifth',kind:true,you:'Less rent from '+r.name,town:r.name+' can catch up',scene:'letter',then:'chain',do:()=>{G.arrearsQ.shift();applyArrears(r,'cut');G.ll.policy='cut'}}]}},
   {id:'repairs',rung:'landlord',cool:2*WEEKS,when:()=>G.ll.cond<0.62||rungWeek()===8,
     title:()=>G.ll.cond<0.62?'Damp and leaks in your homes':'How much will you spend on repairs?',
     body:()=>'Your homes are '+Math.round(G.ll.cond*100)+'% kept up. Below 40%, tenants won’t pay full rent for them.',
@@ -476,7 +508,7 @@ const CARDS=[
       {k:'vote',label:'Let them vote',none:true,you:'About '+Math.round(congressOdds(k)*100)+'% to pass',town:lawOf(k).note,scene:'capitol',then:'ballot',do:()=>{holdCongressVote(0)}},
       {k:'deal',label:'Water it down with the lobby',acct:true,you:'It passes, and the lobby is owed',town:'Half of it, with loopholes',scene:'handshake',then:'loophole',
         do:()=>{const p=G.pr;p.lobby++;p.passed.push(k);p.bill=null;if(lawOf(k).programme)enactBill(k);toast('A watered-down '+lawOf(k).name.toLowerCase()+' passes')}}]}},
-  {id:'lobby',rung:'president',cool:2*WEEKS,when:()=>rungWeek()>WEEKS/2,
+  {id:'lobby',rung:'president',cool:2*WEEKS,weight:3,when:()=>rungWeek()>WEEKS/2,
     title:()=>'The lobby would like a word',
     body:()=>'Generous support for your campaign, and a quieter Congress. They\u2019d like the tax bills to stay in a drawer.',
     options:()=>[{k:'take',label:'Take the support',acct:true,you:'Your re-election is paid for',town:'Every tax bill gets harder',scene:'handshake',then:'rentrise',do:()=>{G.pr.lobby++}},
@@ -522,6 +554,10 @@ function answerCard(k){
   const c=G.card&&cardDef(G.card.id);if(!c)return;
   const o=c.options(G.card.d||{}).find(o=>o.k===k);if(!o)return;
   const title=c.title(G.card.d||{});G.card=null;G.cool[c.id]=G.week;
+  // an offer you turn down backs off for a while, rather than coming straight back
+  if(c.backoff&&o.none)G.cool[c.id]=G.week+c.backoff-c.cool;
+  // (charities take turns: one asks at most every two years)
+  if(c.id.startsWith('gift-'))G.giftAsked=G.week;
   o.do();
   G.choices.push({week:G.week,age:age(),rung:G.rung,id:c.id,k,title,label:o.label});
   if(c.id.startsWith('gift-'))G.seenGifts[c.id.slice(5)]=true;

@@ -1,7 +1,9 @@
 /* ================= start ================= */
-// The loop: real time times the speed advances the weeks (a week is WEEK_SECS at 1×), the stage draws every frame,
+// The loop: real time times the speed advances the weeks (a year takes YEAR_SECS of its rung at 1×, so every rung
+// lasts about six to eight minutes), the stage draws every frame,
 // and the panels refresh a few times a second. A decision card or an ending pauses the game until it's answered.
-const WEEK_SECS=2.3;
+const YEAR_SECS={billionaire:12,landlord:20,partner:20,shop:20,waiter:25,out:60,union:36,activist:36,mayor:45,governor:45,president:45};
+const weekSecs=()=>(YEAR_SECS[G.rung]||30)/WEEKS;
 function start(){
   if(!load())newGame();
   buildChrome();fitMap();refreshTop();renderPane(true);
@@ -14,7 +16,7 @@ function start(){
     if(G.card&&G.autoAcct&&!modal){autoT+=dt;if(autoT>1.2){autoT=0;const o=cardOptions().find(o=>o.acct)||cardOptions()[0];answerCard(o.k);save();renderPane(true)}}
     if(!modal&&!G.ending&&!G.card&&G.speed>0){
       acc+=dt*G.speed;
-      while(acc>=WEEK_SECS){acc-=WEEK_SECS;step();
+      while(acc>=weekSecs()){acc-=weekSecs();step();
         if(G.week%WEEKS===0)save();if(G.card){renderPane(true);break}if(G.ending){R.stage={};save();showEnding();break}}
     }
     drawMap(dt);

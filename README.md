@@ -24,12 +24,18 @@ tents in the park, shutters coming down, strikes and marches, kids at the nurser
 slides into the next like a camera panning across the map, and half the time someone walks up to the edge of the
 scene and the camera follows them: the figure on the right of one scene is the figure on the left of the next.
 
+**Pacing.** Each rung runs at its own speed so a life takes about six to eight minutes at 1× (a billionaire's year is
+12 seconds; a mayor's, 45), and 8× runs a whole life in about a minute. An offer you turn down backs off for years
+rather than coming straight back, charities take turns asking, and a landlord's answer to the first tenant who falls
+behind becomes a standing policy (changed on the Tenants tab) instead of a card for every tenant.
+
 ## The ladder
 
 The game is a ladder of roles, one per rung: six down by money, five back up by votes, each starting in the town the
 last one left. At the top, the laws a president passes become the law in every billionaire life after.
 
-- **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
+- **The billionaire** (40 years): $30M at 8% a year. Along the way: a market crash (buy what everyone else must sell,
+  hold, or keep the town's shops afloat), a superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
   low, still finish richer than $30M). Giving from the start costs you; growing first and giving later pays.
 - **The landlord** (20 years): you play Agnes in the town the billionaire left. Its homes and shops pass to its

@@ -141,6 +141,7 @@ function onPaneClick(e){
   if(k&&G.card){G.ladder.tipCard=true;answerCard(k.dataset.card);save();renderPane(true);refreshTop()}
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
   if(a){G.autoAcct=!G.autoAcct;save();renderPane(true)}
+  const pol=e.target.closest('[data-policy]');if(pol&&G.ll){G.ll.policy=pol.dataset.policy;save();renderPane(true)}
 }
 // a bar a year, like the video's stacked money: the fortune (or, as the landlord, your equity)
 function drawChart(){

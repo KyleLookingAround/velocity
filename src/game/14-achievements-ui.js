@@ -79,6 +79,7 @@ $('#pane').addEventListener('click',e=>{if(e.target.closest('[data-ach]'))showAc
 // the top bar's ladder chip (which rung you're on; it opens the ladder) and the thin bar of years through the rung
 const RUNG_ORDER=['billionaire','landlord','partner','shop','waiter','out','union','activist','mayor','governor','president'];
 function topExtras(){
+  moments();
   const chip=$('#lad');if(!chip)return;
   const n=RUNG_ORDER.indexOf(G.rung)+1,got=G.ladder.achieved?Object.keys(G.ladder.achieved).length:0;
   const txt=`<b>${RUNG_NAMES[G.rung]}${G.heir?' (heir)':''}</b><span>Rung ${n} of 11 \u00b7 ${got} found</span><em>${n}/11</em>`;
@@ -100,3 +101,14 @@ addEventListener('keydown',e=>{
   if(G.card){const b=document.querySelectorAll('#pane [data-card]')[n-1];if(b)b.click();return}
   G.speed=SPEEDS[n];R.lastSpeed=G.speed;refreshTop();
 });
+
+// moments in a billionaire life: the fortune passing $100M and $1B, and a look back every five years
+function moments(){
+  if(G.rung!=='billionaire'||G.ending)return;
+  const m=G.miles||(G.miles={}),nw=netWorth();
+  for(const [t,msg] of [[1e8,'Your fortune passes $100 million'],[1e9,'You\u2019re a billionaire']])
+    if(nw>=t&&!m[t]&&(G.startNW||START_FORTUNE)<t){m[t]=1;toast(msg);queueScenes('yacht',null,{})}
+  const h=G.history,n=h.length;
+  if(n>=5&&n%5===0&&m.recap!==n){m.recap=n;const a=h[n-5],b=h[n-1],g=h.slice(n-5).reduce((s,y)=>s+(y.given||0),0);
+    toast('Five years on: '+money(b.nw)+' ('+(b.nw>=a.nw?'+':'')+Math.round((b.nw/Math.max(1,a.nw)-1)*100)+'%)'+(g>0?', '+money(g)+' given':', nothing given')+', unrest '+unrestLevel(b.unrest))}
+}

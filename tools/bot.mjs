@@ -49,7 +49,7 @@
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
-const budget=S=>S.netWorth()*S.G.rate*0.6; // what a hero lets itself give a year
+const budget=S=>S.netWorth()*S.G.rate*0.65; // what a hero lets itself give a year
 const running=S=>Object.keys(S.G.gifts).filter(k=>S.G.gifts[k]).reduce((a,k)=>a+S.giftEstimate(k),0);
 const BILLIONAIRE={
   passive:S=>opt(S,o=>o.none),

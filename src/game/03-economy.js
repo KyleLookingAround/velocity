@@ -63,7 +63,7 @@ function economyWeek(){
       if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':r.homeOwner==='council'?'out':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else if(r.homeOwner==='council')G.fund=(G.fund||0)+rent;else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)
         if(mine){G.ll.year.rent+=rent;if(r.owed>0){const p=Math.min(r.owed,Math.max(0,(r.cash-rent)*0.2));r.cash-=p;r.owed-=p;res[0].income+=pay(id,'r0',p,'rent')}}}
       // your own tenants who fall six weeks behind come to you as a card; one you've given time builds up what it owes
-      else if(mine){G.ll.year.lost+=rent;if(r.grace>G.week)r.owed=(r.owed||0)+rent;else{r.arrears++;if(r.arrears>=6&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}}
+      else if(mine){G.ll.year.lost+=rent;if(r.grace>G.week)r.owed=(r.owed||0)+rent;else{r.arrears++;if(r.arrears>=6&&!G.arrearsQ.includes(i)){if(G.ll.policy)applyArrears(r,G.ll.policy);else G.arrearsQ.push(i)}}}
       // (as the partner: Agnes evicts when the computer says so, sooner if you work for her, and the tenant may ask you first)
       else if(isPartner()&&r.homeOwner==='local'){r.arrears++;if(r.arrears>=Math.max(4,G.aiLandlord.evictAt-2*G.pt.evictionWork)&&!G.arrearsQ.includes(i))G.arrearsQ.push(i)}
       // (a council home never evicts: what's owed waits)
