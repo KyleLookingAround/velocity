@@ -72,6 +72,12 @@ the start: the town is part of the life you're dealt. A town changes a few numbe
 (the mill, the cannery or the depot); the ladder, the cards and the endings are the same. The port is the hardest town
 for a hero: gifts cost more where wages are higher. The Story tab lists the towns you've opened.
 
+**Today's life.** The Story tab offers one billionaire life a day, the same for everyone on that date: its seed is the
+date, it's always in Millbrook, and it starts without the laws an earlier president made. Play it as often as you like;
+your best result for each day stays on the device (a better ending wins, then more given for the hero and the giver, or
+a bigger fortune for the others), with how many tries it took, and the board shows your last seven days. Starting it
+leaves the life you're in, so a life under way asks once more first.
+
 - **The billionaire** (40 years): $30M at 8% a year. Along the way: a boom (borrow and ride it, sell a third at the
   top, or sit tight), then a market crash that takes more from those who rode it on borrowed money (buy what everyone else must sell,
   hold, or keep the town's shops afloat), a superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be started or stopped on the

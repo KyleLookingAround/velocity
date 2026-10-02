@@ -442,6 +442,7 @@ function showEndingCore(){
     revolt:['Revolt','The town has had enough. Signs fill the streets and your name is on them.']}[e.kind];
   showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.nw)}</div>
     <p>Age ${40+Math.floor(e.week/WEEKS)}. You gave away ${money(e.given)}, ${share}% of everything you gained.</p>
+    ${G.daily&&!(G.heir>0)&&G.ladder.daily&&G.ladder.daily[G.daily]?`<div class="twist">${G.daily===todayKey()?'Today\u2019s life':'The life of '+dayName(G.daily)}: ${R.dailyBest?'your best yet':'your best is still <b>'+dailyLine(G.ladder.daily[G.daily])+'</b>'}, after ${G.ladder.daily[G.daily].tries} ${G.ladder.daily[G.daily].tries===1?'try':'tries'}</div>`:''}
     ${e.kind!=='hero'?`<p>The hero ending needs you to give at least ${Math.round(T.heroGiveShare*100)}% of your gains, keep unrest low, and still finish richer than $30M.</p>`:''}
     <div class="opts"><button class="main" data-rung="landlord"><b>Step down: the landlord</b><small>Play Agnes, in the town you leave behind</small></button>
     <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
