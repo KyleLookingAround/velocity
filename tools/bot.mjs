@@ -184,6 +184,8 @@ for(const [gname,gpick] of Object.entries(GOVERNOR)){let hits=0;
     S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);S.startMayor();live(S,MAYOR.builder);
     if(S.G.ending.kind==='outvoted')continue;
     S.startGovernor();live(S,gpick);
+    // (a governor voted out can govern again, as a player would)
+    for(let n=0;n<2&&S.G.ending.kind==='unseated';n++){S.restartGovernor();live(S,gpick)}
     const e=S.G.ending,want=gname==='idle'?'steward':gname,ok=e.kind===want||e.kind==='unseated';if(e.kind===want)hits++;if(!ok)bad++;
     gvRows.push({seed,governor:gname,name:e.name,ending:e.kind,terms:e.terms,minWage:'+'+Math.round((e.minWage-1)*100)+'%',fortuneTax:e.fortuneTax,grants:e.granted,donors:e.donors,approval:Math.round(e.approval*100)+'%',unrest:Math.round(e.unrest),ok:ok?'yes':'NO'});
   }
@@ -196,6 +198,8 @@ for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
     if(S.G.ending.kind==='outvoted')continue;
     S.startGovernor();live(S,GOVERNOR.newdeal);if(S.G.ending.kind==='unseated')continue;
     S.startPresident();live(S,ppick);
+    // (a president voted out after one term can serve again, as a player would, as the mayor's runs do)
+    for(let n=0;n<2&&S.G.ending.kind==='oneterm'&&pname!=='gridlock';n++){S.restartPresident();live(S,ppick)}
     const e=S.G.ending,ok=e.kind===pname||e.kind==='oneterm';if(e.kind===pname)hits++;if(!ok)bad++;
     let next='';
     if(pname==='rebuilt'&&e.kind==='rebuilt'){

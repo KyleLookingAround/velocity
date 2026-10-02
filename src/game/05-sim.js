@@ -47,7 +47,7 @@ function yearEnd(){
   // taxing gains like wages and ending buy-borrow-die, once a president has passed them
   const share=G.pub?(G.pub.wealthtax?0.02:0)+(G.pub.gains?0.01:0)+(G.pub.stepup?0.01:0):0;
   // (a fortune hidden offshore pays the tax on only half of itself)
-  if(share&&G.cash>0){const w=G.cash*share*(G.offshore?0.5:1);G.cash-=w;purse('tax',w)}
+  if(share&&G.cash>0){const w=G.cash*share*(G.offshore&&!(G.pub&&G.pub.offshoreClosed)?0.5:1);G.cash-=w;purse('tax',w)}
   // the purse holds at most two years of the whole town's wages: beyond that the town can't spend it
   G.fund=Math.min(G.fund||0,T.wage*grow(0.02)*G.res.length*WEEKS*2);
   if(isShop()){shopYearEnd();if(G.ending)return}

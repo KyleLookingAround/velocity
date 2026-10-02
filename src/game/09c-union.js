@@ -35,7 +35,7 @@ function unionPay(r){return isUnion()&&r===unMe()?T.wage*grow(0.02)*0.75:0}
 // a week of the union: dues into the strike fund, strike pay out of it, and a strike's end
 function unionWeek(){
   const u=G.un,n=workers().length;
-  u.fund+=u.members*n*UN.dues*grow(0.02);
+  u.fund+=u.members*n*UN.dues*grow(0.02)*(u.national===true?0.8:1);
   if(u.striking>0){
     u.fund-=u.members*n*T.wage*grow(0.02)*0.4;u.striking--;
     if(u.fund<0){u.fund=0;u.striking=0;return strikeEnds(false)}

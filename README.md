@@ -165,6 +165,18 @@ The waiter's Budget tab and the out-of-work Days tab open with the week at a gla
 the job centre, rent day, pay day, the lender's day, dues, the bus, classes, benefit, works and gig rides, and what a
 week like this leaves (or how fast it runs savings down).
 
+## Deeper rungs
+
+The thinner rungs have more to them. The landlord meets a housing inspector (fix it, fight it, or bribe it away
+until a reporter finds the bank records), a remortgage offer, a letting agent who wants homes split into student
+rooms, and the council asking to rehouse families from the park. The organiser faces strikebreakers bussed past
+the picket, an offer to join the national union, a closed shop its old staff want to reopen as a co-op, and an
+injury on the mill floor. The activist meets the landlords' billboards against a rent cap, a court date for the
+occupation, a youth wing and a rival group; a cause fought before is easier the next time, and a lost vote still
+builds the movement. The president meets a filibuster, a Court vacancy (a reformer keeps the fortune tax standing),
+a hurricane, and leaked files on fortunes hidden offshore: a global minimum tax closes the islands in every life
+after.
+
 ## Later lives
 
 A card met in an earlier life says how you answered it then. In a country a president of yours remade, the

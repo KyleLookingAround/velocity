@@ -46,12 +46,14 @@ const opposition=k=>measure(k).opp+(G.cash>1e9?0.05:G.cash>1e8?0.03:0);
 // what the funds buy in a final push of adverts and leaflets: up to 12 points
 const adsBoost=()=>0.12*Math.min(1,G.ac.funds/Math.max(1,G.res.length*T.wage*grow(0.02)*0.15));
 // the chance a vote passes, given support and the final push
-function voteOdds(k,boost){return Math.max(0.05,Math.min(0.95,0.5+(G.ac.support+(boost||0)-opposition(k)-0.45)*2.5))}
+// (a measure fought before is easier the next time: people remember the fight, four points for each lost vote)
+function voteOdds(k,boost){return Math.max(0.05,Math.min(0.95,0.5+(G.ac.support+(boost||0)+0.04*G.ac.lost.filter(x=>x===k).length-opposition(k)-0.45)*2.5))}
 // a week: supporters give, and support drifts towards what the town's mood and your record say (the doors you've
 // knocked on build a base that stays)
 function activistWeek(){
   const a=G.ac,n=G.res.length;
   a.funds+=a.support*n*T.wage*grow(0.02)*AC.give;
+  if(a.youth)a.support=Math.min(0.9,a.support+0.0004);
   // a campaign under way is itself knocking on doors: support builds week by week until the vote
   if(a.campaign)a.support=Math.min(0.9,a.support+0.002);
   const target=0.22+G.unrest/250+(a.base||0)+0.03*a.passed.length-(a.donor?0.1:0)-0.02*a.arrests;
@@ -61,7 +63,8 @@ function holdVote(boost){
   const a=G.ac,k=a.campaign,won=rnd()<voteOdds(k,boost);
   a.campaign=null;
   if(won){a.passed.push(k);passMeasure(k);a.support=Math.min(0.9,a.support+0.03);toast('The vote passes: '+measure(k).name);townEvent('ballot',k)}
-  else{a.lost.push(k);a.support=Math.max(0.05,a.support-0.04);toast('The vote is lost: '+measure(k).name)}
+  // (a lost fight still builds the movement: fewer drift away, and a lasting point joins the base)
+  else{a.lost.push(k);a.support=Math.max(0.05,a.support-0.02);a.base=(a.base||0)+0.02;toast('The vote is lost: '+measure(k).name)}
   return won;
 }
 // a passed measure lasts: rent rules bind Agnes, a tax fills the purse, and programmes are paid from the purse

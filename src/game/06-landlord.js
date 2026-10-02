@@ -47,13 +47,14 @@ function llYear(){return {rent:0,interest:0,repairs:0,evictions:0,lost:0}}
 
 // what a week costs the landlord: interest on the loan and repairs on every home
 const llRepairsWeek=()=>myHomes().length*LL.repairs[G.ll.repairs]*grow(0.02);
-const llInterestWeek=()=>G.ll.loan*LL.rate/WEEKS;
+const llInterestWeek=()=>G.ll.loan*(G.ll.rate||LL.rate)/WEEKS;
 function landlordWeek(){
   const ll=G.ll,ag=G.res[0];
   const interest=llInterestWeek(),repairs=llRepairsWeek();
   ag.cash-=interest;pay('r0','out',interest,'interest');
   ll.year.interest+=interest;ll.year.repairs+=repairs; // repairs are spent through the town's store (economyWeek)
-  ll.cond=Math.max(0,Math.min(1,ll.cond+LL.wear[ll.repairs]/WEEKS));
+  // (homes split into rooms for students wear faster)
+  ll.cond=Math.max(0,Math.min(1,ll.cond+(LL.wear[ll.repairs]-(ll.rooms?0.03:0))/WEEKS));
   // a landlord short of cash misses mortgage payments; three months of that and the bank takes the homes
   if(ag.cash<0){ll.missed++;if(ll.missed>=13)return endLife('bankrupt')}else ll.missed=Math.max(0,ll.missed-1);
 }
