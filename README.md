@@ -26,8 +26,8 @@ scene and the camera follows them: the figure on the right of one scene is the f
 
 ## The ladder
 
-The game is a ladder of roles, one per rung: down by money, back up by votes. The whole way down is built, six rungs,
-and four rungs of the climb back up; each starts in the town the last one left.
+The game is a ladder of roles, one per rung: six down by money, five back up by votes, each starting in the town the
+last one left. At the top, the laws a president passes become the law in every billionaire life after.
 
 - **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
@@ -84,6 +84,13 @@ and four rungs of the climb back up; each starts in the town the last one left.
   federal government mostly pays for, and decide what a chain's warehouse gets for its jobs and how to meet a
   recession (spend, cut or wait). Donors' money helps at the re-election, up to a point. Endings: **a new deal**,
   **the dealmaker**, **the steward**, or **unseated**.
+- **The president** (two four-year terms), the top: the video's ideas become laws you can send to Congress: tax gains
+  like wages (not half of them), end buy-borrow-die, a 2% tax on fortunes, and the programme price list for the whole
+  country (ending poverty, housing everyone, vouchers, childcare, medical debt), paid with federal money. Congress's
+  support follows your approval and swings at the midterms; the lobby will pay for your re-election if you water
+  bills down; the Court may strike the tax on fortunes; the banks fail late in the second term. Endings: **the ladder,
+  rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
+  that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
 **Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
 it would be at the start of the game: a century of the ladder inflates every price.
@@ -105,7 +112,8 @@ it would be at the start of the game: a century of the ladder inflates every pri
   (generous → the builder, the donors' way → the machine, doing nothing → the caretaker): the re-election is a
   gamble, so any run may end voted out, but each ending must come up on at least two of the three seeds. Then three
   governors under the same rule: generous → a new deal, the donors' way → the dealmaker, doing nothing → the
-  steward.
+  steward. Then three presidents: generous → the ladder, rebuilt, the donors' way → owned, sending nothing →
+  gridlock; and a passive billionaire born after the rebuilt president must pay the tax on fortunes.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
   first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.

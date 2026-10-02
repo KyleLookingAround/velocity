@@ -11,7 +11,7 @@ function buildChrome(){
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
-  const tabs=isGovernor()?[['state','State'],['town','Town'],['story','Story']]:isMayor()?[['hall','Town hall'],['town','Town'],['story','Story']]:isActivist()?[['campaign','Campaign'],['town','Town'],['story','Story']]:isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  const tabs=isPresident()?[['congress','Congress'],['town','Town'],['story','Story']]:isGovernor()?[['state','State'],['town','Town'],['story','Story']]:isMayor()?[['hall','Town hall'],['town','Town'],['story','Story']]:isActivist()?[['campaign','Campaign'],['town','Town'],['story','Story']]:isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
@@ -19,7 +19,12 @@ const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
-  if(isGovernor()){
+  if(isPresident()){
+    const p=G.pr;$('#nw').textContent=Math.round(p.approval*100)+'% approve';
+    $('#growth').innerHTML=p.bill?'in Congress: <b>'+lawOf(p.bill).name+'</b>':p.passed.length+' law'+(p.passed.length===1?'':'s')+' passed';
+    $('#clock').innerHTML=`<b>President ${p.name}, ${age()}</b><br>Year ${yearNo()} of ${PR.years}`;
+    setMeter(1,'Congress',Math.round(p.congress*100)+'% with you');setMeter(2,'Re-election',p.elections.length?(p.elections[0].won?'Won':'Lost'):Math.round(prElectionOdds()*100)+'%');
+  }else if(isGovernor()){
     const g=G.gv;$('#nw').textContent=Math.round(g.approval*100)+'% approve';
     $('#growth').innerHTML='state budget <b>'+money(g.budget)+'</b> · minimum wage '+(g.minWage>=1?'+':'')+Math.round((g.minWage-1)*100)+'%';
     $('#clock').innerHTML=`<b>Governor ${g.name}, ${age()}</b><br>Year ${yearNo()} of ${GV.years}`;
@@ -66,7 +71,8 @@ function refreshTop(){
     const mine=myHomes();setMeter(1,'Homes',mine.filter(r=>!r.homeless&&!r.sheltered).length+' of '+mine.length+' let');setMeter(2,'Repair',Math.round(G.ll.cond*100)+'% kept up');
   }else{
     $('#nw').textContent=money(netWorth());
-    $('#growth').innerHTML=`growing <b>${rateText()}</b> a year`+(last&&last.given>0?` · gave ${money(last.given)} last year`:'');
+    const lawTax=G.pub?(G.pub.wealthtax?2:0)+(G.pub.gains?1:0)+(G.pub.stepup?1:0):0;
+    $('#growth').innerHTML=`growing <b>${rateText()}</b> a year`+(lawTax?`, less ${lawTax}% in tax`:'')+(last&&last.given>0?` · gave ${money(last.given)} last year`:'');
     $('#clock').innerHTML=`<b>Age ${age()}</b><br>Year ${yearNo()} of 40`;
     const work=G.res.filter(r=>r.role==='worker'||r.role==='owner');
     setMeter(1,'Jobs',work.filter(r=>r.role==='owner'||r.job!=null).length+' of '+work.length);setMeter(2,'Town spends',money(weeklySpend()*WEEKS)+'/yr');
@@ -87,7 +93,7 @@ function renderPane(force){
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   return `<div class="decide"><div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
-    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
+    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
 const PANES={
@@ -121,9 +127,9 @@ const PANES={
   },
   story(){
     const list=G.choices.slice().reverse().slice(0,30);
-    return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes ${G.rung==='mayor'||G.rung==='governor'?'the way the donors like':G.rung==='union'||G.rung==='activist'?'the easiest way for you':G.rung==='waiter'||G.rung==='out'?'the way that pays most this week':'the way that makes the most money'}, without asking you.</small></div>
+    return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes ${G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'the way the donors like':G.rung==='union'||G.rung==='activist'?'the easiest way for you':G.rung==='waiter'||G.rung==='out'?'the way that pays most this week':'the way that makes the most money'}, without asking you.</small></div>
       <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':c.rung==='governor'?'Governor':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':c.rung==='governor'?'Governor':c.rung==='president'?'President':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
@@ -172,6 +178,20 @@ function showPartnerIntro(){
     <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
 }
+function showPresidentIntro(){
+  const p=G.pr;
+  showModal(`<h2>The top: the president</h2><p>You are President ${p.name}. You started this climb with nothing.</p>
+    <p>Now the law itself can change: tax gains like wages, end buy-borrow-die, tax the biggest fortunes, and pay for the whole programme list. Bills go to Congress; the lobby pays for the other side. What you pass lasts into the next billionaire life.</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>Two terms, if they re-elect you.</small></button></div>`);
+}
+// a billionaire life in a country a president changed
+function showLawsIntro(){
+  const laws=Object.keys(G.pub||{}).filter(k=>G.pub[k]&&lawOf(k));
+  if(!laws.length)return;
+  showModal(`<h2>The country you made</h2><p>You have $30 million again, in a country with these laws:</p><p><b>${laws.map(k=>lawOf(k).name).join('</b>, <b>')}</b>.</p>
+    <p>${G.pub.wealthtax?'Your fortune pays 2% a year into the public purse, and the purse pays for the programmes.':'The public purse pays for the programmes.'}</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You're 40. You have 40 years.</small></button></div>`);
+}
 function showGovernorIntro(){
   const g=G.gv;
   showModal(`<h2>Climb: the governor</h2><p>You are Governor ${g.name}. The town is one of many now, and what reaches it comes from the state.</p>
@@ -217,6 +237,18 @@ function showShopIntro(){
 }
 function showEnding(){
   const e=G.ending;
+  if(e.rung==='president'){
+    const T0={rebuilt:['The ladder, rebuilt','The biggest fortunes pay, and the country pays for its programme list.'],
+      lobbied:['Owned','The lobby wrote the laws that passed. The fortunes kept growing.'],
+      gridlock:['Gridlock','Eight years of fights, and the biggest fortunes still pay least.'],
+      oneterm:['One term','The country chose someone else.']}[e.kind];
+    const names=e.passed.map(k=>lawOf(k).name.toLowerCase());
+    return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${e.passed.length} law${e.passed.length===1?'':'s'}</div>
+      <p>President ${e.name}, ${e.terms} term${e.terms===1?'':'s'}${names.length?': '+names.join(', '):''}.</p>
+      <p>That\u2019s the whole ladder. What you passed is the law in every billionaire life from now on.</p>
+      <div class="opts"><button class="main" data-again="1"><b>Live another billionaire life</b><small>$30M, in the country you made</small></button>
+      <button data-replay10="1"><b>Serve again</b><small>The same country, as the governor left it</small></button></div>`,true);
+  }
   if(e.rung==='governor'){
     const T0={newdeal:['A new deal','Higher wages, the biggest fortunes paying their share, and the money sent to the towns.'],
       dealmaker:['The dealmaker','Tax breaks and donors. The state ran smoothly, for the people who paid for it.'],
@@ -224,8 +256,9 @@ function showEnding(){
       unseated:['Unseated','The state chose someone else.']}[e.kind];
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${(e.minWage>=1?'+':'')+Math.round((e.minWage-1)*100)}% minimum wage</div>
       <p>Governor ${e.name}, ${e.terms} term${e.terms===1?'':'s'}. ${e.fortuneTax?'The biggest fortunes pay 1% a year. ':''}${e.granted} grants and schemes for the towns. ${Math.round(e.approval*100)}% approved of you at the end.</p>
-      <p>Next rung up: <b>the president</b>. It isn\u2019t built yet.</p>
-      <div class="opts"><button class="main" data-replay9="1"><b>Govern again</b><small>The same state, as the mayor left it</small></button>
+      ${e.kind==='unseated'?'<p>A governor the state voted out can\u2019t run for president.</p>':''}
+      <div class="opts">${e.kind==='unseated'?'':`<button class="main" data-rung="president"><b>Climb: the president</b><small>${e.name} runs for the country, and wins</small></button>`}
+      <button ${e.kind==='unseated'?'class="main" ':''}data-replay9="1"><b>Govern again</b><small>The same state, as the mayor left it</small></button>
       <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   if(e.rung==='mayor'){
@@ -332,9 +365,11 @@ function showEnding(){
 $('#box').addEventListener('click',e=>{
   const s=e.target.closest('[data-start]'),a=e.target.closest('[data-again]'),g=e.target.closest('[data-rung]'),rr=e.target.closest('[data-replay]');
   if(s){G.seen.intro=true;G.seen[G.rung]=true;hideModal();save()}
-  if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true)} // cosmetic
+  if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true);showLawsIntro()} // cosmetic
   if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
   if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
+  if(g&&g.dataset.rung==='president'){startPresident();R.stage={};buildTabs();save();renderPane(true);showPresidentIntro()}
+  if(e.target.closest('[data-replay10]')){restartPresident();R.stage={};buildTabs();save();renderPane(true);showPresidentIntro()}
   if(g&&g.dataset.rung==='governor'){startGovernor();R.stage={};buildTabs();save();renderPane(true);showGovernorIntro()}
   if(e.target.closest('[data-replay9]')){restartGovernor();R.stage={};buildTabs();save();renderPane(true);showGovernorIntro()}
   if(g&&g.dataset.rung==='mayor'){startMayor();R.stage={};buildTabs();save();renderPane(true);showMayorIntro()}

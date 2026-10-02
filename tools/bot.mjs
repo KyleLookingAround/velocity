@@ -41,6 +41,11 @@
 //   newdeal   (the generous option: raises the minimum wage, taxes fortunes, grants)  -> a new deal
 //   dealmaker (the donors' way: tax breaks, cuts, the repeal)                         -> the dealmaker
 //   idle      (does nothing)                                                          -> the steward
+// Then the president, after the new-deal governor (the same rule for its re-election):
+//   rebuilt (the generous option: the tax on fortunes first, fights every vote)        -> the ladder, rebuilt
+//   lobbied (the donors' way: takes the lobby's support, waters bills down)            -> owned
+//   idle    (sends nothing to Congress)                                                -> gridlock
+// and a billionaire born after the rebuilt president lives under its laws: it pays the tax on fortunes.
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
@@ -91,6 +96,8 @@ const MAYOR={builder:S=>opt(S,o=>o.kind),machine:S=>opt(S,o=>o.acct),idle:S=>opt
 const myRows=[];
 const GOVERNOR={newdeal:S=>opt(S,o=>o.kind),dealmaker:S=>opt(S,o=>o.acct),idle:S=>opt(S,o=>o.none)};
 const gvRows=[];
+const PRESIDENT={rebuilt:S=>opt(S,o=>o.kind),lobbied:S=>opt(S,o=>o.acct),gridlock:S=>opt(S,o=>o.none)};
+const prRows=[];
 const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}}
@@ -167,5 +174,23 @@ for(const [gname,gpick] of Object.entries(GOVERNOR)){let hits=0;
   }
   if(hits<2){bad++;gvRows.push({governor:gname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
 }
-console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);console.table(myRows);console.table(gvRows);
+for(const [pname,ppick] of Object.entries(PRESIDENT)){let hits=0;
+  for(const seed of [1,2,3]){
+    const S=loadSim(seed);live(S,BILLIONAIRE.passive);S.startLandlord();live(S,LANDLORD.fair);S.startPartner();live(S,PARTNER.counsel);S.startShop();live(S,SHOP.pillar);
+    S.startWaiter();live(S,WAITER.careful);S.startOut();live(S,OUT.organiser);S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);S.startMayor();live(S,MAYOR.builder);
+    if(S.G.ending.kind==='outvoted')continue;
+    S.startGovernor();live(S,GOVERNOR.newdeal);if(S.G.ending.kind==='unseated')continue;
+    S.startPresident();live(S,ppick);
+    const e=S.G.ending,ok=e.kind===pname||e.kind==='oneterm';if(e.kind===pname)hits++;if(!ok)bad++;
+    let next='';
+    if(pname==='rebuilt'&&e.kind==='rebuilt'){
+      // the next billionaire life, under those laws: its fortune pays the tax on fortunes into the purse
+      S.newGame(seed);live(S,BILLIONAIRE.passive);const f=S.G.ending,taxed=f.nw<S.G.history.at(-1).nw*1.5&&S.G.fund>0;
+      next='$'+(f.nw/1e6).toFixed(0)+'M, purse $'+(S.G.fund/1e6).toFixed(0)+'M';if(!S.G.pub.wealthtax||!(S.G.fund>0)){bad++;next+=' NO'}
+    }
+    prRows.push({seed,president:pname,name:e.name,ending:e.kind,terms:e.terms,laws:e.passed.length,lobby:e.lobby,approval:Math.round(e.approval*100)+'%',unrest:Math.round(e.unrest),nextBillionaire:next,ok:ok?'yes':'NO'});
+  }
+  if(hits<2){bad++;prRows.push({president:pname,ending:'reached on only '+hits+' of 3 seeds',ok:'NO'})}
+}
+console.table(rows);console.table(llRows);console.table(ptRows);console.table(shRows);console.table(wtRows);console.table(owRows);console.table(unRows);console.table(acRows);console.table(myRows);console.table(gvRows);console.table(prRows);
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

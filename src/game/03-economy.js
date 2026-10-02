@@ -31,6 +31,7 @@ function economyWeek(){
   if(isActivist()){const p=activistPay(acMe());acMe().income+=pay('out','r'+G.ac.i,p,'wage')}
   if(isMayor()){const p=mayorPay(myMe());myMe().income+=pay('out','r'+G.my.i,p,'wage')}
   if(isGovernor()){const p=governorPay(gvMe());gvMe().income+=pay('out','r'+G.gv.i,p,'wage')}
+  if(isPresident()){const p=presidentPay(prMe());prMe().income+=pay('out','r'+G.pr.i,p,'wage')}
   for(const r of res)if(r.role==='retiree')r.income+=pay('out','r'+res.indexOf(r),T.pension*grow(0.02),'pension');
   // shops pay their staff, and owners take their pay and last week's profit
   G.shops.forEach((s,i)=>{

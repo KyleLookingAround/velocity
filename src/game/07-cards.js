@@ -458,6 +458,47 @@ const CARDS=[
     body:()=>'If the state joins and pays its share. Nobody would run up medical debt again.',
     options:()=>[{k:'join',label:'Join it',kind:true,you:'A share from the state\u2019s budget',town:'Medical debt, cleared as it arrives',scene:'billsign',then:'medical',do:()=>{G.gv.budget*=0.9;G.pub.medical=true;G.gv.granted++}},
       {k:'no',label:'Stay out',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'capitol',then:'medical',do:()=>{}}]},
+
+  // ---- the president ----
+  {id:'agenda',rung:'president',cool:4,weight:6,when:()=>!G.pr.bill&&prAvailable().length>0,
+    title:()=>'What do you send to Congress next?',
+    body:()=>Math.round(G.pr.congress*100)+'% of Congress is with you, and '+Math.round(G.pr.approval*100)+'% of the country.',
+    options:()=>{const list=prAvailable().slice(0,3),odds=b=>congressOdds(b.k,0.1);
+      const best=list.find(b=>b.k==='wealthtax'&&odds(b)>=0.4)||list.slice().sort((a,b)=>odds(b)-odds(a))[0];
+      return [...list.map(b=>({k:b.k,label:b.name,kind:b===best,you:'About '+Math.round(odds(b)*100)+'% to pass, if you fight for it',town:b.note,scene:'capitol',then:null,
+        do:()=>{G.pr.bill=b.k;G.pr.billStart=G.week}})),
+        {k:'rest',label:'Nothing for now',acct:true,none:true,you:'No fights',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]}},
+  {id:'congress',rung:'president',urgent:true,cool:0,when:()=>!!G.pr.bill&&G.week-G.pr.billStart>=PR.billWeeks,
+    title:()=>'Congress votes: '+lawOf(G.pr.bill).name.toLowerCase(),
+    body:()=>'Its opponents have the lobby\u2019s money behind them.',
+    options:()=>{const k=G.pr.bill;return [
+      {k:'fight',label:'Fight for every vote',kind:true,you:'About '+Math.round(congressOdds(k,0.1)*100)+'% to pass; it costs you some goodwill',town:lawOf(k).note,scene:'billsign',then:'ballot',do:()=>{G.pr.approval=Math.max(0.05,G.pr.approval-0.01);holdCongressVote(0.1)}},
+      {k:'vote',label:'Let them vote',none:true,you:'About '+Math.round(congressOdds(k)*100)+'% to pass',town:lawOf(k).note,scene:'capitol',then:'ballot',do:()=>{holdCongressVote(0)}},
+      {k:'deal',label:'Water it down with the lobby',acct:true,you:'It passes, and the lobby is owed',town:'Half of it, with loopholes',scene:'handshake',then:'loophole',
+        do:()=>{const p=G.pr;p.lobby++;p.passed.push(k);p.bill=null;if(lawOf(k).programme)enactBill(k);toast('A watered-down '+lawOf(k).name.toLowerCase()+' passes')}}]}},
+  {id:'lobby',rung:'president',cool:2*WEEKS,when:()=>rungWeek()>WEEKS/2,
+    title:()=>'The lobby would like a word',
+    body:()=>'Generous support for your campaign, and a quieter Congress. They\u2019d like the tax bills to stay in a drawer.',
+    options:()=>[{k:'take',label:'Take the support',acct:true,you:'Your re-election is paid for',town:'Every tax bill gets harder',scene:'handshake',then:'rentrise',do:()=>{G.pr.lobby++}},
+      {k:'no',label:'Show them out',kind:true,none:true,you:'Nothing',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]},
+  {id:'address',rung:'president',cool:WEEKS,when:()=>rungWeek()>WEEKS/4,
+    title:()=>'Address the country?',
+    body:()=>'About where the money goes: the top 0.1% hold 4% of everything, and it could pay for the whole programme list.',
+    options:()=>[{k:'speak',label:'Speak plainly',kind:true,you:'The rich won\u2019t like it',town:'More of the country with you',scene:'capitol',then:'cheer',do:()=>{G.pr.approval=Math.min(0.9,G.pr.approval+0.03);G.pr.congress=Math.min(0.75,G.pr.congress+0.02)}},
+      {k:'skip',label:'Not now',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]},
+  {id:'court',rung:'president',cool:1e6,when:()=>G.pr.passed.includes('wealthtax')&&!G.pr.struck.includes('wealthtax'),
+    title:()=>'The Court strikes down the tax on fortunes',
+    body:()=>'Five to four.',
+    options:()=>[{k:'reform',label:'Take on the Court',kind:true,you:'A long fight, and some goodwill',town:'The tax stands, rewritten',scene:'billsign',then:'protest',do:()=>{G.pr.approval=Math.max(0.05,G.pr.approval-0.03);G.pr.congress=Math.max(0.2,G.pr.congress-0.03)}},
+      {k:'accept',label:'Accept it',acct:true,none:true,you:'Nothing',town:'The fortunes go untaxed',scene:'capitol',then:'rentrise',
+        do:()=>{const p=G.pr;p.struck.push('wealthtax');p.passed=p.passed.filter(x=>x!=='wealthtax');G.pub.wealthtax=false}}]},
+  {id:'crash',rung:'president',urgent:true,cool:1e6,when:()=>rungWeek()>5*WEEKS,
+    title:()=>'The banks are failing',
+    body:()=>'They borrowed against everything, and the bill has come in.',
+    options:()=>[{k:'homes',label:'Rescue homeowners and depositors',kind:true,you:'The banks\u2019 friends turn on you',town:'People keep their homes and savings',scene:'billsign',then:'keys',do:()=>{G.pr.approval=Math.min(0.9,G.pr.approval+0.03)}},
+      {k:'banks',label:'Rescue the banks',acct:true,you:'The lobby is grateful',town:'Homes repossessed, and the banks keep their bonuses',scene:'handshake',then:'evicted',
+        do:()=>{G.pr.lobby++;G.pr.approval=Math.max(0.05,G.pr.approval-0.05);for(const r of G.res)if(r.homeOwner==='local'&&r.cash<r.rent*2&&rnd()<0.3)r.arrears+=4}},
+      {k:'wait',label:'Let them fail',none:true,you:'Nothing',town:'Savings lost, and jobs with them',scene:'capitol',then:'laidoff',do:()=>{G.pr.approval=Math.max(0.05,G.pr.approval-0.04);const m=millStaff();if(m.length)m[0].job=null}}]},
 ];
 const tenantShare=()=>{const t=myHomes().filter(r=>!r.homeless&&!r.sheltered&&r.income>0);return t.length?t.reduce((a,r)=>a+r.rent/r.income,0)/t.length:0};
 const cardDef=id=>CARDS.find(c=>c.id===id);

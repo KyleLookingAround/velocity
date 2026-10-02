@@ -111,3 +111,13 @@ PANES.state=function(){
     <div>State budget<b>${money(g.budget)}</b></div><div>Town\u2019s purse<b>${money(G.fund||0)}</b></div>
     <div>Grants<b>${g.granted}</b></div><div>Recession<b>${g.recession>0?Math.ceil(g.recession/4)+' months left':'No'}</b></div></div>`;
 };
+
+// the president's Congress tab: the bill in Congress, Congress and the country, and the laws so far
+PANES.congress=function(){
+  const p=G.pr,pc=v=>Math.round(v*100)+'%',k=p.bill,left=k?Math.max(0,PR.billWeeks-(G.week-p.billStart)):0;
+  return `<p class="lead">${k?'<b>'+lawOf(k).name+'</b>: Congress votes '+(left?'in '+left+' weeks.':'now.'):'Nothing before Congress.'} Congress follows the country, and swings at the midterms.</p>
+    <div class="stats"><div>Approval<b>${pc(p.approval)}</b></div><div>Congress<b>${pc(p.congress)}</b></div>
+    <div>Chance now<b>${k?pc(congressOdds(k)):'\u2013'}</b></div><div>If you fight<b>${k?pc(congressOdds(k,0.1)):'\u2013'}</b></div>
+    <div>Owed to the lobby<b>${p.lobby||'Nothing'}</b></div><div>Re-election<b>${p.elections.length?(p.elections[0].won?'Won':'Lost'):pc(prElectionOdds())}</b></div></div>
+    ${BILLS.map(b=>`<div class="card"><div class="txt"><b>${b.name}</b><small>${b.note}</small><small>${p.passed.includes(b.k)?'Law':p.struck.includes(b.k)?'Struck down':p.failed.includes(b.k)?'Voted down '+p.failed.filter(x=>x===b.k).length+'\u00d7':'Not yet'}</small></div></div>`).join('')}`;
+};

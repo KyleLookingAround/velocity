@@ -40,9 +40,11 @@ function yearEnd(){
   G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
   if(isLandlord()){landlordYearEnd();if(G.ending)return}
   if(isPartner()){partnerYearEnd();if(G.ending)return}
-  if(isShop()||isWaiter()||isOut()||isUnion()||isActivist()||isMayor()||isGovernor()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
-  // a wealth tax the town voted for: 2% of the estate a year
-  if(G.pub&&G.pub.wealthtax&&G.cash>0){const w=G.cash*0.02;G.cash-=w;G.fund=(G.fund||0)+w}
+  if(isShop()||isWaiter()||isOut()||isUnion()||isActivist()||isMayor()||isGovernor()||isPresident()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
+  // a wealth tax the town (or the country) voted for: 2% of the biggest fortune a year, and a further 1% each for
+  // taxing gains like wages and ending buy-borrow-die, once a president has passed them
+  const share=G.pub?(G.pub.wealthtax?0.02:0)+(G.pub.gains?0.01:0)+(G.pub.stepup?0.01:0):0;
+  if(share&&G.cash>0){const w=G.cash*share;G.cash-=w;G.fund=(G.fund||0)+w}
   // the purse holds at most two years of the whole town's wages: beyond that the town can't spend it
   G.fund=Math.min(G.fund||0,T.wage*grow(0.02)*G.res.length*WEEKS*2);
   if(isShop()){shopYearEnd();if(G.ending)return}
@@ -52,6 +54,7 @@ function yearEnd(){
   if(isActivist()){activistYearEnd();if(G.ending)return}
   if(isMayor()){mayorYearEnd();if(G.ending)return}
   if(isGovernor()){governorYearEnd();if(G.ending)return}
+  if(isPresident()){presidentYearEnd();if(G.ending)return}
   reopenShops();
   const y=G.year,stock=y.stock/Math.max(1,y.weeks);
   G.lastGiftCost=y.gc||{};
@@ -88,6 +91,14 @@ function fundWeek(){
 
 function endLife(kind){
   if(G.ending)return;
+  if(isPresident()){
+    const v=kind==='death'?presidentVerdict():{kind};const p=G.pr;
+    G.ending={rung:'president',kind:v.kind,week:rungWeek(),name:p.name,approval:p.approval,passed:p.passed.slice(),lobby:p.lobby,terms:p.elections.some(e=>e.won)?2:1,unrest:G.unrest};
+    G.ladder.best=Object.assign({},G.ladder.best,{president:G.ending.kind});
+    // what you passed is the law of the land for every billionaire life after this one
+    G.ladder.laws=lawsPassed();
+    return;
+  }
   if(isGovernor()){
     const v=kind==='death'?governorVerdict():{kind};const gv=G.gv;
     G.ending={rung:'governor',kind:v.kind,week:rungWeek(),name:gv.name,approval:gv.approval,minWage:gv.minWage,fortuneTax:gv.fortuneTax,granted:gv.granted,donors:gv.donors,terms:gv.elections.some(e=>e.won)?2:1,unrest:G.unrest};
@@ -164,6 +175,7 @@ function step(){
   if(isActivist()){activistWeek();if(G.ending)return}
   if(isMayor()){mayorWeek();if(G.ending)return}
   if(isGovernor()){governorWeek();if(G.ending)return}
+  if(isPresident()){presidentWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
   G._nw=nw;G._yv=G.year.given;
@@ -178,4 +190,5 @@ function step(){
 }
 function toast(t){R.toasts.push({t,week:G.week});if(R.toasts.length>6)R.toasts.shift()}
 // a new billionaire life keeps the ladder: what you've unlocked and how each rung ended
-function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder)G.ladder=ladder;R.flows=[];R.toasts=[]}
+// (and the laws a president passed: a billionaire in that country pays the taxes, and its purse pays the programmes)
+function newGame(seed){const ladder=G&&G.ladder;if(seed!=null)seedRandom(seed);G=DEFAULT();if(ladder){G.ladder=ladder;if(ladder.laws)G.pub=Object.assign({},ladder.laws)}R.flows=[];R.toasts=[]}
