@@ -28,7 +28,9 @@ This is the first playable version: the billionaire's life, from 40 to 80.
 - `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html`. It fails,
   naming the file and line, on a slip, and rejects `Math.random()` in anything that changes the game (use `rnd()`).
 - `npm run bot` plays whole lives headless on seeds 1–3 with three strategies and checks each reaches its ending:
-  invest only → Lex Luthor, hoarder → revolt, hero → hero and still richer.
+  invest only → Lex Luthor, hoarder → revolt, hero from the start → hero and still richer, and a patient hero
+  (invests 15 years first) → hero and at least five times richer. Giving early costs you; waiting too long misses
+  the hero ending.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`.
 - `npm run check` runs all three.
 
