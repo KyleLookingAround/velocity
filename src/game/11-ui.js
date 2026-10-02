@@ -3,25 +3,25 @@
 // close each rung. Each rung has its own tabs: the billionaire's Fortune and Commitments, the landlord's Books and
 // Tenants; Town and Story are shared.
 const SPEEDS=[0,1,2,4,8];
-// small pictures for the tabs
-const ic=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+// small pictures for the tabs and the first screen: Lucide icons (ISC licence, (c) Lucide Icons and Contributors), inlined
+const ic=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const TAB_ICONS={
-  decide:ic('<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 9h6M9 13h4" stroke="#fff" stroke-width="2"/>'),
-  fortune:ic('<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" fill="none" stroke="currentColor" stroke-width="2"/>'),
-  commit:ic('<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>'),
-  town:ic('<path d="M3 12 9 7l6 5v9H3z"/><path d="M13 9l4-3 4 3v12h-6" opacity=".55"/>'),
-  story:ic('<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M8 9h7M8 13h5" stroke="#fff" stroke-width="1.8"/>'),
-  books:ic('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 15l3-3 2 2 4-5" fill="none" stroke="#fff" stroke-width="2"/>'),
-  tenants:ic('<circle cx="9" cy="8" r="3"/><circle cx="16" cy="9" r="2.5" opacity=".6"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6z"/>'),
-  career:ic('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2" fill="none" stroke="currentColor" stroke-width="2"/>'),
-  cafe:ic('<path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 10h2a2 2 0 0 1 0 4h-2" fill="none" stroke="currentColor" stroke-width="2"/>'),
-  budget:ic('<rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="16" cy="12.5" r="1.8" fill="#fff"/>'),
-  days:ic('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16" stroke="#fff" stroke-width="2"/>'),
-  union:ic('<circle cx="7" cy="8" r="2.5"/><circle cx="12" cy="7" r="2.8"/><circle cx="17" cy="8" r="2.5"/><path d="M2 19c0-3 2.2-5 5-5h10c2.8 0 5 2 5 5z"/>'),
-  campaign:ic('<path d="M4 10v4h3l7 4V6l-7 4z"/><path d="M17 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="2"/>'),
-  hall:ic('<path d="M3 9 12 4l9 5z"/><path d="M5 10h2v8H5zm4 0h2v8H9zm4 0h2v8h-2zm4 0h2v8h-2zM3 19h18v2H3z"/>'),
-  state:ic('<path d="M12 4a6 6 0 0 1 6 6H6a6 6 0 0 1 6-6z"/><path d="M5 11h14v2H5zm1 3h2v5H6zm5 0h2v5h-2zm5 0h2v5h-2zM4 20h16v1H4z"/>'),
-  congress:ic('<path d="M12 3l1 2a7 7 0 0 1 6 7H5a7 7 0 0 1 6-7z"/><path d="M4 13h16v2H4zm1 3h2v4H5zm4 0h2v4H9zm4 0h2v4h-2zm4 0h2v4h-2z"/>'),
+  decide:ic('<path d="M12 3v18" /> <path d="m19 8 3 8a5 5 0 0 1-6 0zV7" /> <path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1" /> <path d="m5 8 3 8a5 5 0 0 1-6 0zV7" /> <path d="M7 21h10" />'),
+  fortune:ic('<path d="M13.744 17.736a6 6 0 1 1-7.48-7.48" /> <path d="M15 6h1v4" /> <path d="m6.134 14.768.866-.5 2 3.464" /> <circle cx="16" cy="8" r="6" />'),
+  commit:ic('<path d="M11 14h2a2 2 0 0 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16" /> <path d="m14.45 13.39 5.05-4.694C20.196 8 21 6.85 21 5.75a2.75 2.75 0 0 0-4.797-1.837.276.276 0 0 1-.406 0A2.75 2.75 0 0 0 11 5.75c0 1.2.802 2.248 1.5 2.946L16 11.95" /> <path d="m2 15 6 6" /> <path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a1 1 0 0 0-2.75-2.91" />'),
+  town:ic('<path d="M10 12h4" /> <path d="M10 8h4" /> <path d="M14 21v-3a2 2 0 0 0-4 0v3" /> <path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2" /> <path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" />'),
+  story:ic('<path d="M12 5v16" /> <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" />'),
+  books:ic('<path d="M12 17V7" /> <path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8" /> <path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z" />'),
+  tenants:ic('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <path d="M16 3.128a4 4 0 0 1 0 7.744" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <circle cx="9" cy="7" r="4" />'),
+  career:ic('<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /> <rect width="20" height="14" x="2" y="6" rx="2" />'),
+  cafe:ic('<path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" />'),
+  budget:ic('<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /> <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />'),
+  days:ic('<path d="M8 2v3" /> <path d="M16 2v3" /> <rect x="3" y="3" width="18" height="18" rx="2" /> <path d="M3 9h18" /> <path d="M8 13h.01" /> <path d="M12 13h.01" /> <path d="M16 13h.01" /> <path d="M8 17h.01" /> <path d="M12 17h.01" /> <path d="M16 17h.01" />'),
+  union:ic('<path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" /> <path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14" /> <path d="M8 6v8" />'),
+  campaign:ic('<path d="m9 12 2 2 4-4" /> <path d="M5 7c0-1.1.9-2 2-2h10a2 2 0 0 1 2 2v12H5V7Z" /> <path d="M22 19H2" />'),
+  hall:ic('<path d="M10 18v-7" /> <path d="M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z" /> <path d="M14 18v-7" /> <path d="M18 18v-7" /> <path d="M3 22h18" /> <path d="M6 18v-7" />'),
+  state:ic('<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /> <path d="M15 5.764v15" /> <path d="M9 3.236v15" />'),
+  congress:ic('<path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />'),
 };
 function buildChrome(){
   $('#speed').innerHTML=SPEEDS.map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}" title="${s?s+'\u00d7 speed (key '+SPEEDS.indexOf(s)+')':'Pause (space)'}">${s?s+'×':'❚❚'}</button>`).join('');
@@ -39,6 +39,8 @@ function buildTabs(){
 }
 const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=document.querySelectorAll('#meters .meter')[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
+// the headline, to four figures, so it visibly ticks week by week
+function moneyFine(v){if(Math.abs(v)<1e6)return money(v);const s=v<0?'\u2212':'',a=Math.abs(v),e=Math.floor(Math.log10(a)),d=3-e%3;return s+'$'+(a/Math.pow(10,e-e%3)).toFixed(d)+['','k','M','B','T'][Math.floor(e/3)]}
 // how fast the fortune is really growing: the last year, measured, once there is one; the rung so far, annualised,
 // after a quarter; before that, the rate on your money less what gifts and a president's taxes take
 function growthNow(){
@@ -88,22 +90,22 @@ function refreshTop(){
     $('#clock').innerHTML=`<b>${w.name}, ${age()}</b><br>Year ${yearNo()} of ${WT.years}`;
     setMeter(1,'Health',Math.round(w.health*100)+'%');setMeter(2,'You owe',hh(w.loan));
   }else if(isShop()){
-    const s=G.shops[CAFE];$('#nw').textContent=money(shopWorth());
+    const s=G.shops[CAFE];$('#nw').textContent=moneyFine(shopWorth());
     $('#growth').innerHTML=`takings <b>${money(s.rev*WEEKS)}</b> a year · rent ${money(G.sh.premRent*WEEKS)}`;
     $('#clock').innerHTML=`<b>Bea, ${age()}</b><br>Year ${yearNo()} of ${SH.years}`;
     setMeter(1,'Staff',String(staffOf(CAFE).length));setMeter(2,'Lost customers',Math.round(Math.min(1,cafeLeak()+(G.sh.moved?0.1:0))*100)+'%');
   }else if(isPartner()){
-    const p=G.pt;$('#nw').textContent=money(ptWorth());
+    const p=G.pt;$('#nw').textContent=moneyFine(ptWorth());
     $('#growth').innerHTML=`<b>$${PT.rate.toLocaleString('en-GB')}</b> an hour · ${p.hours} hours a week`;
     $('#clock').innerHTML=`<b>Theo, ${age()}</b><br>Year ${yearNo()} of ${PT.years}`;
     setMeter(1,'Burnout',Math.round(p.burn*100)+'%');setMeter(2,'A billion in',Math.round(yearsToBillion())+' years');
   }else if(isLandlord()){
-    $('#nw').textContent=money(equity());
+    $('#nw').textContent=moneyFine(equity());
     $('#growth').innerHTML=`rent roll <b>${money(rentRoll())}</b> a year · loan ${money(G.ll.loan)}`;
     $('#clock').innerHTML=`<b>Agnes, ${age()}</b><br>Year ${yearNo()} of ${LL.years}`;
     const mine=myHomes();setMeter(1,'Homes',mine.filter(r=>!r.homeless&&!r.sheltered).length+' of '+mine.length+' let');setMeter(2,'Repair',Math.round(G.ll.cond*100)+'% kept up');
   }else{
-    $('#nw').textContent=money(netWorth());
+    $('#nw').textContent=moneyFine(netWorth());
     const g=growthNow(),measured=(G.nwLog||[]).length>WEEKS||rungWeek()>=13;
     $('#growth').innerHTML=`${g<0?'shrinking':'growing'} <b class="${g<0?'bad':''}">${(Math.abs(g)*100).toFixed(1)}%</b> a year`+(measured?'':' <span class="est">expected</span>')+(last&&last.given>0?`<span class="long"> · gave ${money(last.given)} last year</span>`:'');
     $('#clock').innerHTML=`<b>Age ${age()}</b><br>Year ${yearNo()} of 40`;
@@ -211,11 +213,7 @@ function drawChart(){
 function showModal(html,low){$('#box').className='';$('#box').innerHTML=html;$('#modal').classList.toggle('low',!!low);$('#modal').classList.add('show')}
 function hideModal(){$('#modal').classList.remove('show')}
 // the first screen: four short points, each with its picture, and the start
-const ICONS={
-  you:'<svg viewBox="0 0 40 40"><rect x="13" y="3" width="14" height="9" rx="1"/><rect x="10" y="11" width="20" height="2"/><circle cx="20" cy="17" r="5"/><rect x="14" y="22" width="12" height="11" rx="3"/><rect x="15" y="32" width="4" height="7"/><rect x="21" y="32" width="4" height="7"/></svg>',
-  town:'<svg viewBox="0 0 40 40"><path d="M3 20 12 12 21 20V36H3Z"/><path d="M19 22 28 14 37 22V36H19Z" opacity=".55"/><rect x="9" y="27" width="5" height="9" fill="#fff"/></svg>',
-  card:'<svg viewBox="0 0 40 40"><rect x="7" y="5" width="26" height="31" rx="4"/><rect x="12" y="12" width="16" height="3" fill="#fff"/><rect x="12" y="19" width="12" height="3" fill="#fff" opacity=".7"/><rect x="12" y="26" width="14" height="3" fill="#fff" opacity=".7"/></svg>',
-  ladder:'<svg viewBox="0 0 40 40"><rect x="9" y="3" width="4" height="34" rx="2"/><rect x="27" y="3" width="4" height="34" rx="2"/><rect x="11" y="9" width="18" height="3"/><rect x="11" y="18" width="18" height="3"/><rect x="11" y="27" width="18" height="3"/></svg>'};
+const ICONS={you:ic('<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /> <path d="M5 21h14" />'),town:TAB_ICONS.town,card:TAB_ICONS.decide,ladder:ic('<path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8"/>')};
 function showIntro(){
   const row=(i,b,t)=>`<div class="step"><span class="ico ${i}">${ICONS[i]}</span><div><b>${b}</b><span>${t}</span></div></div>`;
   showModal(`<div class="hero"><small>A game about where money goes</small><h2>Money Makes Money</h2></div>

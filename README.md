@@ -32,10 +32,13 @@ decision gets a tab of its own and the others stay open while you think; after y
 for a moment. On a phone the chevron in the transport bar gives the panel more of the screen. On a keyboard, space
 pauses, 1 to 4 set the speed or pick an answer, and Escape closes the ladder.
 
-**Pacing.** Each rung runs at its own speed so a life takes about six to eight minutes at 1× (a billionaire's year is
-12 seconds; a mayor's, 45), and 8× runs a whole life in about a minute. An offer you turn down backs off for years
-rather than coming straight back, charities take turns asking, and a landlord's answer to the first tenant who falls
-behind becomes a standing policy (changed on the Tenants tab) instead of a card for every tenant.
+**Pacing.** At most two decisions a year, half a year apart, on every rung: the yearly review (rent, hours, prices,
+shifts, the levy, the minimum wage) counts as one of them (the vote that ends a campaign you started doesn't), a kind of card you haven't seen on a rung comes up sooner
+than repeats, an offer you turn down backs off for years rather than coming straight back, charities take turns
+asking, and a landlord's answer to the first tenant who falls behind becomes a standing policy (changed on the
+Tenants tab) instead of a card for every tenant. Each rung runs at its own speed (a billionaire's year is 24 seconds
+at 1×; a mayor's, 45), so two or three scenes play between decisions and a life takes about ten to sixteen minutes
+at 1×, or two at 8×.
 
 ## The ladder
 
@@ -129,9 +132,26 @@ same town, starting from the fortune it left (and judged against it). Three gene
 **Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
 it would be at the start of the game: a century of the ladder inflates every price.
 
+## Look and type
+
+The page sets its text in **Inter** and its headlines and big figures in **Bricolage Grotesque**, both self-hosted next
+to the page (`npm install` fetches them from their npm packages; `npm run build` copies the Latin variable files and
+their licences into `dist/fonts/`; without them the page falls back to system fonts). The tab and intro pictures are
+**Lucide** icons (ISC licence), inlined in `src/game/11-ui.js`. The stylesheet in `src/shell.html` is built on a
+small set of tokens (paper, ink, money green, amber for your turn, gold for the rare) and keeps the layout steady: a
+decision never resizes anything.
+
+## On a phone
+
+The page is an installable app: open it in the phone's browser and add it to the home screen, and it runs full-screen
+without the browser's bars, and offline (`src/pwa/`: the manifest, a small service worker that keeps the page and its
+fonts in a cache and refreshes them behind each visit, and the icons; `npm run build` copies them next to the page).
+Saves stay on the device.
+
 ## Building and checking
 
-- `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html`. It fails,
+- `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html` (and copies the
+  fonts next to it). It fails,
   naming the file and line, on a slip, and rejects `Math.random()` in anything that changes the game (use `rnd()`).
 - `npm run bot` plays whole lives headless on seeds 1–3, answering every card by a strategy, and checks each reaches
   its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its means → hero and still

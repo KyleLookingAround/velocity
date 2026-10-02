@@ -1,8 +1,8 @@
 /* ================= start ================= */
-// The loop: real time times the speed advances the weeks (a year takes YEAR_SECS of its rung at 1×, so every rung
-// lasts about six to eight minutes), the stage draws every frame,
+// The loop: real time times the speed advances the weeks (a year takes YEAR_SECS of its rung at 1×: with at most two
+// decisions a year, that leaves two or three scenes between them), the stage draws every frame,
 // and the panels refresh a few times a second. A decision card or an ending pauses the game until it's answered.
-const YEAR_SECS={billionaire:12,landlord:20,partner:20,shop:20,waiter:25,out:60,union:36,activist:36,mayor:45,governor:45,president:45};
+const YEAR_SECS={billionaire:24,landlord:30,partner:30,shop:30,waiter:30,out:60,union:36,activist:36,mayor:45,governor:45,president:45};
 const weekSecs=()=>(YEAR_SECS[G.rung]||30)/WEEKS;
 function start(){
   if(!load())newGame();
@@ -28,3 +28,5 @@ function start(){
   document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 }
 start();
+// installable on a phone, and playable offline: a small service worker keeps the page and its fonts (not from a file:// copy)
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});

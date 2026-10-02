@@ -54,7 +54,7 @@ function person(c,x,y,o={}){
     c.scale(d,1);txt(c,o.text||'FAIR',d*11,ay-53,10,RED,800)}
   c.restore();
 }
-function txt(c,t,x,y,size,col,weight,align){c.font=(weight||600)+' '+size+'px system-ui,sans-serif';c.fillStyle=col||'#444';c.textAlign=align||'center';c.fillText(t,x,y)}
+function txt(c,t,x,y,size,col,weight,align){c.font=(weight||600)+' '+size+'px Inter,system-ui,sans-serif';c.fillStyle=col||'#444';c.textAlign=align||'center';c.fillText(t,x,y)}
 function bill(c,x,y,r,a){c.save();c.translate(x,y);c.rotate(r||0);c.globalAlpha=a??1;c.fillStyle=GREEN2;c.fillRect(-9,-4.5,18,9);c.fillStyle='rgba(255,255,255,.6)';c.fillRect(-2.5,-2,5,4);c.restore()}
 // a bill flying from (x0,y0) to (x1,y1) over u in [0,1], arcing up
 function flyBill(c,x0,y0,x1,y1,u,lift){if(u<0||u>1)return;const x=x0+(x1-x0)*u,y=y0+(y1-y0)*u-Math.sin(u*Math.PI)*(lift??40);bill(c,x,y,u*4,Math.min(1,(1-u)*5))}
@@ -396,7 +396,7 @@ function skyline(c,x0){
 function caption(c,text,a,dy){
   const k=V.k/V.dpr,t=text.length>64?text.slice(0,62)+'\u2026':text;
   // as large as a phone needs, but never wider than the pane
-  let size=Math.max(13,Math.min(19,12.5/k));c.font='700 '+size+'px system-ui,sans-serif';const w=c.measureText(t).width;if(w>PW-24)size*=(PW-24)/w;
+  let size=Math.max(13,Math.min(19,12.5/k));c.font='700 '+size+'px Inter,system-ui,sans-serif';const w=c.measureText(t).width;if(w>PW-24)size*=(PW-24)/w;
   const h=Math.max(26,size*2.2);
   c.save();c.globalAlpha=a;
   c.fillStyle='rgba(251,249,245,.86)';c.fillRect(0,PH-h,PW,h);
@@ -434,9 +434,18 @@ function drawMap(dt){
     // haze at both edges: scenes drift in and out of it rather than off a hard edge
     for(const [x0,x1] of [[0,26],[PW,PW-26]]){const h=c.createLinearGradient(x0,0,x1,0);h.addColorStop(0,'rgba(236,230,219,.8)');h.addColorStop(1,'rgba(236,230,219,0)');c.fillStyle=h;c.fillRect(Math.min(x0,x1),0,26,PH)}
     // the pane's label, as a small pill
-    const lab=side==='you'?'YOU':'THE TOWN';c.font='800 11px system-ui,sans-serif';const lw=c.measureText(lab).width+16;
+    const lab=side==='you'?'YOU':'THE TOWN';c.font='800 11px Inter,system-ui,sans-serif';const lw=c.measureText(lab).width+16;
     c.fillStyle=side==='you'?'rgba(28,27,24,.82)':'rgba(60,138,80,.9)';c.beginPath();c.roundRect(10,ct+10,lw,20,10);c.fill();txt(c,lab,10+lw/2,ct+24,11,'#fff',800);
     if(capNext){caption(c,cap,(1-u)*(1-u),-u*4);caption(c,capNext,u*u,(1-u)*4)}else caption(c,cap,1,0);
     c.restore();
   }
+  confettiFall(c,dt);
+}
+// a shower of paper over the whole stage for a new achievement, gone in about three seconds
+function confettiFall(c,dt){
+  const ps=R.confetti;if(!ps||!ps.length)return;
+  c.setTransform(V.dpr,0,0,V.dpr,0,0);const W=cv.width/V.dpr,H=cv.height/V.dpr;
+  for(const p of ps){p.t+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=0.12*dt;p.r+=dt*4;
+    c.save();c.globalAlpha=Math.max(0,Math.min(1,3-p.t));c.translate(p.x*W,p.y*H);c.rotate(p.r);c.fillStyle=p.c;c.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);c.restore()}
+  R.confetti=ps.filter(p=>p.t<3&&p.y<1.1);
 }

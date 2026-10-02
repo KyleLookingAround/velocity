@@ -4,7 +4,7 @@
 // (the gifts a billionaire could have funded, now the town's). Supporters give a little each week; a campaign runs at
 // least half a year before its vote; the estate's money pays for the other side. A passed measure lasts: it carries up
 // the ladder, and the programmes run while the purse can pay. A foundation will fund you, if you drop the wealth tax.
-const AC={years:10,give:0.01,campaignWeeks:26};
+const AC={years:10,give:0.01,campaignWeeks:30};
 const MEASURES=[
   {k:'wealthtax',name:'Tax the estate',note:'2% of the estate’s fortune a year, into the public purse',opp:0.12},
   {k:'rentcap',name:'Cap rents',note:'No rent above a third of a wage, rises of 2% a year at most, and no eviction under ten weeks behind',opp:0.08},
@@ -52,6 +52,8 @@ function voteOdds(k,boost){return Math.max(0.05,Math.min(0.95,0.5+(G.ac.support+
 function activistWeek(){
   const a=G.ac,n=G.res.length;
   a.funds+=a.support*n*T.wage*grow(0.02)*AC.give;
+  // a campaign under way is itself knocking on doors: support builds week by week until the vote
+  if(a.campaign)a.support=Math.min(0.9,a.support+0.002);
   const target=0.22+G.unrest/250+(a.base||0)+0.03*a.passed.length-(a.donor?0.1:0)-0.02*a.arrests;
   a.support=Math.max(0.05,Math.min(0.9,a.support+(target-a.support)*0.01));
 }

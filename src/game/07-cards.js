@@ -289,7 +289,7 @@ const CARDS=[
     options:()=>[{k:'sell',label:'Sell it to them, for a pound',you:'You keep running it, and give up its worth',town:'The caf\u00e9 belongs to the people who work in it',scene:'handshake',then:'chain',
         do:()=>{G.sh.coop=true;toast('The caf\u00e9 is a co-operative now')}},
       {k:'keep',label:'Keep it',acct:true,none:true,you:'It stays yours',town:'Nothing changes',scene:'cafe',then:null,do:()=>{}}]},
-  {id:'buyout',rung:'shop',cool:4*WEEKS,when:()=>rungWeek()>3*WEEKS&&G.cash>5e6,
+  {id:'buyout',rung:'shop',cool:3*WEEKS,weight:3,when:()=>rungWeek()>WEEKS&&G.cash>5e6,
     title:()=>'The billionaire\u2019s estate wants to buy the café',
     body:()=>'It offers '+money(buyoutPrice())+'. Its shops cut staff and send their profit out of town.',
     options:()=>[{k:'sell',label:'Sell',acct:true,you:money(buyoutPrice())+', and you\u2019re done',town:'One of your staff loses their job',scene:'handshake',then:'laidoff',do:()=>{bea().cash+=buyoutPrice();G.sh.sold=true;endLife('sold')}},
@@ -519,7 +519,7 @@ const CARDS=[
       // the town's best bet: the wealth tax (it fills the purse that pays for the rest) if it has a fair chance, else the likeliest
       const best=list.find(m=>m.k==='wealthtax'&&odds(m)>=0.4)||list.slice().sort((a,b)=>odds(b)-odds(a))[0];
       return [...list.map(m=>({k:m.k,label:m.name,kind:m===best,you:'About '+Math.round(odds(m)*100)+'% to pass today',town:m.note,scene:'canvass',then:null,
-        do:()=>{G.ac.campaign=m.k;G.ac.campaignStart=G.week}})),
+        do:()=>{G.ac.campaign=m.k;G.ac.campaignStart=G.week;G.ac.support=Math.min(0.9,G.ac.support+0.015)}})),
         {k:'rest',label:'Take a break',acct:true,none:true,you:'Your evenings back',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]}},
   {id:'canvass',rung:'activist',cool:10,weight:3,when:()=>!!G.ac.campaign,
     title:()=>'How will you campaign this season?',
@@ -528,7 +528,7 @@ const CARDS=[
       {k:'march',label:'March on the town hall',you:'A risk of arrest',town:'More support, unless it turns ugly',scene:'march',then:'protest',
         do:()=>{G.anger=(G.anger||0)+4;if(rnd()<0.25){G.ac.arrests++;G.ac.support=Math.max(0.05,G.ac.support-0.02);toast('The march turns ugly. You\u2019re arrested')}else G.ac.support=Math.min(0.9,G.ac.support+0.05)}},
       {k:'post',label:'Post about it online',acct:true,none:true,you:'Nothing much',town:'A point more support',scene:'meeting',then:null,do:()=>{G.ac.support=Math.min(0.9,G.ac.support+0.01)}}]},
-  {id:'ballot',rung:'activist',urgent:true,cool:0,when:()=>!!G.ac.campaign&&G.week-G.ac.campaignStart>=AC.campaignWeeks,
+  {id:'ballot',rung:'activist',urgent:true,follow:true,cool:0,when:()=>!!G.ac.campaign&&G.week-G.ac.campaignStart>=AC.campaignWeeks,
     title:()=>'The vote on '+measure(G.ac.campaign).name.toLowerCase(),
     body:()=>Math.round(G.ac.support*100)+'% of the town is behind you. The other side has '+(G.cash>1e8?'the estate\u2019s money':'its own supporters')+'. Your funds: '+money(G.ac.funds)+'.',
     options:()=>{const k=G.ac.campaign;
@@ -607,10 +607,10 @@ const CARDS=[
       {k:'third',label:'Only if a third are for the town',kind:true,you:'No donation',town:'A council home, if they agree',scene:'townhall',then:'keys',
         do:()=>{if(rnd()<0.5){const r=G.res.find(r=>r.homeOwner==='local'&&r.role!=='landlord');if(r){r.homeOwner='council';r.rent=Math.min(r.rent,councilRent());G.my.council++;toast('They agree: '+r.name+' gets a council home')}}else toast('The developer walks away')}},
       {k:'no',label:'Turn it down',none:true,you:'Nothing',town:'Nothing changes',scene:'townhall',then:null,do:()=>{}}]}},
-  {id:'backer',rung:'mayor',cool:1e6,when:()=>rungWeek()>2*WEEKS&&G.my.tax!=='low',
+  {id:'backer',rung:'mayor',cool:1e6,weight:2,when:()=>rungWeek()>2*WEEKS&&!G.my.deals.includes('backer'),
     title:()=>'The estate\u2019s friends will pay for your re-election',
-    body:()=>'All you have to do is bring the property tax down.',
-    options:()=>[{k:'take',label:'Take it, and cut the tax',acct:true,you:'Your campaign is paid for',town:'The purse barely fills from now on',scene:'handshake',then:'rentrise',do:()=>{G.my.donors+=2;G.my.tax='low';G.my.deals.push('backer')}},
+    body:()=>G.my.tax==='low'?'All you have to do is keep the property tax where it is.':'All you have to do is bring the property tax down.',
+    options:()=>[{k:'take',label:G.my.tax==='low'?'Take it, and keep the tax low':'Take it, and cut the tax',acct:true,you:'Your campaign is paid for',town:'The purse barely fills from now on',scene:'handshake',then:'rentrise',do:()=>{G.my.donors+=2;G.my.tax='low';G.my.deals.push('backer')}},
       {k:'half',label:'Take half, and set the tax at a tenth',you:'Some campaign money',town:'The purse still fills',scene:'handshake',then:null,do:()=>{G.my.donors+=1;G.my.tax='fair'}},
       {k:'no',label:'No',kind:true,none:true,you:'You fight the election on your own',town:'The tax stays',scene:'townhall',then:null,do:()=>{}}]},
   {id:'stategrant',rung:'mayor',cool:WEEKS,when:()=>G.my.granted<4&&rungWeek()>WEEKS/2,
@@ -716,7 +716,7 @@ const CARDS=[
       return [...list.map(b=>({k:b.k,label:b.name,kind:b===best,you:'About '+Math.round(odds(b)*100)+'% to pass, if you fight for it',town:b.note,scene:'capitol',then:null,
         do:()=>{G.pr.bill=b.k;G.pr.billStart=G.week}})),
         {k:'rest',label:'Nothing for now',acct:true,none:true,you:'No fights',town:'Nothing changes',scene:'capitol',then:null,do:()=>{}}]}},
-  {id:'congress',rung:'president',urgent:true,cool:0,when:()=>!!G.pr.bill&&G.week-G.pr.billStart>=PR.billWeeks,
+  {id:'congress',rung:'president',urgent:true,follow:true,cool:0,when:()=>!!G.pr.bill&&G.week-G.pr.billStart>=PR.billWeeks,
     title:()=>'Congress votes: '+lawOf(G.pr.bill).name.toLowerCase(),
     body:()=>'Its opponents have the lobby\u2019s money behind them.',
     options:()=>{const k=G.pr.bill;return [
@@ -778,14 +778,15 @@ function drawCard(){
   if(G.card||G.ending)return;
   const rung=G.rung,ok=c=>c.rung===rung&&(G.cool[c.id]==null||G.week-G.cool[c.id]>=c.cool)&&c.when();
   let c=CARDS.find(c=>c.urgent&&ok(c));
-  if(!c&&G.week>=G.nextCard){
-    const pool=CARDS.filter(c=>!c.urgent&&ok(c));
-    // offers to buy come up more often than the rest
-    let pick=rnd()*pool.reduce((a,c)=>a+(c.weight||1),0);
-    for(const p of pool){pick-=p.weight||1;if(pick<=0){c=p;break}}
-    G.nextCard=G.week+10+Math.floor(rnd()*8);
+  // at most two decisions a year, half a year apart: the yearly review and the other events count as decisions too.
+  // Offers to buy come up more often than the rest, and a kind of card never seen on this rung sooner than repeats.
+  if(!c&&G.week>=G.nextCard&&(G.year.cards||0)<2){
+    const pool=CARDS.filter(c=>!c.urgent&&ok(c)),w=c=>(c.weight||1)*(G.cool[c.id]==null?3:1);
+    let pick=rnd()*pool.reduce((a,c)=>a+w(c),0);
+    for(const p of pool){pick-=w(p);if(pick<=0){c=p;break}}
+    G.nextCard=G.week+(c?26:4); // (nothing to offer: look again in a month)
   }
-  if(c)G.card={id:c.id,d:c.data?c.data():{},week:G.week};
+  if(c){G.card={id:c.id,d:c.data?c.data():{},week:G.week};if(!c.follow)G.year.cards=(G.year.cards||0)+1}
 }
 function answerCard(k){
   const c=G.card&&cardDef(G.card.id);if(!c)return;

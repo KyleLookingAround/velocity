@@ -48,7 +48,9 @@ const allAchievements=()=>[
 function award(id){
   const l=G.ladder;l.achieved=l.achieved||{};if(l.achieved[id])return false;
   l.achieved[id]=G.week+1;const a=allAchievements().find(a=>a.id===id);
-  (R.newAch=R.newAch||[]).push(id);if(a)toast('Achievement: '+a.name);return true;
+  (R.newAch=R.newAch||[]).push(id);if(a)toast('Achievement: '+a.name);
+  if(!R.sim)R.confetti=Array.from({length:90},()=>({x:Math.random(),y:-0.05-Math.random()*0.2,vx:(Math.random()-0.5)*0.25,vy:0.15+Math.random()*0.25,r:Math.random()*6.3,s:4+Math.random()*5,c:['#2f8a4b','#d4a72c','#1b1a17','#b8781c','#8cc497'][Math.floor(Math.random()*5)],t:0})); // cosmetic
+  return true;
 }
 // every ending passes through here: the rung's own ending, then its rare form if it earned one, and the milestones
 function endLife(kind){

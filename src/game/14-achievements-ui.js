@@ -83,14 +83,14 @@ function topExtras(){
   const n=RUNG_ORDER.indexOf(G.rung)+1;
   const txt=`<b>${RUNG_NAMES[G.rung]}${G.heir?' (heir)':''}</b><span> \u00b7 Rung ${n} of 11</span><em> \u00b7 ${n}/11</em>`;
   const lad=$('#lad');if(lad.innerHTML!==txt)lad.innerHTML=txt;
-  $('#speed').classList.toggle('paused',G.speed===0&&!G.card&&!G.ending);$('#speed').classList.toggle('waiting',!!G.card&&!G.ending);
+  $('#speed').classList.toggle('paused',G.speed===0&&!G.card&&!G.ending);$('#speed').classList.toggle('held',!!G.card&&!G.ending);
   $('#yearbar').style.width=Math.min(100,rungWeek()/Math.max(1,rungWeeks())*100)+'%';
   // the year ticks over
   const y=yearNo();if(R.lastYear!==undefined&&y!==R.lastYear){const c=$('#clock');c.classList.remove('tick');void c.offsetWidth;c.classList.add('tick')}R.lastYear=y;
   // what's next: a decision waiting, or roughly when the next one comes
   let long,short;
   if(G.ending){long='The end of this life';short='The end'}
-  else if(G.card){long='<b>Your turn</b> \u00b7 time waits while you decide';short='<b>Your turn</b> \u00b7 time waits'}
+  else if(G.card){long='<b>Your turn</b> \u00b7 time waits while you decide';short='<b>Your turn</b><span class="tw"> \u00b7 time waits</span>'}
   else{const w=Math.max(0,G.nextCard-G.week),m=w<9?2:Math.round(w/4.33),p=G.speed===0?'<b>Paused</b> \u00b7 ':'';
     long=p+(p?'n':'N')+'ext decision '+(w<=2?'any week now':w<6?'in a few weeks':'in about '+(m===2?'two':m)+' months');
     short='Next: '+(w<=2?'any week':w<6?'a few weeks':'~'+m+' months')}

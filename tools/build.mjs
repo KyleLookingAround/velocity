@@ -1,6 +1,6 @@
 // Builds the single-page game from src/: src/shell.html with the files in src/game joined, in file-name order, where
 // its /*GAME*/ marker sits, into dist/index.html. Plain Node, no dependencies. Fails, naming the file and line, on a slip.
-import {readFileSync,readdirSync,writeFileSync,mkdirSync} from 'node:fs';
+import {readFileSync,readdirSync,writeFileSync,mkdirSync,copyFileSync,existsSync,cpSync} from 'node:fs';
 import {join} from 'node:path';
 import {Script} from 'node:vm';
 import {root} from './sim.mjs';
@@ -19,4 +19,14 @@ const game=parts.map(p=>p.text).join('\n');
 try{new Script('(()=>{"use strict";'+game+'})',{filename:'src/game'})}catch(e){fail('joined game: '+e.message)}
 const page=shell.replace('/*GAME*/',()=>game);
 mkdirSync(join(root,'dist'),{recursive:true});writeFileSync(join(root,'dist/index.html'),page);
-console.log(`built dist/index.html (${Math.round(page.length/1024)} KB) from ${parts.length} files`);
+// the app shell for phones: the manifest, the service worker and the icons
+cpSync(join(root,'src/pwa'),join(root,'dist'),{recursive:true});
+// the page's two typefaces, self-hosted next to it (variable fonts, Latin only): from their npm packages, with licences
+let fonts=0;
+for(const [pkg,file] of [['@fontsource-variable/inter','inter-latin-wght-normal.woff2'],['@fontsource-variable/bricolage-grotesque','bricolage-grotesque-latin-wght-normal.woff2']]){
+  const from=join(root,'node_modules',pkg);
+  if(!existsSync(join(from,'files',file))){console.warn('build: '+pkg+' is not installed (npm install); the page falls back to system fonts');continue}
+  mkdirSync(join(root,'dist/fonts'),{recursive:true});copyFileSync(join(from,'files',file),join(root,'dist/fonts',file));
+  copyFileSync(join(from,'LICENSE'),join(root,'dist/fonts',file.replace(/-latin.*$/,'')+'-LICENSE.txt'));fonts++;
+}
+console.log(`built dist/index.html (${Math.round(page.length/1024)} KB) from ${parts.length} files${fonts?', with '+fonts+' fonts':''}`);

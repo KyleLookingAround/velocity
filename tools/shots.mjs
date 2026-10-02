@@ -50,7 +50,9 @@ const saves=[];
       S.newGame(11);S.G.seen.intro=true;until(S,()=>S.G.week>=12*52&&!S.G.card,S=>{const o=S.cardOptions();return (o.find(o=>o.none)||o[0]).k});saves.push(['president-after',JSON.stringify(S.G),'town'])}}}
 const browser=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'}).catch(()=>chromium.launch());
 let errors=0;
-for(const [name,w,h] of sizes){
+// (SIZES=phone,desktop limits the run to those sizes)
+const wanted=process.env.SIZES?process.env.SIZES.split(','):null;
+for(const [name,w,h] of sizes.filter(s=>!wanted||wanted.includes(s[0]))){
   const page=await browser.newPage({viewport:{width:w,height:h},deviceScaleFactor:2});
   page.on('pageerror',e=>{errors++;console.error(name+': '+e.message)});
   await page.addInitScript(()=>{window.__seed=7;localStorage.clear()});
