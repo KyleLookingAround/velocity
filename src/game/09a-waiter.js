@@ -50,7 +50,7 @@ function waiterWeek(){
   if(w.moved)r.cash-=pay(id,'out',WT.travel*grow(0.02),'travel');
   // housing benefit: the purse pays most of whatever rent takes beyond a third of your pay, while it has money
   if(w.benefit&&r.income>0){const b=Math.min(G.fund||0,Math.max(0,r.rent-r.income/3)*0.6);
-    if(b>0){G.fund-=b;r.cash+=pay('out',id,b,'benefit');w.year.benefit=(w.year.benefit||0)+b}
+    if(b>0){purse('benefit',-b);r.cash+=pay('out',id,b,'benefit');w.year.benefit=(w.year.benefit||0)+b}
     else if(!(G.fund>0)&&!w.purseEmpty){w.purseEmpty=true;toast('The public purse is empty. Housing benefit stops')}}
   // (a training grant pays half the classes, if the purse can)
   if(w.classes>0){const grant=w.grant&&G.fund>WT.classes/2?WT.classes/2:0;G.fund-=grant;r.cash-=pay(id,'out',(WT.classes-grant)*(w.cheap?0.5:1),'classes');w.classes--;if(w.classes===0){w.trained=true;toast('You finish the course. Your pay goes up')}}

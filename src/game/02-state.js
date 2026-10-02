@@ -10,7 +10,7 @@ const FIELDS={
   year:()=>emptyYear(), history:()=>[], gains:()=>0, given:()=>0, taxPaid:()=>0,
   nextTax:()=>T.taxEvery*WEEKS, tax:()=>null, moved:()=>0, lobbied:()=>0,
   speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false, adviser:()=>null,
-  card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], threads:()=>[], borrowed:()=>false, senator:()=>false,
+  card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], threads:()=>[], pyear:()=>({}), plast:()=>null, borrowed:()=>false, senator:()=>false,
   arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
   aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false, ow:()=>null, claimDue:()=>false, un:()=>null, ac:()=>null, pub:()=>({}), my:()=>null, levyDue:()=>false, gv:()=>null, wageDue:()=>false, pr:()=>null, heir:()=>0, startNW:()=>0, nwLog:()=>[], giftAsked:()=>-1e9, crashed:()=>false, paperFoundation:()=>false, paper:()=>null, miles:()=>({}),
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,

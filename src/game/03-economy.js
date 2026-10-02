@@ -60,7 +60,7 @@ function economyWeek(){
     const mine=isLandlord()&&r.homeOwner==='local';
     if(mine&&rent){if(G.unrest>=70)rent*=0.5;if(G.ll.cond<0.4)rent*=0.7}
     if(rent){
-      if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':r.homeOwner==='council'?'out':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else if(r.homeOwner==='council')G.fund=(G.fund||0)+rent;else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)
+      if(r.cash>=rent){r.cash-=rent;pay(id,r.homeOwner==='you'?'you':r.homeOwner==='council'?'out':'r0',rent,'rent');if(r.homeOwner==='you')G.cash+=rent;else if(r.homeOwner==='council')purse('rent',rent);else res[0].income+=rent;r.arrears=Math.max(0,r.arrears-1)
         if(mine){G.ll.year.rent+=rent;if(r.owed>0){const p=Math.min(r.owed,Math.max(0,(r.cash-rent)*0.2));r.cash-=p;r.owed-=p;res[0].income+=pay(id,'r0',p,'rent')}}}
       // your own tenants who fall six weeks behind come to you as a card; one you've given time builds up what it owes
       else if(mine){G.ll.year.lost+=rent;if(r.grace>G.week)r.owed=(r.owed||0)+rent;else{r.arrears++;if(r.arrears>=6&&!G.arrearsQ.includes(i)){if(G.ll.policy)applyArrears(r,G.ll.policy);else G.arrearsQ.push(i)}}}
@@ -116,7 +116,7 @@ function evict(r){
 // the gifts you fund come out of your fortune and into the town; a public programme the town voted for comes out of
 // the public purse instead, while it has money
 function giftsOn(){const a=Object.assign({},G.gifts);if(G.fund>0)for(const k in G.pub||{})if(G.pub[k])a[k]=true;return a}
-const fromPurse=(kind,amt)=>{const p=Math.min(amt,G.fund||0);if(p>0){G.fund-=p;gc('pub-'+kind,p)}return p};
+const fromPurse=(kind,amt)=>{const p=Math.min(amt,G.fund||0);if(p>0){purse('programme',-p);gc('pub-'+kind,p)}return p};
 function giveTo(i,amt,kind){
   if(!G.gifts[kind]){const p=fromPurse(kind,amt);G.res[i].income+=p;pay('out','r'+i,p,'programme');return}gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;G.res[i].income+=amt;pay('you','r'+i,amt,'gift')}
 function giveOut(amt,kind,i){if(!(amt>0))return;if(!G.gifts[kind]){pay('out',i==null?'out':'r'+i,fromPurse(kind,amt),'programme');return}gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;pay('you',i==null?'out':'r'+i,amt,'gift')}

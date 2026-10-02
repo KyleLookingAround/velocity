@@ -34,7 +34,7 @@ const hireable=()=>jobless().filter(r=>!(isOut()&&r===outMe()));
 // a week out of work: benefit and public works from the purse, gig work, and your health
 function outWeek(){
   const o=G.ow,r=outMe(),id='r'+o.i,wage=T.wage*grow(0.02);
-  const fromPurse=a=>{const p=Math.min(G.fund||0,a);if(p>0){G.fund-=p;r.cash+=pay('out',id,p,'benefit')}return p};
+  const fromPurse=a=>{const p=Math.min(G.fund||0,a);if(p>0){purse('benefit',-p);r.cash+=pay('out',id,p,'benefit')}return p};
   if(r.job==null){
     if(o.benefit&&o.sanctioned<=0)fromPurse(wage*OW.benefit);
     if(o.works&&!fromPurse(wage*OW.works)){o.works=false;toast('The public works scheme has run out of money')}

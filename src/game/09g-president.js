@@ -52,12 +52,12 @@ function holdCongressVote(boost){
   return won;
 }
 // a law: the programmes run from the purse, which federal money fills; the taxes take from the biggest fortune
-function enactBill(k){G.pub[k]=true;if(lawOf(k).programme)G.fund=(G.fund||0)+G.res.length*T.wage*grow(0.02)*WEEKS*0.25}
+function enactBill(k){G.pub[k]=true;if(lawOf(k).programme)purse('federal',G.res.length*T.wage*grow(0.02)*WEEKS*0.25)}
 function presidentYearEnd(){
   const p=G.pr,y=Math.round((G.week-G.rungStart)/WEEKS);
   // federal money for the programmes the country pays for
   const progs=BILLS.filter(b=>b.programme&&G.pub[b.k]).length;
-  G.fund=(G.fund||0)+progs*G.res.length*T.wage*grow(0.02)*WEEKS*0.1;
+  purse('federal',progs*G.res.length*T.wage*grow(0.02)*WEEKS*0.1);
   p.history.push({year:y,approval:p.approval,congress:p.congress,passed:p.passed.length});
   // the midterms, two years into each term: Congress swings towards how the country feels about you
   if(y%PR.term===2){p.congress=Math.max(0.2,Math.min(0.75,p.congress+(p.approval-0.5)*0.5-0.03));toast('The midterms: '+Math.round(p.congress*100)+'% of Congress with you')}

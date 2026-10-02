@@ -46,7 +46,7 @@ function partnerYearEnd(){
   p.burn=Math.max(0,Math.min(1,p.burn+(p.hours>55?(p.hours-55)/10*PT.burnUp*2:p.hours<45?-PT.burnDown:-0.02)));
   if(p.burn>=1)return endLife('burnout');
   const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,p.loopholes);
-  if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}
+  if(tax>0){G.cash-=tax;purse('tax',tax)}
   p.history.push({year:(G.week-G.rungStart)/WEEKS,cash:p.cash,worth:ptWorth(),earned:p.year.earned,burn:p.burn,taxToTown:tax,hours:p.hours});
   p.year={earned:0,hours:0,fees:{}};G.hoursDue=true;
 }

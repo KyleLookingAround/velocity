@@ -47,7 +47,7 @@ function gvApprovalTarget(){
 function gvChallenger(){const g=G.gv;return 0.46+(g.fortuneTax?0.06:0)+(G.cash>1e9?0.04:G.cash>1e8?0.02:0)-0.03*Math.min(4,g.donors)}
 function gvElectionOdds(){return Math.max(0.05,Math.min(0.95,0.5+(G.gv.approval-gvChallenger())*3))}
 // the state's budget pays grants to towns: a share of it into this town's purse
-function stateGrant(share){const g=G.gv,a=g.budget*share;g.budget-=a;G.fund=(G.fund||0)+a;g.granted++;g.year.grants+=a;return a}
+function stateGrant(share){const g=G.gv,a=g.budget*share;g.budget-=a;purse('grant',a);g.granted++;g.year.grants+=a;return a}
 function governorYearEnd(){
   const g=G.gv;
   // the state's own taxes: on wages (a little of the town's), and, if you passed it, 1% of the biggest fortunes

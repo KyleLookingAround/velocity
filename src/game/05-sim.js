@@ -44,7 +44,7 @@ function yearEnd(){
   // a wealth tax the town (or the country) voted for: 2% of the biggest fortune a year, and a further 1% each for
   // taxing gains like wages and ending buy-borrow-die, once a president has passed them
   const share=G.pub?(G.pub.wealthtax?0.02:0)+(G.pub.gains?0.01:0)+(G.pub.stepup?0.01:0):0;
-  if(share&&G.cash>0){const w=G.cash*share;G.cash-=w;G.fund=(G.fund||0)+w}
+  if(share&&G.cash>0){const w=G.cash*share;G.cash-=w;purse('tax',w)}
   // the purse holds at most two years of the whole town's wages: beyond that the town can't spend it
   G.fund=Math.min(G.fund||0,T.wage*grow(0.02)*G.res.length*WEEKS*2);
   if(isShop()){shopYearEnd();if(G.ending)return}
@@ -79,14 +79,14 @@ function answerTax(choice){
     G.anger=(G.anger||0)+6;choice='pay';toast('Your lobbying failed, and the tax passes');
   }
   if(choice==='move'){G.cash-=nw*T.moveCost;G.moved++;G.anger=(G.anger||0)+25;toast('You move your money out of state');return 'moved'}
-  G.cash-=t.amount;G.taxPaid+=t.amount;G.fund=(G.fund||0)+t.amount;G.anger=(G.anger||0)-15;
+  G.cash-=t.amount;G.taxPaid+=t.amount;purse('tax',t.amount);G.anger=(G.anger||0)-15;
   toast('You pay. The town spends it on public works');return 'paid';
 }
 // the public purse pays for public works: a wage each week for every figure out of work, while it has money (a full
 // purse does no more than that; benefits draw on it too)
 function fundWeek(){
   if(!(G.fund>0))return;
-  for(const r of hireable()){const w=Math.min(G.fund,T.wage*grow(0.02)*0.8);if(w<=0)break;G.fund-=w;r.income+=0;r.cash+=pay('out','r'+G.res.indexOf(r),w,'works')}
+  for(const r of hireable()){const w=Math.min(G.fund,T.wage*grow(0.02)*0.8);if(w<=0)break;purse('works',-w);r.income+=0;r.cash+=pay('out','r'+G.res.indexOf(r),w,'works')}
 }
 
 // (endLife, in the achievements file, wraps this: it awards the ending and its rare form)
@@ -165,6 +165,7 @@ function endLifeCore(kind){
 // one week of everything, in order
 function step(){
   if(G.ending||G.card)return;
+  const fund0=G.fund||0;R.ptrack=0;
   economyWeek();fundWeek();fortuneWeek();
   // the gifts stop when the fortune can't pay for them: a fortune never goes below nothing
   if(G.cash<0&&Object.values(G.gifts).some(Boolean)){for(const k in G.gifts)G.gifts[k]=false;toast(isLandlord()?'The foundation has run out of money':'Your fortune can\u2019t pay for the gifts any more. They\u2019ve stopped')}
@@ -186,7 +187,8 @@ function step(){
   G.gainsAvg=(G.gainsAvg||0)*0.98+gainW*WEEKS*0.02;
   G.givenAvg=(G.givenAvg||0)*0.98+givenW*WEEKS*0.02;
   unrestWeek();
-  if(G.week%WEEKS===0){yearEnd();G._yv=0}
+  purseWeekEnd(fund0);
+  if(G.week%WEEKS===0){yearEnd();purseYearEnd();G._yv=0}
   if(rungWeek()>=rungWeeks()&&!G.ending)endLife('death');
   if(taxDue())proposeTax();
   drawCard();

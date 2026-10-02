@@ -96,13 +96,26 @@ PANES.campaign=function(){
 };
 
 // the mayor's Town hall tab: approval and the next election, the purse and the tax, and the town's own homes
+// the purse's budget: last year's money in and out as two bars, each split by where it came from or went
+function budgetHTML(){
+  const y=G.plast,cur=G.pyear||{};const src=y&&Object.keys(y).length?y:cur,label=y&&Object.keys(y).length?'Last year':'This year so far';
+  const ins=Object.entries(src).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]),outs=Object.entries(src).filter(([k,v])=>v<0).map(([k,v])=>[k,-v]).sort((a,b)=>b[1]-a[1]);
+  const tin=ins.reduce((a,x)=>a+x[1],0),tout=outs.reduce((a,x)=>a+x[1],0),max=Math.max(tin,tout,1);
+  const COLS=['#2f8a4b','#5ca56d','#8cc497','#b8d9bf','#d4a72c','#e2c36b'],COLS2=['#b23a3a','#cf6b5a','#e09a8a','#8a8478','#b5ac9b','#d0c9bb'];
+  const bar=(xs,t,cols)=>`<div class="bbar">${xs.map(([k,v],i)=>`<i style="width:${(v/max*100).toFixed(1)}%;background:${cols[i%cols.length]}" title="${PURSE_NAMES[k]||k}: ${money(v)}"></i>`).join('')}</div>`;
+  const legend=(xs,cols)=>xs.slice(0,4).map(([k,v],i)=>`<span><b style="background:${cols[i%cols.length]}"></b>${PURSE_NAMES[k]||k} ${money(v)}</span>`).join('');
+  if(!ins.length&&!outs.length)return '';
+  return `<div class="budget"><div class="cap">The purse · ${label}</div>
+    <div class="brow"><small>In <b>${money(tin)}</b></small>${bar(ins,tin,COLS)}<div class="blegend">${legend(ins,COLS)}</div></div>
+    <div class="brow"><small>Out <b>${money(tout)}</b></small>${bar(outs,tout,COLS2)}<div class="blegend">${legend(outs,COLS2)}</div></div></div>`;
+}
 PANES.hall=function(){
   const m=G.my,pc=v=>Math.round(v*100)+'%';
   return `<p class="lead">The property tax takes ${pc(MY.taxes[m.tax])} of the landlords\u2019 rents into the purse. Council homes cost a quarter of a wage, and their rent comes back to the purse.</p>
     <div class="stats"><div>Approval<b>${pc(m.approval)}</b></div><div>Re-election<b>${m.elections.length?(m.elections[0].won?'Won':'Lost'):pc(electionOdds())}</b></div>
     <div>Purse<b>${money(G.fund||0)}</b></div><div>Tax so far<b>${money(m.taxTaken)}</b></div>
     <div>Council homes<b>${m.council}</b></div><div>A home costs<b>${money(G.homePrice)}</b></div>
-    <div>Donors<b>${m.donors?m.donors:'None'}</b></div><div>The mill<b>${{paid:'Subsidised',stake:'Part the town\u2019s',refused:'Refused'}[m.mill]||'\u2013'}</b></div></div>`;
+    <div>Donors<b>${m.donors?m.donors:'None'}</b></div><div>The mill<b>${{paid:'Subsidised',stake:'Part the town\u2019s',refused:'Refused'}[m.mill]||'\u2013'}</b></div></div>`+budgetHTML();
 };
 
 // the governor's State tab: approval, the minimum wage, the fortune tax, and the state's budget for the towns
@@ -112,7 +125,7 @@ PANES.state=function(){
     <div class="stats"><div>Approval<b>${pc(g.approval)}</b></div><div>Re-election<b>${g.elections.length?(g.elections[0].won?'Won':'Lost'):pc(gvElectionOdds())}</b></div>
     <div>Minimum wage<b>${(g.minWage>=1?'+':'')+pc(g.minWage-1)}</b></div><div>Fortune tax<b>${g.fortuneTax?'1% a year':'No'}</b></div>
     <div>State budget<b>${money(g.budget)}</b></div><div>Town\u2019s purse<b>${money(G.fund||0)}</b></div>
-    <div>Grants<b>${g.granted}</b></div><div>Recession<b>${g.recession>0?Math.ceil(g.recession/4)+' months left':'No'}</b></div></div>`;
+    <div>Grants<b>${g.granted}</b></div><div>Recession<b>${g.recession>0?Math.ceil(g.recession/4)+' months left':'No'}</b></div></div>`+budgetHTML();
 };
 
 // the president's Congress tab: the bill in Congress, Congress and the country, and the laws so far
@@ -121,6 +134,6 @@ PANES.congress=function(){
   return `<p class="lead">${k?'<b>'+lawOf(k).name+'</b>: Congress votes '+(left?'in '+left+' weeks.':'now.'):'Nothing before Congress.'} Congress follows the country, and swings at the midterms.</p>
     <div class="stats"><div>Approval<b>${pc(p.approval)}</b></div><div>Congress<b>${pc(p.congress)}</b></div>
     <div>Chance now<b>${k?pc(congressOdds(k)):'\u2013'}</b></div><div>If you fight<b>${k?pc(congressOdds(k,0.1)):'\u2013'}</b></div>
-    <div>Owed to the lobby<b>${p.lobby||'Nothing'}</b></div><div>Re-election<b>${p.elections.length?(p.elections[0].won?'Won':'Lost'):pc(prElectionOdds())}</b></div></div>
+    <div>Owed to the lobby<b>${p.lobby||'Nothing'}</b></div><div>Re-election<b>${p.elections.length?(p.elections[0].won?'Won':'Lost'):pc(prElectionOdds())}</b></div></div>${budgetHTML()}
     ${BILLS.map(b=>`<div class="card"><div class="txt"><b>${b.name}</b><small>${b.note}</small><small>${p.passed.includes(b.k)?'Law':p.struck.includes(b.k)?'Struck down':p.failed.includes(b.k)?'Voted down '+p.failed.filter(x=>x===b.k).length+'\u00d7':'Not yet'}</small></div></div>`).join('')}`;
 };

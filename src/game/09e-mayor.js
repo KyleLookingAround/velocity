@@ -30,7 +30,7 @@ function beginMayor(kind){
   toast('You are '+r.name+', mayor of the town');
 }
 // a mayor's salary: a wage and a half, from the purse while it can pay
-function mayorPay(r){if(!isMayor()||r!==myMe())return 0;const p=Math.min(T.wage*grow(0.02)*1.5,G.fund||0);G.fund-=p;return p}
+function mayorPay(r){if(!isMayor()||r!==myMe())return 0;const p=Math.min(T.wage*grow(0.02)*1.5,G.fund||0);purse('salary',-p);return p}
 const councilHomes=()=>G.res.filter(r=>r.homeOwner==='council');
 const councilRent=()=>T.wage*grow(0.02)*MY.councilRent;
 // a week as mayor: the property tax on the landlords' rents, and approval drifting towards what the town feels
@@ -40,10 +40,10 @@ function mayorWeek(){
   const agnes=G.res.filter(r=>r.homeOwner==='local'&&paying(r)).reduce((a,r)=>a+r.rent,0)*rate;
   const estate=G.res.filter(r=>r.homeOwner==='you'&&paying(r)).reduce((a,r)=>a+r.rent,0)*rate;
   const a=Math.min(agnes,Math.max(0,G.res[0].cash)),e=Math.min(estate,Math.max(0,G.cash));
-  G.res[0].cash-=a;G.cash-=e;G.fund=(G.fund||0)+a+e;m.year.tax+=a+e;m.taxTaken+=a+e;
+  G.res[0].cash-=a;G.cash-=e;purse('tax',a+e);m.year.tax+=a+e;m.taxTaken+=a+e;
   if(a+e>0)pay('r0','out',a+e,'tax');
   // free buses (or half fares) cost the purse each week, and each worker keeps the fare
-  if(m.buses){const c=G.res.length*T.wage*grow(0.02)*0.02*(m.buses==='free'?1:0.5);G.fund=Math.max(0,(G.fund||0)-c);for(const r of G.res)if(r.role==='worker')r.cash+=c/G.res.length}
+  if(m.buses){const c=G.res.length*T.wage*grow(0.02)*0.02*(m.buses==='free'?1:0.5);purse('buses',-Math.min(c,G.fund||0));for(const r of G.res)if(r.role==='worker')r.cash+=c/G.res.length}
   m.approval=Math.max(0.05,Math.min(0.9,m.approval+(approvalTarget()-m.approval)*0.02));
 }
 function approvalTarget(){
@@ -64,7 +64,7 @@ function holdElection(){
 function buyCouncilHome(){
   const r=G.res.find(r=>r.homeOwner==='local'&&r.role!=='landlord')||G.res.find(r=>r.homeOwner==='you');
   if(!r||(G.fund||0)<G.homePrice)return false;
-  G.fund-=G.homePrice;if(r.homeOwner==='local')G.res[0].cash+=G.homePrice;else G.cash+=G.homePrice;
+  purse('homes',-G.homePrice);if(r.homeOwner==='local')G.res[0].cash+=G.homePrice;else G.cash+=G.homePrice;
   r.homeOwner='council';r.rent=Math.min(r.rent,councilRent());r.arrears=0;r.owed=0;G.my.council++;remember('housed',r);
   townEvent('keys',r.name);return true;
 }

@@ -106,7 +106,7 @@ const CARDS=[
     body:()=>'In the capital, far from here. They ask '+money(netWorth()*0.02)+'. The town\u2019s school is asking for the same.',
     options:()=>{const a=netWorth()*0.02;return [
       {k:'wing',label:'The museum wing',you:'Your name in marble, and the gala',town:'The town sees none of it',scene:'ribbon',then:null,do:()=>{G.cash-=a}},
-      {k:'school',label:'The town\u2019s school',kind:true,you:money(a)+', and a plaque by the door',town:'Public works and teachers, paid for here',scene:'give',then:'works',do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;G.fund=(G.fund||0)+a}},
+      {k:'school',label:'The town\u2019s school',kind:true,you:money(a)+', and a plaque by the door',town:'Public works and teachers, paid for here',scene:'give',then:'works',do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;purse('gift',a)}},
       {k:'no',label:'Neither',acct:true,none:true,you:'Your 8% keeps working',town:'Nothing changes',scene:'desk',then:null,do:()=>{}}]}},
   // a foundation: a real one gives to the town; a paper one is a family office that keeps the money and the tax
   {id:'foundation',rung:'billionaire',cool:1e6,when:()=>netWorth()>START_FORTUNE*2.5&&G.week>8*WEEKS,
@@ -114,7 +114,7 @@ const CARDS=[
     body:()=>'Put part of your fortune in a charitable foundation. It’s tax-free, and you choose what it does.',
     options:()=>{const a=netWorth()*0.1;return [
       {k:'real',label:'A real one: it funds the town’s public works',kind:true,you:money(a)+' you no longer own',town:'Wages for people out of work, for years',scene:'give',then:'works',
-        do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;G.fund=(G.fund||0)+a}},
+        do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;purse('gift',a)}},
       {k:'paper',label:'A paper one: it pays your family’s salaries',acct:true,you:'The tax votes stop: you’re a philanthropist now',town:'Nothing reaches the town',scene:'loophole',then:'protest',
         do:()=>{G.nextTax+=6*WEEKS;G.anger=(G.anger||0)+6;G.paperFoundation=true}},
       {k:'no',label:'No',none:true,you:'Nothing',town:'Nothing changes',scene:'desk',then:null,do:()=>{}}]}},
@@ -123,9 +123,9 @@ const CARDS=[
     body:()=>'They ask you to put in '+money(netWorth()*0.04)+'. A team owner would want a tax break in return.',
     options:()=>{const a=netWorth()*0.04;return [
       {k:'fund',label:'Pay for it, no strings',kind:true,you:money(a),town:'Two years of building work, and a ground for the town',scene:'ribbon',then:'works',
-        do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;G.fund=(G.fund||0)+a}},
+        do:()=>{G.cash-=a;G.given+=a;G.year.given+=a;purse('gift',a)}},
       {k:'deal',label:'Pay for it, for ten years without tax votes',acct:true,you:money(a)+', and no tax votes for a decade',town:'A stadium, and the town pays for it later',scene:'handshake',then:'protest',
-        do:()=>{G.cash-=a;G.fund=(G.fund||0)+a*0.5;G.nextTax=Math.max(G.nextTax,G.week+10*WEEKS)}},
+        do:()=>{G.cash-=a;purse('gift',a*0.5);G.nextTax=Math.max(G.nextTax,G.week+10*WEEKS)}},
       {k:'no',label:'No',none:true,you:'Nothing',town:'No stadium',scene:'desk',then:null,do:()=>{}}]}},
   {id:'wsunion',rung:'billionaire',cool:1e6,when:()=>G.workshops.filter(w=>!w.outside).length>0&&G.week>6*WEEKS,
     title:()=>'Your workshop’s staff want a union',
@@ -564,7 +564,7 @@ const CARDS=[
     title:()=>'The state will match the public purse',
     body:()=>'A government grant for towns that run their own programmes. It takes an application, and a season of paperwork.',
     options:()=>[{k:'apply',label:'Apply for it',kind:true,you:'A season of paperwork',town:money(G.res.length*T.wage*grow(0.02)*6)+' into the public purse',scene:'paperwork',then:'nursery',
-        do:()=>{G.ac.granted++;G.fund=(G.fund||0)+G.res.length*T.wage*grow(0.02)*6;toast('The grant comes through')}},
+        do:()=>{G.ac.granted++;purse('grant',G.res.length*T.wage*grow(0.02)*6);toast('The grant comes through')}},
       {k:'share',label:'Apply, and help other towns apply',you:'Two seasons of paperwork',town:'More towns funded, and friends across the state',scene:'paperwork',then:'works',do:()=>{G.ac.granted++;G.fund=(G.fund||0)+G.res.length*T.wage*grow(0.02)*5;G.ac.support=Math.min(0.9,G.ac.support+0.02)}},
       {k:'skip',label:'Leave it to the council',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'meeting',then:null,do:()=>{}}]},
   {id:'coalition',rung:'activist',cool:1e6,when:()=>rungWeek()>2*WEEKS,
@@ -615,7 +615,7 @@ const CARDS=[
     body:()=>'A fee for the purse and a donation to your campaign. Flats like these pull every rent in town up.',
     options:()=>{const fee=G.res.length*T.wage*grow(0.02)*2;return [
       {k:'yes',label:'Approve it',acct:true,you:'A donation to your campaign',town:money(fee)+' to the purse, and rents rise',scene:'ribbon',then:'rentrise',
-        do:()=>{G.fund=(G.fund||0)+fee;G.my.donors++;G.my.deals.push('flats');for(const r of G.res)if(r.homeOwner==='local')r.rent*=1.05}},
+        do:()=>{purse('donor',fee);G.my.donors++;G.my.deals.push('flats');for(const r of G.res)if(r.homeOwner==='local')r.rent*=1.05}},
       {k:'third',label:'Only if a third are for the town',kind:true,you:'No donation',town:'A council home, if they agree',scene:'townhall',then:'keys',
         do:()=>{if(rnd()<0.5){const r=G.res.find(r=>r.homeOwner==='local'&&r.role!=='landlord');if(r){r.homeOwner='council';r.rent=Math.min(r.rent,councilRent());G.my.council++;toast('They agree: '+r.name+' gets a council home')}}else toast('The developer walks away')}},
       {k:'no',label:'Turn it down',none:true,you:'Nothing',town:'Nothing changes',scene:'townhall',then:null,do:()=>{}}]}},
@@ -630,7 +630,7 @@ const CARDS=[
     body:()=>'For new homes, buses or schools. It takes a season of paperwork, and the state likes to see the town put in its own money.',
     options:()=>{const grant=G.res.length*T.wage*grow(0.02)*(G.my.council>=2?8:4);return [
       {k:'apply',label:'Apply',kind:true,you:'A season of paperwork',town:'About '+money(grant)+' into the purse'+(G.my.council>=2?' (doubled: the town builds its own homes)':''),scene:'paperwork',then:'works',
-        do:()=>{G.my.granted++;G.fund=(G.fund||0)+grant;toast('The state grant comes through')}},
+        do:()=>{G.my.granted++;purse('grant',grant);toast('The state grant comes through')}},
       {k:'match',label:'Apply, and put in matching money',you:money(G.res.length*T.wage*grow(0.02)*2)+' from the purse',town:'The grant comes through bigger',scene:'paperwork',then:'works',do:()=>{const b=G.res.length*T.wage*grow(0.02);G.fund=Math.max(0,G.fund-2*b);G.my.granted++;G.fund+=b*(G.my.council>=2?12:7)}},
       {k:'skip',label:'Leave it',acct:true,none:true,you:'Nothing',town:'Nothing changes',scene:'townhall',then:null,do:()=>{}}]}},
   {id:'crowd',rung:'mayor',cool:3*WEEKS,when:()=>G.unrest>=55,

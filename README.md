@@ -128,6 +128,12 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
+## The purse's books
+
+The public purse keeps books: every flow in (taxes on the rich, gifts, grants, federal money, donors, council rents)
+and out (programmes, public works, benefits, your pay, buses, council homes) is named, and the climb's tabs (town
+hall, state, Congress) show last year's budget as two bars split by source and use.
+
 ## The town remembers
 
 What a life does to named people stays with the town: evictions, time to pay, a rent cut, a council home, a job lost
