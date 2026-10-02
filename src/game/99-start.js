@@ -12,8 +12,9 @@ function start(){
   function frame(now){
     const dt=Math.min(0.1,(now-last)/1000);last=now;
     const modal=$('#modal').classList.contains('show');
-    // with "let your accountant decide" on, a waiting card is answered after a moment
-    if(G.card&&G.autoAcct&&!modal){autoT+=dt;if(autoT>1.2){autoT=0;const o=cardOptions().find(o=>o.acct)||cardOptions()[0];answerCard(o.k);save();renderPane(true)}}
+    // with an adviser in charge, a waiting card is answered after a moment (one they can't answer waits for you)
+    if(G.card&&G.adviser&&!modal){autoT+=dt;if(autoT>1.2){autoT=0;const k=adviserAnswer();if(k){const o=cardOptions().find(x=>x.k===k),a=ADVISERS.find(a=>a.k===G.adviser);answerCard(k);
+        R.lastChoice={label:a.name+': '+o.label,town:o.town,at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true)}}}
     if(!modal&&!G.ending&&!G.card&&G.speed>0){
       acc+=dt*G.speed;
       while(acc>=weekSecs()){acc-=weekSecs();step();

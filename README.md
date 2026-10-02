@@ -14,8 +14,13 @@ Time runs on its own: your fortune compounds and the town's economy steps forwar
 choose. Every few months a **decision card** arrives and the game waits for you: a developer offering a street of
 homes, a shop owner who'll sell, the council asking for a workshop, your accountant suggesting you borrow against your
 shares, a senator who can kill the next tax vote, a charity asking you to fund shelters. Each option says what it does
-for you and what it does to the town, and one is **your accountant's pick**: whatever makes the most money. (Turn on
-"Let your accountant decide" on the Story tab and the game plays itself that way.)
+for you and what it does to the town, and one is **your accountant's pick**: whatever makes the most money.
+
+**Advisers** are the upgrades: achievements unlock them on the Story tab, and one at a time can run things for you.
+The accountant (1 achievement) takes the money option every time; the manager (2) handles only the yearly routine of
+prices, shifts, rents and levies and leaves the real decisions to you; the conscience (4) takes the kind option; your
+memory (7) answers each card the way you did last time and brings a new one to you; at 10, a 16× speed. Switch them
+off to decide everything yourself.
 
 The screen is a **stage** of two scenes, drawn like the video, one above the other on a phone and side by side on a
 wide screen: **you** (at your desk with the vault filling, signing a deed, shaking a senator's hand, loading the moving

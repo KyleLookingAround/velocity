@@ -14,6 +14,13 @@ function achSummary(){
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${CARDS.length} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>`;
 }
+// the advisers unlocked so far, one of them in charge or none; locked ones stay hidden, with the next one's price
+function advisersHTML(){
+  syncBest();const open=ADVISERS.filter(adviserOpen),next=ADVISERS.find(a=>!adviserOpen(a)),n=achCount();
+  return `<div class="card"><div class="txt"><b>Advisers</b><small>${open.length?open.length+' unlocked by your achievements. One can run things for you; switch them off to decide everything yourself.':'Achievements unlock advisers who can run things for you.'}${next?' Next: <b>'+next.name+'</b> at '+next.need+' achievement'+(next.need===1?'':'s')+' (you have '+n+').':''}</small></div></div>`+
+    open.map(a=>a.speed?`<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}</small></div><span class="kick">Unlocked</span></div>`:
+      `<div class="card"><div class="txt"><b>${a.name}</b><small>${a.note()}</small></div><button class="toggle ${G.adviser===a.k?'on':''}" data-adv="${a.k}" aria-label="${a.name}" aria-pressed="${G.adviser===a.k}"></button></div>`).join('');
+}
 // the deck: every kind of card on each rung, collected ones face up with the answer you gave last
 function showDeck(){
   syncBest();
@@ -122,9 +129,9 @@ addEventListener('keydown',e=>{
   if(e.key==='Escape'&&modal&&$('#box').querySelector('[data-close]')){hideModal();e.preventDefault();return}
   if(modal)return;
   if(e.key===' '){G.speed=G.speed?0:(R.lastSpeed||1);if(G.speed)R.lastSpeed=G.speed;refreshTop();e.preventDefault();return}
-  const n=+e.key;if(!(n>=1&&n<=4))return;
+  const n=+e.key;if(!(n>=1&&n<=5))return;
   if(G.card){if(R.tab!=='decide'){R.tab='decide';renderPane(true)}const b=document.querySelectorAll('#pane [data-card]')[n-1];if(b)b.click();return}
-  G.speed=SPEEDS[n];R.lastSpeed=G.speed;refreshTop();
+  if(!speeds()[n])return;G.speed=SPEEDS[n];R.lastSpeed=G.speed;refreshTop();
 });
 
 // moments in a billionaire life: the fortune passing $100M and $1B, and a look back every five years

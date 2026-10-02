@@ -2,7 +2,8 @@
 // The top bar, the bottom sheet (its tabs, or the decision card waiting for an answer), and the cards that open and
 // close each rung. Each rung has its own tabs: the billionaire's Fortune and Commitments, the landlord's Books and
 // Tenants; Town and Story are shared.
-const SPEEDS=[0,1,2,4,8];
+const SPEEDS=[0,1,2,4,8,16];
+const speeds=()=>SPEEDS.filter(s=>s<16||achCount()>=10);
 // small pictures for the tabs and the first screen: Lucide icons (ISC licence, (c) Lucide Icons and Contributors), inlined
 const ic=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const TAB_ICONS={
@@ -23,8 +24,9 @@ const TAB_ICONS={
   state:ic('<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" /> <path d="M15 5.764v15" /> <path d="M9 3.236v15" />'),
   congress:ic('<path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" />'),
 };
+function buildSpeed(){$('#speed').innerHTML=speeds().map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}" title="${s?s+'\u00d7 speed (key '+SPEEDS.indexOf(s)+')':'Pause (space)'}">${s?s+'×':'❚❚'}</button>`).join('')}
 function buildChrome(){
-  $('#speed').innerHTML=SPEEDS.map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}" title="${s?s+'\u00d7 speed (key '+SPEEDS.indexOf(s)+')':'Pause (space)'}">${s?s+'×':'❚❚'}</button>`).join('');
+  buildSpeed();
   $('#speed').onclick=e=>{const b=e.target.closest('button');if(b){G.speed=+b.dataset.s;refreshTop()}};
   buildTabs();
   $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){R.tab=b.dataset.t;renderPane(true)}};
@@ -52,6 +54,7 @@ function growthNow(){
   return G.rate-lawTax-giftsRunning()/Math.max(1,nw);
 }
 function refreshTop(){
+  if($('#speed').children.length!==speeds().length)buildSpeed();
   topExtras();
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
   if(isPresident()){
@@ -175,17 +178,16 @@ const PANES={
   },
   story(){
     const list=G.choices.slice().reverse().slice(0,30);
-    return achSummary()+`<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes ${G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'the way the donors like':G.rung==='union'||G.rung==='activist'?'the easiest way for you':G.rung==='waiter'||G.rung==='out'?'the way that pays most this week':'the way that makes the most money'}, without asking you.</small></div>
-      <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
+    return achSummary()+advisersHTML()+
       (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':c.rung==='governor'?'Governor':c.rung==='president'?'President':'Age '+(c.age||START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
   const go=e.target.closest('[data-t-go]');if(go){R.tab=go.dataset.tGo;renderPane(true);return}
-  const k=e.target.closest('[data-card]'),g=e.target.closest('[data-gift]'),a=e.target.closest('[data-auto]');
+  const k=e.target.closest('[data-card]'),g=e.target.closest('[data-gift]');
   if(k&&G.card){G.ladder.tipCard=true;const o=cardOptions().find(x=>x.k===k.dataset.card);answerCard(k.dataset.card);if(o)R.lastChoice={label:o.label,town:o.town,at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true);refreshTop()}
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
-  if(a){G.autoAcct=!G.autoAcct;save();renderPane(true)}
+  const adv=e.target.closest('[data-adv]');if(adv){G.adviser=G.adviser===adv.dataset.adv?null:adv.dataset.adv;save();renderPane(true)}
   const pol=e.target.closest('[data-policy]');if(pol&&G.ll){G.ll.policy=pol.dataset.policy;save();renderPane(true)}
 }
 // a bar a year, like the video's stacked money: the fortune (or, as the landlord, your equity)
