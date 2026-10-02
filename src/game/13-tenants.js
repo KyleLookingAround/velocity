@@ -39,8 +39,20 @@ PANES.career=function(){
     <div>Home<b>${p.home==='own'?'Your own':'Rented from Agnes'}</b></div><div>Partner share<b>${p.partnerShare>1?'Equity':'Salaried'}</b></div>
     <div>Loopholes written<b>${p.loopholes}</b></div><div>Evictions fought free<b>${p.proBono}</b></div>
     <div>Agnes’s retainers<b>${p.evictionWork}</b></div><div>The mill’s union<b>${{mill:'Against it',union:'For it',none:'Stayed out'}[p.unionSide]||'–'}</b></div>
-    <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>`;
+    <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>`+docketHTML();
 };
+// the docket: the cases you've taken this life, newest first, each by whose side it served, under the scales your
+// ending is weighed on (work for the rich against work for the town)
+const NOT_CASES=['hours','house','buyin','merger'];
+function docketHTML(){
+  const v=partnerVerdict(),tot=Math.max(1,v.forRich+v.forTown),cases=G.choices.filter(c=>c.rung==='partner'&&c.week>=G.rungStart&&!NOT_CASES.includes(c.id)).slice(-8).reverse();
+  const side={kind:['town','For the town'],acct:['rich','For the rich'],none:['none','Turned down']};
+  const scale=`<div class="scales"><span>For the rich <b>${v.forRich}</b></span><i><u style="width:${Math.round(v.forRich/tot*100)}%"></u></i><span><b>${v.forTown}</b> for the town</span></div>
+    <p class="lead">${v.forRich>v.forTown?'If it ended now: <b>hired gun</b>.':'If it ended now: <b>counsel</b>.'} The ending weighs loopholes, Agnes\u2019s evictions and the mill against free cases and the union.</p>`;
+  return `<div class="cap" style="margin:12px 0 4px;text-align:left">Your docket</div>`+scale+(cases.length?cases.map(c=>{const s=side[c.tag]||['none',''];
+    return `<div class="row"><b>${yearOfWeek(c.week)}</b><span>${c.title}<br><small>${c.label}</small></span>${s[1]?`<em class="side ${s[0]}">${s[1]}</em>`:''}</div>`}).join(''):'<p class="lead">No cases yet. Clients come as decisions.</p>');
+}
+const yearOfWeek=w=>'Yr '+(Math.floor((w-(G.rungStart||0))/WEEKS)+1);
 
 // the shop owner's Café tab
 PANES.cafe=function(){
