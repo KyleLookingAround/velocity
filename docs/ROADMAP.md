@@ -50,8 +50,9 @@ sessions). The owner decides what moves up.
 
 - **Adviser personalities** (S): each adviser gets a short line on the result strip in their voice ("The accountant:
   'Pass. They'll manage.'"), so letting them run still tells a story.
-- **Adviser mistakes** (S): the accountant's picks sometimes backfire (a revolt it didn't see coming), the conscience
-  can overspend; a line in the Story tab tallies what each adviser cost or made you.
+- ~~**Adviser mistakes** (S): the accountant's picks sometimes backfire (a revolt it didn't see coming), the conscience
+  can overspend; a line in the Story tab tallies what each adviser cost or made you.~~ Done: slips, and each adviser's
+  record.
 - **A season pass** (M): "run this whole rung with the adviser and show me the ending" as a one-tap option once a
   rung's adviser is unlocked, for players who only want the climb.
 - **Decision history with regret** (S): on the Story tab, tap a past decision to see what the other option would

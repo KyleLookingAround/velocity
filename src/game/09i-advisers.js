@@ -52,6 +52,18 @@ const adviserOpen=a=>a.ach?!!(G.ladder.achieved&&G.ladder.achieved[a.ach]):achCo
 const adviserOn=()=>{const a=ADVISERS.find(a=>a.k===G.adviser);return a&&(!a.rung||a.rung===G.rung)?a:null};
 // once a year, an adviser with a yearly round (the foundation director's gifts) makes it
 function adviserYear(){const a=adviserOn();if(a&&a.year)a.year()}
+// after an adviser answers: their record on the ladder (answers, how many went the town's way and how many yours), and
+// now and then a pick that goes wrong. The accountant's money-first answer can backfire (the town notices); the
+// conscience's gift can cost more than it said (a billionaire's fortune pays). The Story tab shows the record.
+const ADV_SLIP=0.06;
+function adviserAnswered(o){
+  const a=adviserOn();if(!a||!o)return null;
+  const L=G.ladder,log=(L.advLog=L.advLog||{}),r=log[a.k]=log[a.k]||{n:0,town:0,you:0,slips:0,cost:0};
+  r.n++;if(o.kind)r.town++;if(o.acct)r.you++;
+  if(o.acct&&rnd()<ADV_SLIP){r.slips++;G.anger=(G.anger||0)+4;toast(a.name+'\u2019s pick backfires: the town noticed');return 'slip'}
+  if(o.kind&&G.rung==='billionaire'&&rnd()<ADV_SLIP){const c=netWorth()*0.003;G.cash-=c;r.slips++;r.cost+=c;toast('It cost '+money(c)+' more than '+a.name.toLowerCase()+' said');return 'slip'}
+  return null;
+}
 // what the adviser in charge would answer the waiting card with, or null to leave it to you
 function adviserAnswer(){
   const a=adviserOn();if(!a||!G.card||a.speed)return null;

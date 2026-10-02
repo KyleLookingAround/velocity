@@ -10,6 +10,10 @@ const out=join(root,'build/shots');mkdirSync(out,{recursive:true});
 const acct=S=>{const o=S.cardOptions();return (o.find(o=>o.acct)||o[0]).k};
 const until=(S,f,pick)=>{while(!f()&&!S.G.ending){if(S.G.card)S.answerCard(pick(S));else S.step()}};
 const saves=[];
+// (the accountant running a life, and its record on the Story tab)
+{const S=loadSim(15);S.G.seen.intro=true;S.G.ladder.achieved={'billionaire:luthor':1,'billionaire:revolt':1,'landlord:fair':1,'landlord:rentier':1};S.G.adviser='acct';
+  while(!(S.G.week>=12*52&&!S.G.card)){if(S.G.card){const k=S.adviserAnswer(),o=S.cardOptions().find(x=>x.k===k);S.answerCard(k);S.adviserAnswered(o)}else S.step()}
+  saves.push(['advisers',JSON.stringify(S.G),'story'])}
 // (a week of daily lives on the Story tab, part-way through another)
 {const S=loadSim(14);S.startDaily('2026-09-30');until(S,()=>S.G.week>=3*52&&!S.G.card,acct);
   S.G.ladder.daily={'2026-09-24':{kind:'luthor',nw:451e6,given:0,tries:1},'2026-09-26':{kind:'revolt',nw:312e6,given:0,tries:2},'2026-09-27':{kind:'hero',nw:104e6,given:96e6,tries:3},'2026-09-29':{kind:'giver',nw:-4e6,given:61e6,tries:1}};
