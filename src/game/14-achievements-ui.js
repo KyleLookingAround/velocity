@@ -13,7 +13,7 @@ function achSummary(){
     <button class="act" data-ach="1">The ladder</button></div>
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${CARDS.length} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>
-    <div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>`;
+    ${prefsHTML()}<div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>`;
 }
 // the threads: what your lives did to named people, newest first
 function threadsHTML(){
@@ -109,7 +109,7 @@ $('#box').addEventListener('click',e=>{
       <p>A hero’s heir is a hero only by finishing richer than it started, having given away its share.</p>
       <div class="opts"><button class="main" data-start="1"><b>Start</b><small>40 years.</small></button></div>`)}
 });
-$('#pane').addEventListener('click',e=>{if(e.target.closest('[data-savebox]'))showSaveBox();if(e.target.closest('[data-ach]'))showAchievements();if(e.target.closest('[data-deck]'))showDeck()});
+$('#pane').addEventListener('click',e=>{const pf=e.target.closest('[data-pref]');if(pf){setPref(pf.dataset.pref,!prefs()[pf.dataset.pref]);renderPane(true)}if(e.target.closest('[data-savebox]'))showSaveBox();if(e.target.closest('[data-ach]'))showAchievements();if(e.target.closest('[data-deck]'))showDeck()});
 
 // the top bar's ladder chip (which rung you're on; it opens the ladder) and the thin bar of years through the rung
 const RUNG_ORDER=['billionaire','landlord','partner','shop','waiter','out','union','activist','mayor','governor','president'];
@@ -176,6 +176,14 @@ const METER_INFO={
   'Burnout':'Hours over 55 a week push it up, fewer bring it down. At 100% you stop.','A billion in':'At your rate so far, how long a billion would take.'};
 $('#meters').addEventListener('click',e=>{const m=e.target.closest('.meter');if(!m)return;const label=m.firstChild.textContent.trim(),t=METER_INFO[label];if(!t)return;
   const i=$('#info');i.innerHTML='<b>'+label+'</b> \u00b7 '+t;i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),4200)});
+// this viewer's settings, kept on the device apart from the game: larger text, and a calm stage
+const PREFS_KEY='money-makes-money-prefs';
+function prefs(){try{return JSON.parse(localStorage.getItem(PREFS_KEY)||'{}')}catch(e){return {}}}
+function setPref(k,v){const p=prefs();p[k]=v;try{localStorage.setItem(PREFS_KEY,JSON.stringify(p))}catch(e){}applyPrefs()}
+function applyPrefs(){const p=prefs();document.documentElement.classList.toggle('bigtext',!!p.big);R.calm=!!p.calm||matchMedia('(prefers-reduced-motion: reduce)').matches;if(R.calm)R.confetti=[]}
+applyPrefs();
+function prefsHTML(){const p=prefs();const row=(k,name,note)=>`<div class="card"><div class="txt"><b>${name}</b><small>${note}</small></div><button class="toggle ${p[k]?'on':''}" data-pref="${k}" aria-label="${name}" aria-pressed="${!!p[k]}"></button></div>`;
+  return row('big','Larger text','The panel\u2019s text a size up')+row('calm','A calm stage','No passers-by, weather, drifting or confetti');}
 // moving a game between devices: the save as a block of text to copy, and a box to paste one in
 function saveCode(){save();const j=localStorage.getItem(SAVE_KEY)||JSON.stringify(G);return 'MMM1:'+btoa(unescape(encodeURIComponent(j)))}
 function showSaveBox(msg){

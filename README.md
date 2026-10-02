@@ -131,6 +131,11 @@ last one left. At the top, the laws a president passes become the law in every b
   rebuilt**, **owned**, **gridlock**, or **one term**. Whatever passes carries into every billionaire life after:
   that billionaire's fortune pays the taxes into the public purse, and the purse pays for the programmes.
 
+## Settings
+
+The Story tab has two settings, kept on the device: **larger text** in the panel and modals, and **a calm stage**
+(no passers-by, weather, drift or confetti; on by itself when the device asks for reduced motion).
+
 ## Why it moved
 
 Tap the headline number for the year so far: as the billionaire, returns on what's invested, money from the town,

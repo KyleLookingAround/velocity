@@ -67,7 +67,7 @@ function ground(c){const s=season();c.fillStyle=mix('#e4e2dc','#d6cfc1',s);c.fil
 // scene changes fall at dusk
 const raining=()=>{const s=season();return s>0.3&&s<0.75&&((G.week*7919)%10)<3};
 function rain(c,dt){
-  if(!raining())return;
+  if(!raining()||R.calm)return;
   if(!R.rain)R.rain=Array.from({length:70},()=>({x:Math.random()*PW,y:Math.random()*PH,v:380+Math.random()*120})); // cosmetic
   c.strokeStyle='rgba(90,110,140,.35)';c.lineWidth=1.2;c.beginPath();
   for(const d of R.rain){d.y+=d.v*dt;d.x-=d.v*dt*0.15;if(d.y>PH){d.y=-8;d.x=Math.random()*(PW+40)} // cosmetic
@@ -83,7 +83,7 @@ function dusk(c,world){
 }
 // snow in the weeks around the new year: a few flakes drifting down each pane
 function snow(c,dt){
-  const s=season();if(s>0.1)return;
+  const s=season();if(s>0.1||R.calm)return;
   if(!R.snow)R.snow=Array.from({length:40},()=>({x:Math.random()*PW,y:Math.random()*PH,v:14+Math.random()*16,w:Math.random()*6.3})); // cosmetic
   c.fillStyle='rgba(255,255,255,.85)';
   for(const f of R.snow){f.y+=f.v*dt;f.w+=dt;f.x+=Math.sin(f.w)*0.3;if(f.y>PH){f.y=-4;f.x=Math.random()*PW} // cosmetic
@@ -435,7 +435,7 @@ const WALKERS=[
   {k:'motorcade',w:0,pace:3,when:()=>isGovernor()||isPresident()?1.2:0,draw:(c,x,t,w)=>{for(let k=0;k<2;k++){c.fillStyle='#222';c.beginPath();c.roundRect(x-40+k*90,216,76,28,6);c.fill();c.fillStyle='#555';c.fillRect(x-30+k*90,220,56,10);c.fillStyle='#111';c.beginPath();c.arc(x-26+k*90,246,6,0,7);c.arc(x+22+k*90,246,6,0,7);c.fill()}}},
 ];
 function walker(k,prev){
-  const sc=SCENES[k];if(sc&&sc.nowalk)return null;
+  const sc=SCENES[k];if(sc&&sc.nowalk||R.calm)return null;
   // (the one the camera brought walks on from the left edge, and sometimes off before the scene ends)
   if(prev)return Object.assign({},prev,{x0:AL,x1:Math.random()<0.4?PW+60:AR}); // cosmetic
   if(Math.random()>0.65)return null; // cosmetic
@@ -458,7 +458,7 @@ function advanceStage(dt){
   st.t+=dt;
   if(st.t>=SCENE_SECS||st.you.next||st.town.next){
     for(const side of ['you','town']){const s=st[side],n=s.next||nextScene(side);s.next=null;s.to={k:n.k,d:n.d||{}}}
-    st.tr={u:0,t0:st.t,from:DRIFT*st.t,off:STEP};st.duskNext=Math.random()<0.15; // cosmetic
+    st.tr={u:0,t0:st.t,from:(R.calm?0:DRIFT)*st.t,off:STEP};st.duskNext=Math.random()<0.15; // cosmetic
   }
 }
 function drawScene(c,s,t){const sc=SCENES[s.k]||SCENES.chain;try{sc.draw(c,t,s.d||{})}catch(e){}}
@@ -496,7 +496,7 @@ function drawMap(dt){
     // the pane: a soft shadow under it, then everything clipped to its rounded corners
     c.save();c.shadowColor='rgba(40,30,10,.22)';c.shadowBlur=18;c.shadowOffsetY=6;c.fillStyle='#ece6db';c.beginPath();c.roundRect(0,ct,PW,PH-ct,14);c.fill();c.restore();
     c.save();c.beginPath();c.roundRect(0,ct,PW,PH-ct,14);c.clip();
-    const u=st.tr?ease(Math.min(1,st.tr.u)):0,cam=st.tr?st.tr.from+(st.tr.off-st.tr.from)*u:DRIFT*st.t,world=(R.world||0)+cam+(side==='town'?400:0);
+    const u=st.tr?ease(Math.min(1,st.tr.u)):0,cam=st.tr?st.tr.from+(st.tr.off-st.tr.from)*u:(R.calm?0:DRIFT)*st.t,world=(R.world||0)+cam+(side==='town'?400:0);
     const se=season(),g=c.createLinearGradient(0,0,0,250);g.addColorStop(0,mix('#edeff3','#f9f3e6',se));g.addColorStop(1,mix('#d9dde3','#e6dcc9',se));c.fillStyle=g;c.fillRect(0,0,PW,PH);
     // a warm light that drifts a little with the camera
     const lx=PW*0.5-((world*0.08)%120)+60,glow=c.createRadialGradient(lx,90,10,lx,90,300);glow.addColorStop(0,'rgba(255,236,196,'+(0.2+0.4*se).toFixed(2)+')');glow.addColorStop(1,'rgba(255,236,196,0)');c.fillStyle=glow;c.fillRect(0,0,PW,PH);
