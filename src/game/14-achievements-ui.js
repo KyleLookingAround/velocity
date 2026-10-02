@@ -11,15 +11,27 @@ function achSummary(){
   const all=allAchievements(),n=found().length,cards=Object.keys(G.ladder.cards||{}).length;
   return `<div class="card"><div class="txt"><b>Achievements</b><small>${n} of ${all.length} found${n<all.length?', some of them rare':''}</small></div>
     <button class="act" data-ach="1">The ladder</button></div>
-    ${townsHTML()}
+    ${dailyHTML()}${townsHTML()}
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${deckSize()} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>
     ${prefsHTML()}<div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>`;
 }
+// today's life: play it, and your best on each of the last seven days you played
+const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const dayName=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d).toLocaleDateString('en-GB',{day:'numeric',month:'short'})};
+const dailyLine=r=>ENDINGS.billionaire[r.kind]+', '+(DAILY_RANK[r.kind]>=2?'gave '+money(r.given):money(r.nw));
+function dailyHTML(){
+  const k=todayKey(),all=G.ladder.daily||{},b=all[k],playing=G.daily===k&&G.rung==='billionaire'&&!G.ending;
+  const days=Object.keys(all).sort().reverse().slice(0,7);
+  const row=d=>{const r=all[d];return `<div><span>${d===k?'Today':dayName(d)}</span><b>${ENDINGS.billionaire[r.kind]}</b><span>${DAILY_RANK[r.kind]>=2?'gave '+money(r.given):money(r.nw)}</span><small>${r.tries} ${r.tries===1?'try':'tries'}</small></div>`};
+  return `<div class="card"><div class="txt"><b>Today\u2019s life</b><small>The same billionaire life for everyone today: Millbrook, no laws carried over. ${b?'Your best: <b>'+dailyLine(b)+'</b>.':'Not played yet.'}</small></div>`+
+    (playing?'<span class="kick">Playing</span>':`<button class="act" data-daily="1">${R.dailyAsk?'Leave this life?':b?'Try again':'Play'}</button>`)+`</div>`+
+    (days.length?`<div class="dboard">${days.map(row).join('')}</div>`:'');
+}
 // the towns: the ones your achievements opened, which one you're in, and what opens the next
 function townsHTML(){
   const o=townsOpen(),locked=TOWN_ORDER.find(k=>!o.includes(k));
-  return `<div class="card"><div class="txt"><b>Towns</b><small>${TOWN_ORDER.filter(k=>o.includes(k)).map(k=>k===(G.town||'mill')?TOWNS[k].name+' (you\u2019re here)':TOWNS[k].name).join(' \u00b7 ')}${o.length>1?'. Each new billionaire life moves on to the next.':''}${locked?' Another town opens at '+TOWNS[locked].need+' achievements.':''}</small></div></div>`;
+  return `<div class="card"><div class="txt"><b>Towns</b><small>${TOWN_ORDER.filter(k=>o.includes(k)).map(k=>k===(G.town||'mill')?TOWNS[k].name+' (you\u2019re here)':TOWNS[k].name).join(' \u00b7 ')}${o.length>1?'. Each new billionaire life moves on to the next.':'.'}${locked?' Another town opens at '+TOWNS[locked].need+' achievements.':''}</small></div></div>`;
 }
 // the threads: what your lives did to named people, newest first
 function threadsHTML(){
@@ -122,7 +134,11 @@ $('#box').addEventListener('click',e=>{
       <p>A hero’s heir is a hero only by finishing richer than it started, having given away its share.</p>
       <div class="opts"><button class="main" data-start="1"><b>Start</b><small>40 years.</small></button></div>`)}
 });
-$('#pane').addEventListener('click',e=>{const pf=e.target.closest('[data-pref]');if(pf){setPref(pf.dataset.pref,!prefs()[pf.dataset.pref]);renderPane(true)}if(e.target.closest('[data-savebox]'))showSaveBox();if(e.target.closest('[data-ach]'))showAchievements();if(e.target.closest('[data-deck]'))showDeck()});
+$('#pane').addEventListener('click',e=>{const pf=e.target.closest('[data-pref]');if(pf){setPref(pf.dataset.pref,!prefs()[pf.dataset.pref]);renderPane(true)}if(e.target.closest('[data-savebox]'))showSaveBox();if(e.target.closest('[data-ach]'))showAchievements();if(e.target.closest('[data-deck]'))showDeck();
+  // (today's life replaces the one you're in, so a life under way asks once more first)
+  if(e.target.closest('[data-daily]')){const busy=!G.ending&&G.week>(G.rungStart||0)+4;
+    if(busy&&!R.dailyAsk){R.dailyAsk=true;renderPane(true);return}
+    R.dailyAsk=false;startDaily(todayKey());R.stage={};hideModal();buildTabs();save();renderPane(true)}});
 
 // the top bar's ladder chip (which rung you're on; it opens the ladder) and the thin bar of years through the rung
 const RUNG_ORDER=['billionaire','landlord','partner','shop','waiter','out','union','activist','mayor','governor','president'];

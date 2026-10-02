@@ -68,6 +68,8 @@ function endLife(kind){
   if(e.rung==='president'&&e.kind!=='oneterm')award('m:top');
   if(e.rung==='billionaire'&&G.heir>0)award('m:heir');
   if(Object.keys(ENDINGS).every(r=>Object.keys(ENDINGS[r]).some(k=>G.ladder.achieved[achId(r,k)])))award('m:everyrole');
+  // (a daily life's billionaire ending goes on that day's board; an heir's doesn't count)
+  if(G.daily&&e.rung==='billionaire'&&!(G.heir>0))recordDaily(e);
   e.newAch=R.newAch.slice();
 }
 // the rare role: the heir of a hero, a second billionaire life in the same town, from the fortune it left

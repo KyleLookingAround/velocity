@@ -253,5 +253,11 @@ if(on('towns')){const twRows=[],k2=S=>opt(S,o=>o.kind);
         S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);
         const o=S.G.ending.kind;row.activist=o;if(!o)bad++;row.purse='$'+((S.G.fund||0)/1e6).toFixed(0)+'M'}}
     twRows.push(row)}
-  console.table(twRows)}
+  console.table(twRows);
+  // the daily life: the same date plays the same life, a second try counts as a try, and the best of the two stays
+  {const S=loadSim(1),day='2026-10-02';S.startDaily(day);live(S,BILLIONAIRE.passive);const a=S.G.ending.nw;
+    S.startDaily(day);live(S,BILLIONAIRE.hero,yearly.hero);const b=S.G.ending.nw,d=S.G.ladder.daily[day];
+    S.startDaily(day);live(S,BILLIONAIRE.passive);const c=S.G.ending.nw;
+    const ok=a===c&&d.kind==='hero'&&S.G.ladder.daily[day].kind==='hero'&&S.G.ladder.daily[day].tries===3;if(!ok)bad++;
+    console.log('daily life '+day+': passive '+(a/1e6).toFixed(1)+'M twice '+(a===c?'the same':'DIFFERENT')+', best kept: '+S.G.ladder.daily[day].kind+' after '+S.G.ladder.daily[day].tries+' tries'+(ok?'':' NO'))}}
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}
