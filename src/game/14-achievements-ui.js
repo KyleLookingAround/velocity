@@ -170,7 +170,12 @@ addEventListener('keydown',e=>{
   if(e.ctrlKey||e.metaKey||e.altKey||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
   const modal=$('#modal').classList.contains('show');
   if(e.key==='Escape'&&modal&&$('#box').querySelector('[data-close]')){hideModal();e.preventDefault();return}
+  // (Enter takes a pop-up's main answer, unless a button already has the focus and Enter means that one)
+  if(e.key==='Enter'&&modal&&!(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#box button'))){const b=$('#box').querySelector('button.main')||$('#box').querySelector('.opts button');if(b){b.click();e.preventDefault()}return}
   if(modal)return;
+  // the arrows move between tabs; ? lists the keys
+  if(e.key==='ArrowLeft'||e.key==='ArrowRight'){const t=[...document.querySelectorAll('#tabs [data-t]')],i=t.findIndex(b=>b.dataset.t===R.tab),n=t[(i+(e.key==='ArrowRight'?1:t.length-1))%t.length];if(n){n.click();e.preventDefault()}return}
+  if(e.key==='?'){const i=$('#info');i.innerHTML='<b>Keys</b> \u00b7 1\u20135 answer a decision, or set the speed when none waits \u00b7 space pauses \u00b7 \u2190 \u2192 change tab \u00b7 Enter takes a pop-up\u2019s main answer \u00b7 Esc closes it';i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),7000);return}
   if(e.key===' '){G.speed=G.speed?0:(R.lastSpeed||1);if(G.speed)R.lastSpeed=G.speed;refreshTop();e.preventDefault();return}
   const n=+e.key;if(!(n>=1&&n<=5))return;
   if(G.card){if(R.tab!=='decide'){R.tab='decide';renderPane(true)}const b=document.querySelectorAll('#pane [data-card]')[n-1];if(b)b.click();return}
