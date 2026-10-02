@@ -216,6 +216,23 @@ function shareEnding(){
     if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'Money Makes Money'}).catch(()=>{});
     else{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}},'image/png');
 }
+// why the headline moved: tap it for this year's money in and out, so far
+function whyHeadline(){
+  const y=G.year,yr=yearNo(),f=v=>Math.abs(v)<1?'$0':(v<0?'\u2212':'+')+money(Math.abs(v));let lines=[];
+  if(G.rung==='billionaire'){
+    lines=[['Returns on what\u2019s invested',y.gains],['From the town (rents, profits)',y.toYou],['Given away',-(y.given||0)]];
+    // (the rest: homes and shops worth more or less as the town does, and money spent on moves)
+    const start=G.history.length?G.history.at(-1).nw:(G.startNW||START_FORTUNE),rest=netWorth()-start-(y.gains+y.toYou-(y.given||0));
+    if(Math.abs(rest)>1)lines.push(['Homes and shops revalued, and spending',rest]);
+    lines.push(['Worth since the year began',netWorth()-start]);
+    const share=G.pub?(G.pub.wealthtax?0.02:0)+(G.pub.gains?0.01:0)+(G.pub.stepup?0.01:0):0;
+    if(share)lines.push(['Wealth tax, due at the year\u2019s end',-G.cash*share*(G.offshore?0.5:1)]);
+  }else if(G.plast||G.pyear){const p=G.pyear||{};lines=Object.entries(p).filter(([k,v])=>Math.abs(v)>1).map(([k,v])=>[PURSE_NAMES[k]||k,v]);if(lines.length)lines.unshift(['The public purse this year',null])}
+  if(!lines.length)return;
+  const body=lines.map(([l,v])=>v==null?`<b>${l}</b>`:`${l} <b>${f(v)}</b>`).join(' \u00b7 ');
+  const i=$('#info');i.innerHTML=(G.rung==='billionaire'?'<b>Year '+yr+' so far</b> \u00b7 ':'')+body;i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),7000);
+}
+$('#fortune').addEventListener('click',whyHeadline);$('#fortune').style.cursor='pointer';$('#fortune').title='Why it moved';
 // the glossary: the video's ideas, underlined wherever a card mentions them, explained in a line when tapped
 const GLOSSARY=[
   [/buy,? borrow,? die/i,'Buy, borrow, die','Never sell: borrow against your shares instead. Loans aren\u2019t income, so there\u2019s no tax, and at death the gains are wiped (the step-up).'],
