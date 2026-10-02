@@ -6,6 +6,7 @@ import {join} from 'node:path';
 import {root} from './sim.mjs';
 const sizes=[['phone-320',320,568],['phone',390,844],['phone-landscape',844,390],['tablet',820,1180],['desktop',1440,900]];
 const out=join(root,'build/shots');mkdirSync(out,{recursive:true});
+// a cloud session has Chromium at /opt/pw-browsers; CI installs Playwright's own
 const browser=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'}).catch(()=>chromium.launch());
 let errors=0;
 for(const [name,w,h] of sizes){
