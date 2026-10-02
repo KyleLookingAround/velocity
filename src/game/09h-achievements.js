@@ -67,6 +67,6 @@ function endLife(kind){
 // the rare role: the heir of a hero, a second billionaire life in the same town, from the fortune it left
 function startHeir(){
   G.heir=(G.heir||0)+1;G.ending=null;G.card=null;G.rung='billionaire';G.rungStart=G.week;G.startNW=netWorth();
-  G.given=0;G.gains=0;G.givenAvg=0;G.gainsAvg=0;G.revoltWeeks=0;G._nw=null;G.nextCard=G.week+12;G.nextTax=G.week+T.taxEvery*WEEKS;
+  G.given=0;G.gains=0;G.givenAvg=0;G.gainsAvg=0;G.revoltWeeks=0;G._nw=null;G.nwLog=[];G.nextCard=G.week+12;G.nextTax=G.week+T.taxEvery*WEEKS;
   toast('You are the heir');
 }

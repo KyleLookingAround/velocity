@@ -25,8 +25,8 @@ money pays for). Each scene slides into the next like a camera panning across on
 walks up to the edge of the scene and the camera follows them: the figure on the right of one scene is the figure on
 the left of the next.
 
-Around the stage: a **header** with your number, who you are and how far through the rung you are (tap it for the
-ladder), and the town's state as chips that explain themselves when tapped; a **transport bar** with pause, speed and
+Around the stage: a **header** with your number and how fast it is really growing (measured over the last year:
+gifts, rents and taxes all show), who you are and how far through the rung you are (tap it for the ladder), and the town's state as chips that explain themselves when tapped; a **transport bar** with pause, speed and
 roughly when the next decision is due; and a **panel** of tabs for your role, the town and the story so far. A waiting
 decision gets a tab of its own and the others stay open while you think; after you answer, the result stays in view
 for a moment. On a phone the chevron in the transport bar gives the panel more of the screen. On a keyboard, space

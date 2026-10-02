@@ -179,6 +179,8 @@ function step(){
   if(isPresident()){presidentWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
+  // the last year of net worth, week by week, so the top bar can say how fast the fortune is really growing
+  G.nwLog=G.nwLog||[];G.nwLog.push(nw);if(G.nwLog.length>WEEKS+1)G.nwLog.shift();
   G._nw=nw;G._yv=G.year.given;
   G.gains+=Math.max(0,gainW);
   G.gainsAvg=(G.gainsAvg||0)*0.98+gainW*WEEKS*0.02;

@@ -39,6 +39,16 @@ function buildTabs(){
 }
 const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=document.querySelectorAll('#meters .meter')[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
+// how fast the fortune is really growing: the last year, measured, once there is one; the rung so far, annualised,
+// after a quarter; before that, the rate on your money less what gifts and a president's taxes take
+function growthNow(){
+  const nw=netWorth(),log=G.nwLog||[];
+  if(log.length>WEEKS&&log[0]>0)return nw/log[0]-1;
+  const w=rungWeek(),start=G.startNW||START_FORTUNE;
+  if(w>=13&&start>0)return Math.pow(Math.max(0.01,nw/start),WEEKS/w)-1;
+  const lawTax=G.pub?(G.pub.wealthtax?0.02:0)+(G.pub.gains?0.01:0)+(G.pub.stepup?0.01:0):0;
+  return G.rate-lawTax-giftsRunning()/Math.max(1,nw);
+}
 function refreshTop(){
   topExtras();
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
@@ -94,8 +104,8 @@ function refreshTop(){
     const mine=myHomes();setMeter(1,'Homes',mine.filter(r=>!r.homeless&&!r.sheltered).length+' of '+mine.length+' let');setMeter(2,'Repair',Math.round(G.ll.cond*100)+'% kept up');
   }else{
     $('#nw').textContent=money(netWorth());
-    const lawTax=G.pub?(G.pub.wealthtax?2:0)+(G.pub.gains?1:0)+(G.pub.stepup?1:0):0;
-    $('#growth').innerHTML=`growing <b>${rateText()}</b> a year`+(lawTax?`, less ${lawTax}% in tax`:'')+(last&&last.given>0?` · gave ${money(last.given)} last year`:'');
+    const g=growthNow(),measured=(G.nwLog||[]).length>WEEKS||rungWeek()>=13;
+    $('#growth').innerHTML=`${g<0?'shrinking':'growing'} <b class="${g<0?'bad':''}">${(Math.abs(g)*100).toFixed(1)}%</b> a year`+(measured?'':' <span class="est">expected</span>')+(last&&last.given>0?`<span class="long"> · gave ${money(last.given)} last year</span>`:'');
     $('#clock').innerHTML=`<b>Age ${age()}</b><br>Year ${yearNo()} of 40`;
     const work=G.res.filter(r=>r.role==='worker'||r.role==='owner');
     setMeter(1,'Jobs',work.filter(r=>r.role==='owner'||r.job!=null).length+' of '+work.length);setMeter(2,'Town spends',money(weeklySpend()*WEEKS)+'/yr');
@@ -132,7 +142,8 @@ const PANES={
   fortune(){
     const share=G.gains>0?Math.round(G.given/G.gains*100):0;
     return `<p class="lead">Each bar is a year of your fortune. The gold strip under it is what you gave away; the dashed line is where you started.</p><canvas id="chart"></canvas>
-      <div class="stats" style="margin-top:8px"><div>Worth now<b>${money(netWorth())}</b></div><div>Invested<b>${money(G.cash)}</b></div>
+      <div class="stats" style="margin-top:8px"><div>Worth now<b>${money(netWorth())}</b></div><div>Return on your money<b>${rateText()} a year</b></div>
+      <div>Really growing<b>${(growthNow()*100).toFixed(1)}% a year</b></div><div>Invested<b>${money(G.cash)}</b></div>
       <div>Homes owned<b>${homesOwned()} of 19</b></div><div>Shops owned<b>${shopsOwned()} of 4</b></div>
       <div>Given so far<b>${money(G.given)}</b></div><div>Share of gains<b>${share}%</b></div>
       <div>Taxes paid<b>${money(G.taxPaid)}</b></div><div>Next tax vote<b>${G.ending?'–':G.nextTax>G.week?'age '+(START_AGE+Math.floor(G.nextTax/WEEKS)):'now'}</b></div></div>
