@@ -16,8 +16,9 @@ function buildTabs(){
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
 const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
-function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
+function setMeter(i,label,value){const m=document.querySelectorAll('#meters .meter')[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
+  topExtras();
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
   if(isPresident()){
     const p=G.pr;$('#nw').textContent=Math.round(p.approval*100)+'% approve';
@@ -84,7 +85,7 @@ function refreshTop(){
 
 let paneKey='';
 function renderPane(force){
-  $('#sheet').classList.toggle('deciding',!!G.card);
+  $('#sheet').classList.toggle('deciding',!!G.card);$('#app').classList.toggle('deciding',!!G.card);
   for(const b of $('#tabs').children)b.classList.toggle('on',!G.card&&b.dataset.t===R.tab);
   const html=G.card?cardHTML():PANES[R.tab]();
   if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
@@ -160,6 +161,7 @@ function showIntro(){
   showModal(`<h2>Money Makes Money</h2><p>You have <b>$30 million</b>. It earns 8% a year while you do nothing.</p>
     <p>Every few months someone will want something from you: a deal, a donation, a vote. Your accountant will always say what pays best.</p>
     <p>On the left you'll see what you do. On the right, what it does to the town.</p>
+    <p>This is the top rung of a ladder. Each life steps down a rung, then climbs back up by votes. The ladder button keeps every ending you find.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You're 40. You have 40 years.</small></button></div>`);
 }
 function showLandlordIntro(){
@@ -389,6 +391,6 @@ $('#box').addEventListener('click',e=>{
   if(rr){restartLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
 });
 function showToasts(){
-  while(R.toasts.length){const t=R.toasts.shift();const d=document.createElement('div');d.className='toast';d.textContent=t.t;
+  while(R.toasts.length){const t=R.toasts.shift();const d=document.createElement('div');d.className='toast'+(t.t.startsWith('Achievement')?' gold':'');d.textContent=t.t;
     $('#toasts').appendChild(d);setTimeout(()=>d.remove(),4600);while($('#toasts').children.length>3)$('#toasts').firstChild.remove()}
 }
