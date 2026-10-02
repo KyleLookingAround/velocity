@@ -3,17 +3,39 @@
 // close each rung. Each rung has its own tabs: the billionaire's Fortune and Commitments, the landlord's Books and
 // Tenants; Town and Story are shared.
 const SPEEDS=[0,1,2,4,8];
+// small pictures for the tabs
+const ic=p=>`<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
+const TAB_ICONS={
+  decide:ic('<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 9h6M9 13h4" stroke="#fff" stroke-width="2"/>'),
+  fortune:ic('<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" fill="none" stroke="currentColor" stroke-width="2"/>'),
+  commit:ic('<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>'),
+  town:ic('<path d="M3 12 9 7l6 5v9H3z"/><path d="M13 9l4-3 4 3v12h-6" opacity=".55"/>'),
+  story:ic('<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M8 9h7M8 13h5" stroke="#fff" stroke-width="1.8"/>'),
+  books:ic('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 15l3-3 2 2 4-5" fill="none" stroke="#fff" stroke-width="2"/>'),
+  tenants:ic('<circle cx="9" cy="8" r="3"/><circle cx="16" cy="9" r="2.5" opacity=".6"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6z"/>'),
+  career:ic('<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2" fill="none" stroke="currentColor" stroke-width="2"/>'),
+  cafe:ic('<path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M16 10h2a2 2 0 0 1 0 4h-2" fill="none" stroke="currentColor" stroke-width="2"/>'),
+  budget:ic('<rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="16" cy="12.5" r="1.8" fill="#fff"/>'),
+  days:ic('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16" stroke="#fff" stroke-width="2"/>'),
+  union:ic('<circle cx="7" cy="8" r="2.5"/><circle cx="12" cy="7" r="2.8"/><circle cx="17" cy="8" r="2.5"/><path d="M2 19c0-3 2.2-5 5-5h10c2.8 0 5 2 5 5z"/>'),
+  campaign:ic('<path d="M4 10v4h3l7 4V6l-7 4z"/><path d="M17 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="2"/>'),
+  hall:ic('<path d="M3 9 12 4l9 5z"/><path d="M5 10h2v8H5zm4 0h2v8H9zm4 0h2v8h-2zm4 0h2v8h-2zM3 19h18v2H3z"/>'),
+  state:ic('<path d="M12 4a6 6 0 0 1 6 6H6a6 6 0 0 1 6-6z"/><path d="M5 11h14v2H5zm1 3h2v5H6zm5 0h2v5h-2zm5 0h2v5h-2zM4 20h16v1H4z"/>'),
+  congress:ic('<path d="M12 3l1 2a7 7 0 0 1 6 7H5a7 7 0 0 1 6-7z"/><path d="M4 13h16v2H4zm1 3h2v4H5zm4 0h2v4H9zm4 0h2v4h-2zm4 0h2v4h-2z"/>'),
+};
 function buildChrome(){
   $('#speed').innerHTML=SPEEDS.map(s=>`<button data-s="${s}" aria-label="${s?s+' times speed':'Pause'}" title="${s?s+'\u00d7 speed (key '+SPEEDS.indexOf(s)+')':'Pause (space)'}">${s?s+'×':'❚❚'}</button>`).join('');
   $('#speed').onclick=e=>{const b=e.target.closest('button');if(b){G.speed=+b.dataset.s;refreshTop()}};
   buildTabs();
-  $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b&&!G.card){R.tab=b.dataset.t;renderPane(true)}};
+  $('#tabs').onclick=e=>{const b=e.target.closest('button');if(b){R.tab=b.dataset.t;renderPane(true)}};
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
   const tabs=isPresident()?[['congress','Congress'],['town','Town'],['story','Story']]:isGovernor()?[['state','State'],['town','Town'],['story','Story']]:isMayor()?[['hall','Town hall'],['town','Town'],['story','Story']]:isActivist()?[['campaign','Campaign'],['town','Town'],['story','Story']]:isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  // a waiting decision is a tab of its own, first, so the other tabs stay open to you while you think
+  if(G.card)tabs.unshift(['decide','Decision']);R.decideTab=!!G.card;
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
-  $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
+  $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}"${k==='decide'?' class="dec"':''}>${TAB_ICONS[k]||''}<span>${n}</span></button>`).join('');
 }
 const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=document.querySelectorAll('#meters .meter')[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
@@ -79,22 +101,29 @@ function refreshTop(){
     setMeter(1,'Jobs',work.filter(r=>r.role==='owner'||r.job!=null).length+' of '+work.length);setMeter(2,'Town spends',money(weeklySpend()*WEEKS)+'/yr');
   }
   for(const b of $('#speed').children)b.classList.toggle('on',+b.dataset.s===G.speed);
-  $('#unrestT').textContent=lv[0].toUpperCase()+lv.slice(1)+(isLandlord()&&u>=70?' · rent strike':'');
+  $('#unrestT').textContent=lv[0].toUpperCase()+lv.slice(1)+(isLandlord()&&u>=70?' · rent strike':'');$('#unrestM').dataset.level=lv;
   const ub=$('#unrestB');ub.style.width=Math.min(100,u)+'%';ub.style.background=u>=70?'var(--red)':u>=55?'var(--amber)':u>=30?'#c9a227':'var(--green)';
 }
 
 let paneKey='';
 function renderPane(force){
-  $('#sheet').classList.toggle('deciding',!!G.card);$('#app').classList.toggle('deciding',!!G.card);
-  for(const b of $('#tabs').children)b.classList.toggle('on',!G.card&&b.dataset.t===R.tab);
-  const html=G.card?cardHTML():PANES[R.tab]();
+  // a new decision opens its tab; once answered, you're back where you were
+  const cid=G.card?G.card.id+':'+G.card.week:null;
+  if(cid&&cid!==R.cardSeen){R.cardSeen=cid;if(R.tab!=='decide')R.prevTab=R.tab;R.tab='decide';force=true}
+  if(!!G.card!==R.decideTab){if(!G.card&&R.tab==='decide')R.tab=R.prevTab||'';buildTabs();force=true}
+  for(const b of $('#tabs').children)b.classList.toggle('on',b.dataset.t===R.tab);
+  const waiting=G.card&&R.tab!=='decide'?`<button class="waiting" data-t-go="decide"><span class="w"><b>A decision is waiting</b><span>${cardDef(G.card.id).title(G.card.d||{})}</span></span><i>Decide \u203a</i></button>`:'';
+  // (the last answer's result stays in view for a few seconds, whichever tab you're on)
+  const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span></div>`:'';
+  const html=R.tab==='decide'&&G.card?cardHTML():waiting+result+PANES[R.tab]();
+  $('#sheet').classList.toggle('deciding',R.tab==='decide'&&!!G.card);
   if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
 }
 // the decision card: what's happened, and each option's cost to you and to the town
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   // (the first decision ever explains itself, once)
-  const tip=G.ladder.tipCard?'':`<div class="tip"><span>\u261d</span><span><b>The game waits for you.</b> Each choice shows what it does for you and for the town. The tagged one is the easy way; the others change the town.</span></div>`;
+  const tip=G.ladder.tipCard?'':`<div class="tip"><span>\u261d</span><span><b>The game waits for you.</b> Each choice shows what it does for you and for the town. The tagged one is the easy way. You can still look round the other tabs; this one brings you back.</span></div>`;
   return `<div class="decide">${tip}<div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
     c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'||G.rung==='president'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
@@ -137,8 +166,9 @@ const PANES={
   },
 };
 function onPaneClick(e){
+  const go=e.target.closest('[data-t-go]');if(go){R.tab=go.dataset.tGo;renderPane(true);return}
   const k=e.target.closest('[data-card]'),g=e.target.closest('[data-gift]'),a=e.target.closest('[data-auto]');
-  if(k&&G.card){G.ladder.tipCard=true;answerCard(k.dataset.card);save();renderPane(true);refreshTop()}
+  if(k&&G.card){G.ladder.tipCard=true;const o=cardOptions().find(x=>x.k===k.dataset.card);if(o)R.lastChoice={label:o.label,town:o.town,at:performance.now()};answerCard(k.dataset.card);save();renderPane(true);refreshTop()}
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
   if(a){G.autoAcct=!G.autoAcct;save();renderPane(true)}
   const pol=e.target.closest('[data-policy]');if(pol&&G.ll){G.ll.policy=pol.dataset.policy;save();renderPane(true)}
@@ -181,30 +211,38 @@ function showIntro(){
     <div class="steps">${row('you','You have $30 million','It earns 8% a year while you do nothing.')}
     ${row('town','Below you, a town','Every dollar you keep is one that stops moving down there. Watch what it does.')}
     ${row('card','People want things from you','Deals, donations, votes. The game waits while you choose; your accountant always knows what pays.')}
-    ${row('ladder','A ladder of lives','Each life steps down a rung, then climbs back up by votes. Every ending you find is kept.')}</div>
+    ${row('ladder','A ladder of lives','Each life steps down a rung, then climbs back up by votes. Tap your name, top right, for the ladder and every ending you\u2019ve found.')}</div>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You\u2019re 40. You have 40 years.</small></button></div>`);
+}
+// a rung's opening card: its place on the ladder, the role's picture, the story, and the endings still to find there
+const RUNG_TAB={billionaire:'fortune',landlord:'books',partner:'career',shop:'cafe',waiter:'budget',out:'days',union:'union',activist:'campaign',mayor:'hall',governor:'state',president:'congress'};
+function introWrap(rung,title,body,years){
+  const n=RUNG_ORDER.indexOf(rung)+1,ach=G.ladder.achieved||{};
+  const ends=Object.keys(ENDINGS[rung]).map(k=>[achId(rung,k),ENDINGS[rung][k],0]),rares=(RARE[rung]||[]).map(x=>[achId(rung,x.k),x.name,1]);
+  const notch=([id,name,r])=>`<i class="${r?'gold ':''}${ach[id]?'on':''}" title="${ach[id]?name:'?'}"></i>`,got=[...ends,...rares].filter(([id])=>ach[id]);
+  return `<div class="ihead"><span class="ico ${RUNG_TAB[rung]}">${TAB_ICONS[RUNG_TAB[rung]]||''}</span><div><small class="kick">${n===6?'The bottom':n===11?'The top':n<6?'Step down':'Climb'} \u00b7 Rung ${n} of 11</small><h2>${title}</h2></div></div>
+    ${body}
+    <div class="endnotches"><span class="notches">${ends.map(notch).join('')}${rares.map(notch).join('')}</span><small>${got.length?got.length+' of '+(ends.length+rares.length)+' endings found here: '+got.map(x=>x[1]).join(', '):(ends.length+rares.length)+' endings to find here, one of them rare'}</small></div>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${years}</small></button></div>`;
 }
 function showLandlordIntro(){
   const from=G.ladder.from,mine=myHomes().length,estate=G.res.filter(r=>r.homeOwner==='you').length;
   const legacy={hero:'The billionaire died a hero, and its foundation still pays for its gifts.',luthor:'The billionaire died rich, and its gifts died with it.',
     revolt:'The town revolted against the billionaire, and it hasn’t calmed down.'}[from]||'';
-  showModal(`<h2>Step down: the landlord</h2><p>You are Agnes. You own ${mine} of the town's 19 homes${estate?', and the billionaire’s estate owns '+estate:''}. ${legacy}</p>
+  showModal(introWrap('landlord','The landlord',`<p>You are Agnes. You own ${mine} of the town's 19 homes${estate?', and the billionaire’s estate owns '+estate:''}. ${legacy}</p>
     <p>Each year you set the rent. Tenants who fall behind, leaking roofs and offers from the estate will come to you as they happen.</p>
-    <p>A fair landlord keeps rent under about a third of income, keeps the homes up and puts nobody on the street. The bank takes everything if you can't pay the loan.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${LL.years} years.</small></button></div>`);
+    <p>A fair landlord keeps rent under about a third of income, keeps the homes up and puts nobody on the street. The bank takes everything if you can't pay the loan.</p>`,`You have ${LL.years} years.`));
 }
 function showPartnerIntro(){
   const from=G.ladder.fromLandlord;
-  showModal(`<h2>Step down: the law firm partner</h2><p>You are Theo. You bill <b>$${PT.rate.toLocaleString('en-GB')} an hour</b>, the top of the pay table. At that rate a billion takes about 200 years.</p>
+  showModal(introWrap('partner','The law firm partner',`<p>You are Theo. You bill <b>$${PT.rate.toLocaleString('en-GB')} an hour</b>, the top of the pay table. At that rate a billion takes about 200 years.</p>
     <p>Agnes still owns the homes, and runs them the way you did: ${from==='fair'?'fairly':'hard'}. You rent from her.</p>
-    <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
+    <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>`,`You have ${PT.years} years.`));
 }
 function showPresidentIntro(){
   const p=G.pr;
-  showModal(`<h2>The top: the president</h2><p>You are President ${p.name}. You started this climb with nothing.</p>
-    <p>Now the law itself can change: tax gains like wages, end buy-borrow-die, tax the biggest fortunes, and pay for the whole programme list. Bills go to Congress; the lobby pays for the other side. What you pass lasts into the next billionaire life.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>Two terms, if they re-elect you.</small></button></div>`);
+  showModal(introWrap('president','The president',`<p>You are President ${p.name}. You started this climb with nothing.</p>
+    <p>Now the law itself can change: tax gains like wages, end buy-borrow-die, tax the biggest fortunes, and pay for the whole programme list. Bills go to Congress; the lobby pays for the other side. What you pass lasts into the next billionaire life.</p>`,`Two terms, if they re-elect you.`));
 }
 // a billionaire life in a country a president changed
 function showLawsIntro(){
@@ -216,46 +254,39 @@ function showLawsIntro(){
 }
 function showGovernorIntro(){
   const g=G.gv;
-  showModal(`<h2>Climb: the governor</h2><p>You are Governor ${g.name}. The town is one of many now, and what reaches it comes from the state.</p>
-    <p>Set the minimum wage, decide whether the biggest fortunes pay, hand out the state\u2019s grants to towns, and choose what a recession and a chain\u2019s warehouse get. The state votes again in ${GV.term} years.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>Two terms, if they re-elect you.</small></button></div>`);
+  showModal(introWrap('governor','The governor',`<p>You are Governor ${g.name}. The town is one of many now, and what reaches it comes from the state.</p>
+    <p>Set the minimum wage, decide whether the biggest fortunes pay, hand out the state\u2019s grants to towns, and choose what a recession and a chain\u2019s warehouse get. The state votes again in ${GV.term} years.</p>`,`Two terms, if they re-elect you.`));
 }
 function showMayorIntro(){
   const m=G.my;
-  showModal(`<h2>Climb: the mayor</h2><p>You are Mayor ${m.name}. The public purse is yours to spend: ${money(G.fund||0)}.</p>
-    <p>Tax the landlords\u2019 rents, buy homes for the town, and decide what the mill, the developers and the donors get. The town votes again in ${MY.term} years, and the estate\u2019s money backs whoever runs against you.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>Two terms, if they re-elect you.</small></button></div>`);
+  showModal(introWrap('mayor','The mayor',`<p>You are Mayor ${m.name}. The public purse is yours to spend: ${money(G.fund||0)}.</p>
+    <p>Tax the landlords\u2019 rents, buy homes for the town, and decide what the mill, the developers and the donors get. The town votes again in ${MY.term} years, and the estate\u2019s money backs whoever runs against you.</p>`,`Two terms, if they re-elect you.`));
 }
 function showActivistIntro(){
   const a=G.ac,from=G.ladder.fromUnion;
-  showModal(`<h2>Climb: the activist</h2><p>You are ${a.name}. ${from==='fairpay'?'The union\u2019s wins brought people with you':from==='soldout'?'People remember the manager\u2019s job':'You start with the people you know'}: ${Math.round(a.support*100)}% of the town is behind you.</p>
-    <p>Campaign for changes the whole town votes on: taxing the estate, capping rents, and programmes paid from the public purse. Each campaign runs half a year before its vote. The estate\u2019s money pays for the other side.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${AC.years} years.</small></button></div>`);
+  showModal(introWrap('activist','The activist',`<p>You are ${a.name}. ${from==='fairpay'?'The union\u2019s wins brought people with you':from==='soldout'?'People remember the manager\u2019s job':'You start with the people you know'}: ${Math.round(a.support*100)}% of the town is behind you.</p>
+    <p>Campaign for changes the whole town votes on: taxing the estate, capping rents, and programmes paid from the public purse. Each campaign runs half a year before its vote. The estate\u2019s money pays for the other side.</p>`,`${AC.years} years.`));
 }
 function showUnionIntro(){
   const u=G.un;
-  showModal(`<h2>Climb: the union organiser</h2><p>You are ${u.name}. ${Math.round(u.members*100)}% of the town\u2019s workers are with you so far.</p>
-    <p>Members pay dues into a strike fund. A strike wins when enough workers are in and the fund can carry them, and it raises a whole workplace\u2019s pay. Employers will fight back, and one of them will offer you a way out.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${UN.years} years.</small></button></div>`);
+  showModal(introWrap('union','The union organiser',`<p>You are ${u.name}. ${Math.round(u.members*100)}% of the town\u2019s workers are with you so far.</p>
+    <p>Members pay dues into a strike fund. A strike wins when enough workers are in and the fund can carry them, and it raises a whole workplace\u2019s pay. Employers will fight back, and one of them will offer you a way out.</p>`,`${UN.years} years.`));
 }
 function showOutIntro(){
   const o=G.ow,r=outMe();
-  showModal(`<h2>The bottom rung: out of work</h2><p>You are ${o.name}. ${r.homeless?'You have no job and nowhere to live.':'The café has let you go.'}</p>
+  showModal(introWrap('out','Out of work',`<p>You are ${o.name}. ${r.homeless?'You have no job and nowhere to live.':'The café has let you go.'}</p>
     <p>What the town can do for you depends on what\u2019s in its public purse: ${money(G.fund||0)}, from the taxes the rich paid. ${G.gifts.shelter?'A billionaire\u2019s foundation still pays for a shelter.':''}</p>
-    <p>Jobs come as offers, rarer when nobody\u2019s hiring and when you\u2019ve no address. Or you could organise the people around you.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${OW.years} years.</small></button></div>`);
+    <p>Jobs come as offers, rarer when nobody\u2019s hiring and when you\u2019ve no address. Or you could organise the people around you.</p>`,`${OW.years} years.`));
 }
 function showWaiterIntro(){
   const w=G.wt;
-  showModal(`<h2>Step down: the waiter</h2><p>You are ${w.name}, and you wait tables at the café for ${hh(G.shops[CAFE].wage)} a week. Your rent to Agnes is ${hh(me().rent)} a week.</p>
+  showModal(introWrap('waiter','The waiter',`<p>You are ${w.name}, and you wait tables at the café for ${hh(G.shops[CAFE].wage)} a week. Your rent to Agnes is ${hh(me().rent)} a week.</p>
     <p>Every year you choose your shifts. Extra shifts pay, and wear you down. When you\u2019re short there\u2019s a payday lender. The union is organising.</p>
-    <p>Fall too far behind on the rent and you\u2019re evicted.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${WT.years} years.</small></button></div>`);
+    <p>Fall too far behind on the rent and you\u2019re evicted.</p>`,`${WT.years} years.`));
 }
 function showShopIntro(){
-  showModal(`<h2>Step down: the shop owner</h2><p>You are Bea, and the café is yours. Your customers spend the town\u2019s wages, including the ones you pay.</p>
-    <p>You pay rent on the premises to Agnes. You set prices and pay, and choose where your supplies come from. Raise prices and customers drift to the megastore.</p>
-    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${SH.years} years.</small></button></div>`);
+  showModal(introWrap('shop','The shop owner',`<p>You are Bea, and the café is yours. Your customers spend the town\u2019s wages, including the ones you pay.</p>
+    <p>You pay rent on the premises to Agnes. You set prices and pay, and choose where your supplies come from. Raise prices and customers drift to the megastore.</p>`,`You have ${SH.years} years.`));
 }
 // (showEnding, in the achievements panel file, wraps this with the rare title, new achievements and the heir)
 function showEndingCore(){

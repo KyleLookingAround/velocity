@@ -80,14 +80,24 @@ $('#pane').addEventListener('click',e=>{if(e.target.closest('[data-ach]'))showAc
 const RUNG_ORDER=['billionaire','landlord','partner','shop','waiter','out','union','activist','mayor','governor','president'];
 function topExtras(){
   moments();
-  const chip=$('#lad');if(!chip)return;
-  const n=RUNG_ORDER.indexOf(G.rung)+1,got=G.ladder.achieved?Object.keys(G.ladder.achieved).length:0;
-  const txt=`<b>${RUNG_NAMES[G.rung]}${G.heir?' (heir)':''}</b><span>Rung ${n} of 11 \u00b7 ${got} found</span><em>${n}/11</em>`;
-  if(chip.innerHTML!==txt)chip.innerHTML=txt;
-  $('#speed').classList.toggle('paused',G.speed===0&&!G.card&&!G.ending);
+  const n=RUNG_ORDER.indexOf(G.rung)+1;
+  const txt=`<b>${RUNG_NAMES[G.rung]}${G.heir?' (heir)':''}</b><span> \u00b7 Rung ${n} of 11</span><em> \u00b7 ${n}/11</em>`;
+  const lad=$('#lad');if(lad.innerHTML!==txt)lad.innerHTML=txt;
+  $('#speed').classList.toggle('paused',G.speed===0&&!G.card&&!G.ending);$('#speed').classList.toggle('waiting',!!G.card&&!G.ending);
   $('#yearbar').style.width=Math.min(100,rungWeek()/Math.max(1,rungWeeks())*100)+'%';
+  // the year ticks over
+  const y=yearNo();if(R.lastYear!==undefined&&y!==R.lastYear){const c=$('#clock');c.classList.remove('tick');void c.offsetWidth;c.classList.add('tick')}R.lastYear=y;
+  // what's next: a decision waiting, or roughly when the next one comes
+  let long,short;
+  if(G.ending){long='The end of this life';short='The end'}
+  else if(G.card){long='<b>Your turn</b> \u00b7 time waits while you decide';short='<b>Your turn</b> \u00b7 time waits'}
+  else{const w=Math.max(0,G.nextCard-G.week),m=w<9?2:Math.round(w/4.33),p=G.speed===0?'<b>Paused</b> \u00b7 ':'';
+    long=p+(p?'n':'N')+'ext decision '+(w<=2?'any week now':w<6?'in a few weeks':'in about '+(m===2?'two':m)+' months');
+    short='Next: '+(w<=2?'any week':w<6?'a few weeks':'~'+m+' months')}
+  const next=`<span class="long">${long}</span><span class="short">${short}</span>`;
+  const t=$('#nextup');if(t.innerHTML!==next)t.innerHTML=next;$('#ticker').classList.toggle('dec',!!G.card&&!G.ending);
 }
-$('#lad').addEventListener('click',()=>{if(!$('#modal').classList.contains('show'))showAchievements()});
+$('#who').addEventListener('click',()=>{if(!$('#modal').classList.contains('show'))showAchievements()});
 
 // the keyboard, for desktops: space pauses and plays, 1 to 4 set the speed (or pick a waiting decision's options),
 // and Escape closes the ladder
@@ -98,7 +108,7 @@ addEventListener('keydown',e=>{
   if(modal)return;
   if(e.key===' '){G.speed=G.speed?0:(R.lastSpeed||1);if(G.speed)R.lastSpeed=G.speed;refreshTop();e.preventDefault();return}
   const n=+e.key;if(!(n>=1&&n<=4))return;
-  if(G.card){const b=document.querySelectorAll('#pane [data-card]')[n-1];if(b)b.click();return}
+  if(G.card){if(R.tab!=='decide'){R.tab='decide';renderPane(true)}const b=document.querySelectorAll('#pane [data-card]')[n-1];if(b)b.click();return}
   G.speed=SPEEDS[n];R.lastSpeed=G.speed;refreshTop();
 });
 
@@ -112,3 +122,23 @@ function moments(){
   if(n>=5&&n%5===0&&m.recap!==n){m.recap=n;const a=h[n-5],b=h[n-1],g=h.slice(n-5).reduce((s,y)=>s+(y.given||0),0);
     toast('Five years on: '+money(b.nw)+' ('+(b.nw>=a.nw?'+':'')+Math.round((b.nw/Math.max(1,a.nw)-1)*100)+'%)'+(g>0?', '+money(g)+' given':', nothing given')+', unrest '+unrestLevel(b.unrest))}
 }
+
+// the grip, and what each meter in the top bar means
+$('#grip').addEventListener('click',()=>{$('#app').classList.toggle('expanded');setTimeout(fitMap,260)});
+const METER_INFO={
+  'Unrest':'How angry the town is: calm, grumbling, protests, strikes, revolt. A billionaire who keeps it at revolt too long is driven out.',
+  'Jobs':'How many of the town\u2019s working figures (each a hundred households) have a job.',
+  'Town spends':'What the town spends in a year. Money that keeps moving is wages for someone else.',
+  'Homes':'How many of your homes are let to a paying tenant.','Repair':'How well your homes are kept up. Below 40%, tenants won\u2019t pay full rent.',
+  'Staff':'How many people work at the caf\u00e9.','Lost customers':'The share of your customers going to the megastore instead.',
+  'Health':'Your health. Low health means sick days and smaller pay packets.','You owe':'What\u2019s left on the payday loan.',
+  'Home':'Where you live.','Pay since you began':'How much pay has risen at the mill and on the high street since you started organising, above prices.',
+  'Strikes won':'Each won strike raises a whole workplace\u2019s pay by 12%.','Votes won':'Measures the town has passed on your campaigns. They last.',
+  'Public purse':'The town\u2019s own money, from the taxes the rich pay. It pays benefits, public works and programmes.',
+  'Re-election':'When the town (or state, or country) votes on you again.','Odds':'Your chance of winning the next election, as things stand.',
+  'Congress':'The share of Congress that will vote with you. It follows your approval, and swings at the midterms.',
+  'Burnout':'Hours over 55 a week push it up, fewer bring it down. At 100% you stop.','A billion in':'At your rate so far, how long a billion would take.'};
+$('#meters').addEventListener('click',e=>{const m=e.target.closest('.meter');if(!m)return;const label=m.firstChild.textContent.trim(),t=METER_INFO[label];if(!t)return;
+  const i=$('#info');i.innerHTML='<b>'+label+'</b> \u00b7 '+t;i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),4200)});
+// the scenes refit whenever their area changes size (the grip, a rotated phone)
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>fitMap()).observe($('#mapwrap'));

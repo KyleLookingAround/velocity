@@ -17,12 +17,20 @@ shares, a senator who can kill the next tax vote, a charity asking you to fund s
 for you and what it does to the town, and one is **your accountant's pick**: whatever makes the most money. (Turn on
 "Let your accountant decide" on the Story tab and the game plays itself that way.)
 
-The screen is a **stage** of two scenes, drawn like the video: on the left, **you** (at your desk with the vault
-filling, signing a deed, shaking a senator's hand, loading the moving truck); on the right, **the town**: the
-spending chain from shopper to cashier to barber to café, or the consequences of what you've done (families evicted,
-tents in the park, shutters coming down, strikes and marches, kids at the nursery your money pays for). Each scene
-slides into the next like a camera panning across the map, and half the time someone walks up to the edge of the
-scene and the camera follows them: the figure on the right of one scene is the figure on the left of the next.
+The screen is a **stage** of two scenes, drawn like the video, one above the other on a phone and side by side on a
+wide screen: **you** (at your desk with the vault filling, signing a deed, shaking a senator's hand, loading the moving
+truck), and **the town**: the spending chain from shopper to cashier to barber to café, or the consequences of what
+you've done (families evicted, tents in the park, shutters coming down, strikes and marches, kids at the nursery your
+money pays for). Each scene slides into the next like a camera panning across one long town, and half the time someone
+walks up to the edge of the scene and the camera follows them: the figure on the right of one scene is the figure on
+the left of the next.
+
+Around the stage: a **header** with your number, who you are and how far through the rung you are (tap it for the
+ladder), and the town's state as chips that explain themselves when tapped; a **transport bar** with pause, speed and
+roughly when the next decision is due; and a **panel** of tabs for your role, the town and the story so far. A waiting
+decision gets a tab of its own and the others stay open while you think; after you answer, the result stays in view
+for a moment. On a phone the chevron in the transport bar gives the panel more of the screen. On a keyboard, space
+pauses, 1 to 4 set the speed or pick an answer, and Escape closes the ladder.
 
 **Pacing.** Each rung runs at its own speed so a life takes about six to eight minutes at 1× (a billionaire's year is
 12 seconds; a mayor's, 45), and 8× runs a whole life in about a minute. An offer you turn down backs off for years

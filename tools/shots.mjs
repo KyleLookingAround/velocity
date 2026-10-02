@@ -63,7 +63,7 @@ for(const [name,w,h] of sizes){
     p.on('pageerror',e=>{errors++;console.error(name+' '+scene+': '+e.message)});
     await p.addInitScript(j=>{localStorage.setItem('money-makes-money-save-v1',JSON.stringify(Object.assign(JSON.parse(j),{speed:0})))},save);
     await p.goto('file://'+join(root,'dist/index.html'));await p.waitForTimeout(300);
-    await p.click('#tabs [data-t="'+tab+'"]').catch(()=>{});await p.waitForTimeout(2200);
+    if(!JSON.parse(save).card)await p.click('#tabs [data-t="'+tab+'"]').catch(()=>{}); // (a waiting decision shows its own tab)await p.waitForTimeout(2200);
     await p.screenshot({path:join(out,name+'-'+scene+'.png')});
     await p.close();
   }

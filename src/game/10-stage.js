@@ -5,7 +5,7 @@
 // SCENE_SECS of real time, whatever the game speed; drawing never touches the game state.
 const $=s=>document.querySelector(s);
 const cv=$('#cv'),ctx=cv.getContext('2d');
-const PW=480,PH=300,SCENE_SECS=6;
+const PW=480,PH=300,SCENE_SECS=6,CT=48; // (CT: the sky a stacked phone pane does without)
 const V={k:1,dpr:1,panes:[]};
 const INK='#151515',GREY='#8b8b8b',GREEN='#4c9a5d',GREEN2='#5aa86b',RED='#b23a3a';
 function fitMap(){
@@ -13,10 +13,11 @@ function fitMap(){
   cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);V.dpr=dpr;
   const gap=10*dpr;
   // two panes, each PW×PH scaled to fit, one above the other or side by side: whichever shows them bigger
-  const kTall=Math.min(cv.width/PW,(cv.height-gap)/(2*PH)),kWide=Math.min((cv.width-gap)/(2*PW),cv.height/PH);
-  // (a phone held upright always stacks them: one above the other)
-  const tall=kTall>=kWide||innerHeight>innerWidth,k=tall?kTall:kWide;
-  const w=PW*k,h=PH*k;V.k=k;
+  // (a phone held upright always stacks them, one above the other, and crops their empty sky so they fill the width)
+  const portrait=innerHeight>innerWidth,ct=portrait&&r.width<560?CT:0,ph=PH-ct;
+  const kTall=Math.min(cv.width/PW,(cv.height-gap)/(2*ph)),kWide=Math.min((cv.width-gap)/(2*PW),cv.height/PH);
+  const tall=kTall>=kWide||portrait,k=tall?kTall:kWide;
+  const w=PW*k,h=(tall?ph:PH)*k;V.k=k;V.ct=tall?ct:0;
   V.panes=tall?[[(cv.width-w)/2,(cv.height-2*h-gap)/2],[(cv.width-w)/2,(cv.height-2*h-gap)/2+h+gap]]
     :[[(cv.width-2*w-gap)/2,(cv.height-h)/2],[(cv.width-2*w-gap)/2+w+gap,(cv.height-h)/2]];
 }
@@ -408,10 +409,10 @@ function drawMap(dt){
   for(const side of ['you','town']){
     const s=advanceStage(side,dt);
     const [ox,oy]=V.panes[side==='you'?0:1];
-    c.setTransform(V.k,0,0,V.k,ox,oy);
+    const ct=V.ct||0;c.setTransform(V.k,0,0,V.k,ox,oy-ct*V.k);
     // the pane: a soft shadow under it, then everything clipped to its rounded corners
-    c.save();c.shadowColor='rgba(40,30,10,.22)';c.shadowBlur=18;c.shadowOffsetY=6;c.fillStyle='#ece6db';c.beginPath();c.roundRect(0,0,PW,PH,14);c.fill();c.restore();
-    c.save();c.beginPath();c.roundRect(0,0,PW,PH,14);c.clip();
+    c.save();c.shadowColor='rgba(40,30,10,.22)';c.shadowBlur=18;c.shadowOffsetY=6;c.fillStyle='#ece6db';c.beginPath();c.roundRect(0,ct,PW,PH-ct,14);c.fill();c.restore();
+    c.save();c.beginPath();c.roundRect(0,ct,PW,PH-ct,14);c.clip();
     const cam=s.tr?s.tr.off*ease(Math.min(1,s.tr.u)):0,world=((R.world&&R.world[side])||0)+cam+(side==='town'?400:0);
     const g=c.createLinearGradient(0,0,0,250);g.addColorStop(0,'#f7f3eb');g.addColorStop(1,'#e2dbcd');c.fillStyle=g;c.fillRect(0,0,PW,PH);
     // a warm light that drifts a little with the camera
@@ -434,8 +435,8 @@ function drawMap(dt){
     for(const [x0,x1] of [[0,26],[PW,PW-26]]){const h=c.createLinearGradient(x0,0,x1,0);h.addColorStop(0,'rgba(236,230,219,.8)');h.addColorStop(1,'rgba(236,230,219,0)');c.fillStyle=h;c.fillRect(Math.min(x0,x1),0,26,PH)}
     // the pane's label, as a small pill
     const lab=side==='you'?'YOU':'THE TOWN';c.font='800 11px system-ui,sans-serif';const lw=c.measureText(lab).width+16;
-    c.fillStyle=side==='you'?'rgba(28,27,24,.82)':'rgba(60,138,80,.9)';c.beginPath();c.roundRect(10,10,lw,20,10);c.fill();txt(c,lab,10+lw/2,24,11,'#fff',800);
-    if(capNext){caption(c,cap,1-u,-u*4);caption(c,capNext,u,(1-u)*4)}else caption(c,cap,1,0);
+    c.fillStyle=side==='you'?'rgba(28,27,24,.82)':'rgba(60,138,80,.9)';c.beginPath();c.roundRect(10,ct+10,lw,20,10);c.fill();txt(c,lab,10+lw/2,ct+24,11,'#fff',800);
+    if(capNext){caption(c,cap,(1-u)*(1-u),-u*4);caption(c,capNext,u*u,(1-u)*4)}else caption(c,cap,1,0);
     c.restore();
   }
 }
