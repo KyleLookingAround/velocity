@@ -102,6 +102,16 @@ const SCENES={
   desk:{cap:()=>'Your fortune earns '+rateText()+' a year while you sit there',draw(c,t){
     desk(c,170,250);laptop(c,170,216);chair(c,120,250);person(c,128,250,{pose:'sit',hat:true});vault(c,360,170,fortuneFill());
     for(let k=0;k<4;k++)flyBill(c,PW+20,60,360,170,loopT(t+k/4,1),30)}},
+  yacht:{cap:()=>'Your money works. You don\u2019t have to',draw(c,t){
+    c.fillStyle='#b9c4c9';c.fillRect(0,232,PW,20);const b=Math.sin(t*Math.PI*4)*3;
+    c.fillStyle='#e9e9e9';c.beginPath();c.moveTo(150,236+b);c.lineTo(350,236+b);c.lineTo(330,262+b);c.lineTo(170,262+b);c.fill();c.fillStyle='#cfcfcf';c.fillRect(200,212+b,90,24);
+    person(c,250,236+b,{pose:'sit',hat:true,s:0.8});for(let k=0;k<3;k++)flyBill(c,PW+10,40,250,180,loopT(t+k/3,1),20)}},
+  golf:{cap:()=>'Another round. The fortune grows anyway',draw(c,t){
+    c.fillStyle='#c3cdc3';c.fillRect(0,246,PW,10);c.fillStyle='#777';c.fillRect(398,200,2,46);c.fillStyle=RED;c.fillRect(400,200,16,10);
+    person(c,180,250,{pose:loopT(t,1)<0.5?'stand':'raise',hat:true});const u=Math.max(0,loopT(t,1)-0.5)*2;c.fillStyle='#fff';c.beginPath();c.arc(200+u*200,246-Math.sin(u*Math.PI)*80,3,0,7);c.fill()}},
+  collect:{cap:()=>'Rent day: door to door',draw(c,t){
+    house(c,140,250);house(c,380,250);const u=loopT(t,1);person(c,60+u*360,250,{pose:'walk',t:t*6});
+    for(let k=0;k<2;k++)flyBill(c,140+k*240,210,80+u*360,190,loopT(t*2+k/2,1),30)}},
   rentbook:{cap:()=>'You count the rent: '+money(rentRoll())+' a year',draw(c,t){
     desk(c,240,250);chair(c,190,250);person(c,198,250,{pose:'sit'});stack(c,250,216,3+Math.floor(loopT(t,1)*8));
     for(let k=0;k<3;k++)flyBill(c,PW+10,150,250,200,loopT(t+k/3,1),40)}},
@@ -236,37 +246,76 @@ function pickTownScene(){
   if(isLandlord()&&G.ll.cond<0.5)w.push(['damp',2]);
   if(homesOwned()||isLandlord()||isPartner())w.push(['rentrise',1]);
   w.push(['megastore',0.6]);if(G.unrest<30)w.push(['calm',1]);
-  let r=Math.random()*w.reduce((a,x)=>a+x[1],0); // cosmetic
-  for(const [k,v] of w){r-=v;if(r<=0)return k}return 'chain';
+  const last=R.stage.town&&R.stage.town.k,ws=w.filter(x=>x[0]!==last),pool=ws.length?ws:w;
+  let r=Math.random()*pool.reduce((a,x)=>a+x[1],0); // cosmetic
+  for(const [k,v] of pool){r-=v;if(r<=0)return k}return 'chain';
 }
-const idleScene=()=>isShop()?'cafe':isPartner()?'office':isLandlord()?'rentbook':'desk';
+// what you do between decisions: a few scenes per role, never the same one twice running
+const IDLE={billionaire:['desk','yacht','golf'],landlord:['rentbook','collect'],partner:['office','weekend'],shop:['cafe','staff']};
+const idleScene=()=>{const o=IDLE[G.rung]||['desk'],last=R.stage.you&&R.stage.you.k;const pool=o.filter(k=>k!==last);return pool[Math.floor(Math.random()*pool.length)]||o[0]}; // cosmetic
 // what an ending looks like, on each side
 const endingScene=()=>({hero:'cheer',luthor:'bunker',revolt:'mob',fair:'cheer',rentier:'rentbook',bankrupt:'repo',hiredgun:'loophole',counsel:'court',burnout:'weekend',pillar:'cafe',tightfisted:'cafe',closed:'closed',sold:'handshake',founder:'ribbon'})[G.ending.kind]||idleScene();
 const endingTown=()=>({hero:'chain',luthor:'tents',revolt:'protest',fair:'calm',rentier:'rentrise',bankrupt:'evicted',hiredgun:'rentrise',counsel:'chain',burnout:'calm',pillar:'chain',tightfisted:'rentrise',closed:'laidoff',sold:'laidoff',founder:'megastore'})[G.ending.kind]||'chain';
-// a decision plays its scene on your side and its consequence on the town's, ahead of anything else
+// a decision plays its scene on your side and its consequence on the town's, next, ahead of anything else
 function queueScenes(you,town,d){
-  if(you)R.stage.you={k:you,t:0,d};
-  if(town)R.stage.town={k:town.startsWith('gift-')?GIFT_SCENE[town.slice(5)]:town,t:0,d};
+  const put=(side,k)=>{const s=R.stage[side];const n={k,d};if(!s)R.stage[side]={k,d,t:0};else if(s.tr)s.tr.to.next=n;else s.next=n};
+  if(you)put('you',you);
+  if(town)put('town',town.startsWith('gift-')?GIFT_SCENE[town.slice(5)]:town);
+}
+// ---------- moving between scenes ----------
+// A scene slides out as the next slides in, like the video's camera panning across the map. Half the time someone walks
+// up to the edge of the scene as it ends, and the camera follows them: they stand at the far edge of the next scene, so
+// the figure on the right of one scene is the figure on the left of the next (or the other way round).
+const TR=0.9,WALK_IN=1.4,AL=34,AR=446;
+const ease=u=>u<0.5?2*u*u:1-2*(1-u)*(1-u);
+function nextScene(side){
+  if(side==='you')return {k:G.ending?endingScene():idleScene(),d:{}};
+  return {k:G.ending?endingTown():R.townQ.length?R.townQ.shift():pickTownScene(),d:{}};
+}
+function advanceStage(side,dt){
+  let s=R.stage[side];
+  if(!s)s=R.stage[side]=Object.assign(nextScene(side),{t:0});
+  if(s.tr){s.tr.u+=dt/TR;if(s.tr.u>=1)s=R.stage[side]=s.tr.to;return s}
+  s.t+=dt;
+  if(s.pend===undefined&&(s.t>=SCENE_SECS-WALK_IN||s.next))s.pend=Math.random()<0.5?(Math.random()<0.5?1:-1):0; // cosmetic
+  if(s.t>=SCENE_SECS||s.next){
+    const n=s.next||nextScene(side),dir=s.pend||0;s.next=null;
+    s.tr={u:0,dir,off:dir>0?AR-AL:dir<0?-(AR-AL):PW+30,to:{k:n.k,d:n.d||{},t:0,carry:dir>0?AL:dir<0?AR:null}};
+  }
+  return s;
+}
+function drawScene(c,s,t){const sc=SCENES[s.k]||SCENES.chain;try{sc.draw(c,t,s.d||{})}catch(e){}
+  if(s.carry!=null)person(c,s.carry,250,{dir:s.carry<PW/2?1:-1})}
+// the figure walking up to the edge, as a scene ends
+function drawWalker(c,s){
+  if(!s.pend)return;const u=Math.min(1,(s.t-(SCENE_SECS-WALK_IN))/WALK_IN);if(u<0)return;
+  const x=s.pend>0?PW+40+(AR-PW-40)*u:-40+(AL+40)*u;person(c,x,250,{pose:u<1?'walk':'stand',t:s.t*2,dir:s.pend>0?-1:1});
 }
 function drawMap(dt){
   if(!V.panes.length)fitMap();
-  const c=ctx,st=R.stage;
+  const c=ctx;
   c.setTransform(1,0,0,1,0,0);c.fillStyle='#bdbdbd';c.fillRect(0,0,cv.width,cv.height);
   for(const side of ['you','town']){
-    let s=st[side];
-    if(!s||s.t>=SCENE_SECS){
-      const town=R.townQ.length?R.townQ.shift():pickTownScene();
-      s=st[side]={k:side==='you'?(G.ending?endingScene():idleScene()):(G.ending?endingTown():town),t:0,d:{}}}
-    s.t+=dt;
+    const s=advanceStage(side,dt);
     const [ox,oy]=V.panes[side==='you'?0:1];
     c.setTransform(V.k,0,0,V.k,ox,oy);
     c.save();c.beginPath();c.roundRect(0,0,PW,PH,10);c.clip();
     const g=c.createRadialGradient(PW/2,PH/2,40,PW/2,PH/2,PW*0.7);g.addColorStop(0,'#ececec');g.addColorStop(1,'#c4c4c4');c.fillStyle=g;c.fillRect(0,0,PW,PH);
     ground(c);
-    const sc=SCENES[s.k]||SCENES.chain;
-    try{sc.draw(c,Math.min(1,s.t/SCENE_SECS),s.d||{})}catch(e){}
+    let cap;
+    if(s.tr){
+      const cam=s.tr.off*ease(Math.min(1,s.tr.u));
+      c.save();c.translate(-cam,0);drawScene(c,s,1);c.restore();
+      c.save();c.translate(s.tr.off-cam,0);drawScene(c,s.tr.to,0);c.restore();
+      // the walker stays put in the world as the camera follows them across
+      if(s.tr.dir)person(c,(s.tr.dir>0?AR:AL)-cam,250,{pose:'walk',t:s.tr.u*2,dir:s.tr.dir>0?-1:1});
+      cap=(SCENES[s.tr.to.k]||SCENES.chain).cap(s.tr.to.d||{});
+    }else{
+      drawScene(c,s,Math.min(1,s.t/SCENE_SECS));drawWalker(c,s);
+      cap=(SCENES[s.k]||SCENES.chain).cap(s.d||{});
+    }
     txt(c,side==='you'?'YOU':'THE TOWN',14,22,11,'#888',800,'left');
-    const cap=sc.cap(s.d||{});c.fillStyle='rgba(255,255,255,.75)';c.fillRect(0,PH-30,PW,30);txt(c,cap.length>64?cap.slice(0,62)+'…':cap,PW/2,PH-11,13,'#222',700);
+    c.fillStyle='rgba(255,255,255,.75)';c.fillRect(0,PH-30,PW,30);txt(c,cap.length>64?cap.slice(0,62)+'…':cap,PW/2,PH-11,13,'#222',700);
     c.restore();
   }
 }

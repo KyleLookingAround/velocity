@@ -20,7 +20,9 @@ for you and what it does to the town, and one is **your accountant's pick**: wha
 The screen is a **stage** of two scenes, drawn like the video: on the left, **you** (at your desk with the vault
 filling, signing a deed, shaking a senator's hand, loading the moving truck); on the right, **the town**: the
 spending chain from shopper to cashier to barber to café, or the consequences of what you've done (families evicted,
-tents in the park, shutters coming down, strikes and marches, kids at the nursery your money pays for).
+tents in the park, shutters coming down, strikes and marches, kids at the nursery your money pays for). Each scene
+slides into the next like a camera panning across the map, and half the time someone walks up to the edge of the
+scene and the camera follows them: the figure on the right of one scene is the figure on the left of the next.
 
 ## The ladder
 
