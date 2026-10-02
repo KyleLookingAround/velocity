@@ -51,8 +51,8 @@ function economyWeek(){
     if(r.sheltered&&!gifts.shelter){r.sheltered=false;r.homeless=true}
     if(r.homeless&&gifts.shelter){r.homeless=false;r.sheltered=true} // a shelter that reopens takes them back in
     if(r.sheltered)giveOut(T.rent*0.6*grow(0.02),'shelter',null);
-    if((r.homeless||r.sheltered&&G.pub&&G.pub.shelter)&&r.cash>4*r.rent){r.homeless=false;r.sheltered=false;r.arrears=0} // back into a home once they can pay (housing first moves the sheltered on too)
-    let rent=r.homeless||r.sheltered||r.homeOwner==='self'?0:r.rent;
+    if((r.homeless||r.sofa||r.sheltered&&G.pub&&G.pub.shelter)&&r.cash>4*r.rent){r.homeless=false;r.sheltered=false;r.sofa=false;r.arrears=0} // back into a home once they can pay (housing first moves the sheltered on too)
+    let rent=r.homeless||r.sheltered||r.sofa||r.homeOwner==='self'?0:r.rent;
     if(rent&&gifts.vouchers&&r.income<T.wage*grow(0.02)*0.9){const v=rent/3;giveTo(i,v,'vouchers')}
     if(gifts.poverty){const short=T.povertyLine+rent-r.income;if(short>0)giveTo(i,short,'poverty')}
     r.cash+=r.income;

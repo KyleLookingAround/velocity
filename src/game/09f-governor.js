@@ -42,7 +42,7 @@ function governorWeek(){
 }
 function gvApprovalTarget(){
   const g=G.gv,work=G.res.filter(r=>r.role==='worker'),jobs=work.filter(r=>r.job!=null).length/Math.max(1,work.length);
-  return 0.27+(100-G.unrest)/400+(jobs-0.8)*0.6+0.03*g.raises+0.015*g.granted-(g.recession>0?0.05:0)-0.03*g.cuts;
+  return 0.27+(100-G.unrest)/400+(jobs-0.8)*0.6+0.03*g.raises+0.015*g.granted-(g.recession>0?0.05:0)-0.03*Math.min(4,g.cuts);
 }
 function gvChallenger(){const g=G.gv;return 0.46+(g.fortuneTax?0.06:0)+(G.cash>1e9?0.04:G.cash>1e8?0.02:0)-0.03*Math.min(4,g.donors)}
 function gvElectionOdds(){return Math.max(0.05,Math.min(0.95,0.5+(G.gv.approval-gvChallenger())*3))}

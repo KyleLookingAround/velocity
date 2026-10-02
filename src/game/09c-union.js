@@ -25,7 +25,7 @@ function beginUnion(kind){
   r.job='union';r.homeless=false;r.sheltered=false;r.arrears=0;
   const shopsWage=G.shops.filter(s=>s.open).reduce((a,s)=>a+s.wage,0)/Math.max(1,G.shops.filter(s=>s.open).length);
   // an organiser who already led the people at the bottom starts with more of them behind them
-  G.un={i,name:r.name,members:kind==='organiser'?0.3:0.15,fund:0,wins:0,losses:0,soldOut:false,striking:0,target:null,
+  G.un={i,name:r.name,members:(kind==='organiser'?0.3:0.15)+(G.wt&&G.wt.organiser?0.05:0),fund:0,wins:0,losses:0,soldOut:false,striking:0,target:null,
     startMill:G.millMul||1,startShops:shopsWage,history:[]};
   G.seen.union=false;
   toast('You are '+r.name+', organising the town’s workers');

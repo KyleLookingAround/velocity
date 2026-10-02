@@ -37,7 +37,7 @@ function outWeek(){
   if(r.job==null){
     if(o.benefit&&o.sanctioned<=0)fromPurse(wage*OW.benefit);
     if(o.works&&!fromPurse(wage*OW.works)){o.works=false;toast('The public works scheme has run out of money')}
-    if(o.gig){r.cash+=pay('out',id,wage*OW.gig*(r.homeless?0.8:1),'gig');o.health+=OW.gigWear/WEEKS}
+    if(o.gig){r.cash+=pay('out',id,wage*(o.coopGig?0.4:OW.gig)*(r.homeless?0.8:1),'gig');o.health+=OW.gigWear*(o.coopGig?0.5:1)/WEEKS}
   }
   if(o.sanctioned>0)o.sanctioned--;
   if(o.course>0){o.course--;if(o.course===0){o.trained=true;toast('You finish the course')}}
@@ -50,6 +50,6 @@ function offerOdds(){
 }
 function outYearEnd(){const o=G.ow,r=outMe();o.history.push({year:(G.week-G.rungStart)/WEEKS,cash:r.cash,job:r.job,homeless:r.homeless,health:o.health})}
 function outVerdict(){
-  const o=G.ow,r=outMe(),feet=r.job!=null&&!r.homeless&&!r.sheltered;
+  const o=G.ow,r=outMe(),feet=r.job!=null&&!r.homeless&&!r.sheltered&&!r.sofa;
   return {kind:o.organised>=3?'organiser':feet?'feet':'stuck'};
 }

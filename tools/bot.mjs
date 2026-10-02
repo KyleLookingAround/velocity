@@ -212,7 +212,10 @@ console.table(heirRows);
   // (its billionaire passes on homes and buys every shop it can, so the estate has shops to strike)
   const shopper=S=>S.G.card.id==='homes'?'pass':S.G.card.id==='shop'?'cut':opt(S,o=>o.acct);
   for(const seed of [1,2,3]){const S=loadSim(seed);live(S,shopper);
-    for(const r of ['Landlord','Partner','Shop','Waiter','Out','Union','Activist','Mayor','Governor']){if(S.G.ending.kind==='outvoted')break;S['start'+r]();live(S,pick[r.toLowerCase()]||k2);if(S.G.ending.rare)hunted.add(S.G.ending.rung+':'+S.G.ending.rare)}}
+    for(const r of ['Landlord','Partner','Shop','Waiter','Out','Union','Activist','Mayor','Governor']){if(S.G.ending.kind==='outvoted')break;S['start'+r]();live(S,pick[r.toLowerCase()]||k2);
+      // (a mayor voted out can run the town again, as a player would)
+      for(let n=0;n<4&&S.G.ending.kind==='outvoted';n++){S.restartMayor();live(S,k2)}
+      if(S.G.ending.rare)hunted.add(S.G.ending.rung+':'+S.G.ending.rare)}}
   const need=['shop:coop','waiter:thriving','union:general','governor:landslide'],missing=need.filter(x=>!hunted.has(x));
   console.log('rare endings a hunter reached: '+[...hunted].sort().join(', '));if(missing.length){bad++;console.error('rare endings out of reach: '+missing.join(', '))}}console.log('rare endings reached: '+([...rares].sort().join(', ')||'none'));
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

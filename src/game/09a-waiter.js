@@ -39,7 +39,7 @@ function beginWaiter(kind){
 function waiterWage(r,w){
   if(!isWaiter()||r!==me())return w;
   const sick=G.wt.health<0.3&&rnd()<(0.3-G.wt.health)*2;
-  return sick?0:w*WT.shift[G.wt.shift]*(G.wt.trained?WT.trainedPay:1);
+  return sick?0:w*WT.shift[G.wt.shift]*(G.wt.trained?WT.trainedPay:1)*(G.wt.super?1.15:1);
 }
 // a week of your own costs: the loan's interest, union dues, the bus if you moved out, evening classes; and your health
 function waiterWeek(){
@@ -52,7 +52,7 @@ function waiterWeek(){
     if(b>0){G.fund-=b;r.cash+=pay('out',id,b,'benefit');w.year.benefit=(w.year.benefit||0)+b}
     else if(!(G.fund>0)&&!w.purseEmpty){w.purseEmpty=true;toast('The public purse is empty. Housing benefit stops')}}
   // (a training grant pays half the classes, if the purse can)
-  if(w.classes>0){const grant=w.grant&&G.fund>WT.classes/2?WT.classes/2:0;G.fund-=grant;r.cash-=pay(id,'out',WT.classes-grant,'classes');w.classes--;if(w.classes===0){w.trained=true;toast('You finish the course. Your pay goes up')}}
+  if(w.classes>0){const grant=w.grant&&G.fund>WT.classes/2?WT.classes/2:0;G.fund-=grant;r.cash-=pay(id,'out',(WT.classes-grant)*(w.cheap?0.5:1),'classes');w.classes--;if(w.classes===0){w.trained=true;toast('You finish the course. Your pay goes up')}}
   w.health=Math.max(0,Math.min(1,w.health+WT.wear[w.shift]/WEEKS-(r.debt>0&&!giftsOn().medical?0.002:0)));
   if(r.homeless)return endLife('evicted');
 }

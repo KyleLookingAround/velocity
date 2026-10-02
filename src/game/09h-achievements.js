@@ -28,7 +28,7 @@ const RARE={
   union:[{k:'general',name:'The general strike',note:'Win strikes at the mill, on the high street and at the estate\u2019s own shops',when:e=>e.kind==='fairpay'&&G.un.wonAt&&G.un.wonAt.mill&&G.un.wonAt.street&&G.un.wonAt.estate}],
   activist:[{k:'sweep',name:'Clean sweep',note:'Pass every measure, closing the loopholes your partner once wrote',when:e=>e.kind==='changed'&&e.passed.includes('loopholes')&&e.passed.length>=7}],
   mayor:[{k:'commons',name:'The commons',note:'Leave no home in town with a private landlord, without a penny from the state',when:e=>e.kind==='builder'&&!G.my.granted&&!G.res.some(r=>r.homeOwner==='local'&&r.role!=='landlord'||r.homeOwner==='you')}],
-  governor:[{k:'landslide',name:'Landslide',note:'Raise the minimum wage by half, keep 85% behind you, and leave the state\u2019s budget bigger than you found it',when:e=>e.kind==='newdeal'&&e.minWage>=1.5&&e.approval>=0.85&&G.gv.budget>=(G.gv.startBudget||0)}],
+  governor:[{k:'landslide',name:'Landslide',note:'Raise the minimum wage by half, keep 80% behind you, and leave the state\u2019s budget bigger than you found it',when:e=>e.kind==='newdeal'&&e.minWage>=1.5&&e.approval>=0.8&&G.gv.budget>=(G.gv.startBudget||0)}],
   president:[{k:'utopia',name:'Utopia',note:'Rebuild the ladder in a country that was already yours, passing every bill',when:e=>e.kind==='rebuilt'&&G.pr.loop&&e.passed.length>=BILLS.length}],
 };
 // milestones on the ladder itself

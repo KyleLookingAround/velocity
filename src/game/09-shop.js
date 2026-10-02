@@ -35,17 +35,19 @@ function beginShop(kind){
 const buyoutPrice=()=>Math.min(12e6,Math.max(2e6,G.shops[CAFE].profitAvg*WEEKS*6));
 const shopWorth=()=>Math.max(0,G.shops[CAFE].cash)+bea().cash;
 // what the café's choices do to the week: price sends some customers to the megastore, pay and supplies cost more or less
-const cafeLeak=()=>Math.max(0,(G.sh.price-1)*1.4);
+const cafeLeak=()=>Math.max(0,(G.sh.price-1)*1.4)+(G.sh.counter&&!G.sh.loyal?0.08:0);
 const cafeSupplies=()=>T.supplies*SH.supply[G.sh.supply]/G.sh.price;
 const cafeWageMul=()=>SH.pay[G.sh.pay];
 // a week of rent on the premises, to Agnes
 function shopWeek(){
   const s=G.shops[CAFE];const rent=G.sh.premRent;s.cash-=rent;G.res[0].income+=pay('s'+CAFE,'r0',rent,'rent');
+  // deliveries: the app brings a tenth more and keeps 30% of it, out of town; a local rider brings less, and it stays
+  if(G.sh.app==='app'){const x=s.rev*0.1;s.cash+=x*0.7;pay('s'+CAFE,'out',x*0.3,'app')}else if(G.sh.app==='own')s.cash+=s.rev*0.05;
   if(s.cash<-14*s.wage)return endLife('closed');
 }
 function shopYearEnd(){
   const sh=G.sh,s=G.shops[CAFE];
-  sh.premRent*=1+(G.aiLandlord?G.aiLandlord.rise:0.035)*(sh.moved?0.5:1);
+  if(!(sh.lease>G.week))sh.premRent*=1+(G.aiLandlord?G.aiLandlord.rise:0.035)*(sh.moved?0.5:1);
   sh.payYears[sh.pay]++;
   sh.history.push({year:(G.week-G.rungStart)/WEEKS,worth:shopWorth(),cash:s.cash,staff:staffOf(CAFE).length,price:sh.price,pay:sh.pay,supply:sh.supply,unrest:G.unrest});
   G.priceDue=true;
