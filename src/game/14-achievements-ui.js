@@ -82,7 +82,7 @@ function showAchievements(sel){
   $('#box').classList.add('wide');
 }
 function showEnding(){
-  showEndingCore();
+  showEndingCore();if(typeof sfx==='function')sfx(G.ending&&G.ending.newAch&&G.ending.newAch.length?'achieve':'ending',[30,60,30]);
   const e=G.ending,box=$('#box');if(!e)return;
   const rare=e.rare&&(RARE[e.rung]||[]).find(r=>r.k===e.rare);
   box.querySelector('h2').insertAdjacentHTML('beforebegin',`<small class="kick">The end \u00b7 ${RUNG_NAMES[e.rung]}${e.heir?' (heir)':''}</small>`);box.classList.add('ending');
@@ -188,7 +188,7 @@ function setPref(k,v){const p=prefs();p[k]=v;try{localStorage.setItem(PREFS_KEY,
 function applyPrefs(){const p=prefs();document.documentElement.classList.toggle('bigtext',!!p.big);R.calm=!!p.calm||matchMedia('(prefers-reduced-motion: reduce)').matches;if(R.calm)R.confetti=[]}
 applyPrefs();
 function prefsHTML(){const p=prefs();const row=(k,name,note)=>`<div class="card"><div class="txt"><b>${name}</b><small>${note}</small></div><button class="toggle ${p[k]?'on':''}" data-pref="${k}" aria-label="${name}" aria-pressed="${!!p[k]}"></button></div>`;
-  return row('big','Larger text','The panel\u2019s text a size up')+row('calm','A calm stage','No passers-by, weather, drifting or confetti');}
+  return row('big','Larger text','The panel\u2019s text a size up')+row('calm','A calm stage','No passers-by, weather, drifting or confetti')+row('sound','Sound','Soft chimes for a decision, an answer and an achievement')+(navigator.vibrate?row('buzz','Buzz on a phone','A short buzz when a decision arrives'):'');}
 // moving a game between devices: the save as a block of text to copy, and a box to paste one in
 function saveCode(){save();const j=localStorage.getItem(SAVE_KEY)||JSON.stringify(G);return 'MMM1:'+btoa(unescape(encodeURIComponent(j)))}
 function showSaveBox(msg){
