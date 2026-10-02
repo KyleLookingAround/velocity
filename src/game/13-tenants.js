@@ -12,13 +12,21 @@ Object.assign(PANES,{
       <p class="lead" style="margin-top:8px">The bank calls in the loan if it grows past what the homes are worth, and takes them if you miss three months of payments.</p>`;
   },
   tenants(){
-    const rows=myHomes().map(r=>{const st=r.homeless?'Evicted, sleeping rough':r.sheltered?'Evicted, in a shelter':r.owed>0?'Owes '+hh(r.owed):r.arrears?r.arrears+' weeks behind':'Paying';
-      const share=r.income>0?Math.round(r.rent/r.income*100)+'% of income':'no income';
-      return `<div class="row"><b>${r.name}</b><span>${hh(r.rent)}/wk · ${share}</span><em class="${r.homeless||r.sheltered||r.arrears?'bad':''}">${st}</em></div>`}).join('');
+    const rows=myHomes().map(r=>{const st=r.homeless?'Evicted, sleeping rough':r.sheltered?'Evicted, in a shelter':r.owed>0?'Owes '+hh(r.owed):r.arrears?r.arrears+(r.arrears===1?' week':' weeks')+' behind':'Paying';
+      const share=r.income>0?Math.round(r.rent/r.income*100)+'% of income':'no income',i=G.res.indexOf(r);
+      // (what you can do for this home now; each once a year, so a used one goes until next year)
+      const acts=R.homeSel!==i?'':Object.keys(HOME_ACTS).filter(k=>homeActOk(r,k)).map(k=>`<button data-home="${i}" data-act="${k}">${HOME_ACTS[k]}${k==='fix'?' \u00b7 '+money(homeFixCost()):''}</button>`).join('');
+      return `<div class="row hsel${R.homeSel===i?' on':''}" data-hsel="${i}"><b>${r.name}</b><span>${hh(r.rent)}/wk · ${share}</span><em class="${r.homeless||r.sheltered||r.arrears?'bad':''}">${st}</em></div>${acts?`<div class="hacts">${acts}</div>`:''}`}).join('');
+    // the map: every home in town, yours by how they're doing, the others by who owns them
+    const KEY={ok:'Yours, paying',behind:'Behind',out:'Evicted',estate:'The estate\u2019s',council:'Council',own:'Owned by who lives there'};
+    const kind=r=>r.homeOwner!=='local'?(r.homeOwner==='you'?'estate':r.homeOwner==='self'?'own':r.homeOwner==='council'?'council':'own'):r.homeless||r.sheltered?'out':r.arrears||r.owed>0?'behind':'ok';
+    const homes=G.res.filter(r=>r.role!=='landlord'),here=new Set(homes.map(kind));
+    const tile=r=>`<i class="h ${kind(r)}${R.homeSel===G.res.indexOf(r)?' sel':''}"${r.homeOwner==='local'?` data-hsel="${G.res.indexOf(r)}"`:''} title="${r.name}: ${KEY[kind(r)].toLowerCase()}">${r.name[0]}</i>`;
+    const map=`<div class="hmap">${homes.map(tile).join('')}</div><div class="hkey">${Object.keys(KEY).filter(k=>here.has(k)).map(k=>`<span><i class="h ${k}"></i>${KEY[k]}</span>`).join('')}</div>`;
     const pol=G.ll.policy,opts=[['cut','Cut their rent'],['time','Give them time'],['evict','Evict']];
     const policy=`<div class="card"><div class="txt"><b>When a tenant falls six weeks behind</b><small>${pol?'Your policy, applied to everyone':'You\u2019ll be asked the first time'}</small>
       <div class="seg">${opts.map(([k,l])=>`<button class="${pol===k?'on':''}" data-policy="${k}">${l}</button>`).join('')}</div></div></div>`;
-    return policy+`<p class="lead">Your tenants, ${HH} households each.</p>`+(rows||'<p class="lead">You have no tenants. The estate may offer you homes.</p>');
+    return map+policy+`<p class="lead">Your tenants, ${HH} households each. Kept up: ${Math.round(G.ll.cond*100)}%. Tap a home to fix it up, cut its rent or give time.</p>`+(rows||'<p class="lead">You have no tenants. The estate may offer you homes.</p>');
   },
 });
 

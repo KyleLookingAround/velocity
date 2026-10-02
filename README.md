@@ -92,8 +92,10 @@ leaves the life you're in, so a life under way asks once more first.
 - **The landlord** (20 years): you play Agnes in the town the billionaire left. Its homes and shops pass to its
   estate, which raises rents 7% a year; a hero's gifts carry on as a foundation. You decide the yearly rent, what to
   do about each tenant who falls six weeks behind, repairs, buying homes from the estate, and the tenants' union. Home
-  prices follow rents and the town's mood, and the bank calls the loan if it outgrows the homes. Endings: **fair**,
-  **rentier**, or **bankrupt**.
+  prices follow rents and the town's mood, and the bank calls the loan if it outgrows the homes. The Tenants tab
+  maps every home in town (yours by whether they pay, the estate's, the council's, and those owned by who lives
+  there); tap one of yours to fix it up from your savings, cut its rent by a twentieth or give a tenant who's behind
+  time, each once a year, without waiting for a card. Endings: **fair**, **rentier**, or **bankrupt**.
 - **The law firm partner** (20 years): you play Theo, on $2,400 an hour, the top of the video's pay table (a billion
   takes about 200 years). Agnes runs the homes the way you did. Each year you set your hours, and burnout follows
   them. The rich pay best: loopholes for the estate (which starve the town's public works), Agnes's evictions, the

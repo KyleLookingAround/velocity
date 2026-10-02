@@ -99,6 +99,23 @@ function landlordVerdict(){
   const fair=tenants.length>0&&burden<=0.36&&G.ll.cond>=0.65&&rough===0;
   return {kind:fair?'fair':'rentier',burden,rough};
 }
+// the portfolio: one home at a time, without waiting for a card, once a year each. Fix it up (from your savings, spent
+// with the town's builders: your homes are kept up a little better), cut its rent by a twentieth, or give a tenant
+// who's behind six months' grace
+const HOME_ACTS={fix:'Fix it up',cut:'Cut the rent',time:'Give time'};
+const homeFixCost=()=>G.homePrice*0.015;
+function homeActOk(r,k){
+  if(!r||r.homeOwner!=='local'||r.homeless||r.sheltered||(r.acted&&r.acted[k]===yearNo()))return false;
+  if(k==='time'&&G.card&&G.card.id==='arrears'&&G.card.d&&G.card.d.i===G.res.indexOf(r))return false; // (the card is asking already)
+  return k==='fix'?G.res[0].cash>homeFixCost():k==='cut'?r.rent>rentFloor()*1.05:k==='time'?r.arrears>0:false;
+}
+function homeAct(i,k){
+  const r=G.res[i];if(!isLandlord()||!homeActOk(r,k))return false;(r.acted=r.acted||{})[k]=yearNo();
+  if(k==='fix'){const c=homeFixCost();G.res[0].cash-=c;G.ll.year.repairs+=c;const s=G.shops.find(s=>s.cat==='goods'&&s.open);if(s)s.cash+=c*0.5;G.ll.cond=Math.min(1,G.ll.cond+0.15/Math.max(1,myHomes().length))}
+  else if(k==='cut'){cutRent(r,0.95);remember('cut',r)}
+  else{const q=G.arrearsQ.indexOf(i);if(q>=0)G.arrearsQ.splice(q,1);applyArrears(r,'time')}
+  return true;
+}
 // what happens to a tenant six weeks behind: the first time, a card asks you; your answer becomes the policy for
 // everyone after (it can be changed on the Tenants tab)
 function applyArrears(r,k){
