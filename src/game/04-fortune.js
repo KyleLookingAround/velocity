@@ -2,7 +2,10 @@
 // Your fortune earns its return every week with no input. Moves spend it to earn faster, mostly at the town's cost;
 // gifts spend it on the town. Prices of everything grow a little each year (grow()).
 const grow=(r)=>Math.pow(1+r,Math.floor(G.week/WEEKS));
+// the crash takes a share of the fortune: more if you rode the boom on borrowed money, half as much if you sold at the top
+function crashHits(keep){if(G.boom==='rode'){keep-=0.1;G.rate-=0.006}else if(G.boom==='sold')keep=1-(1-keep)*0.5;G.cash*=keep}
 function fortuneWeek(){
+  if(G.boom==='sold'&&!G.crashed){G.cash*=Math.pow(1-0.004,1/WEEKS)}
   const before=G.cash;
   G.cash*=Math.pow(1+G.rate,1/WEEKS);
   G.year.gains+=G.cash-before;

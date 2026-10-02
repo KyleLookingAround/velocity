@@ -64,7 +64,8 @@ recommends (some rare endings need those).
 The game is a ladder of roles, one per rung: six down by money, five back up by votes, each starting in the town the
 last one left. At the top, the laws a president passes become the law in every billionaire life after.
 
-- **The billionaire** (40 years): $30M at 8% a year. Along the way: a market crash (buy what everyone else must sell,
+- **The billionaire** (40 years): $30M at 8% a year. Along the way: a boom (borrow and ride it, sell a third at the
+  top, or sit tight), then a market crash that takes more from those who rode it on borrowed money (buy what everyone else must sell,
   hold, or keep the town's shops afloat), a superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, **gave it all away** (generous past what the fortune
   earns, ending poorer than it began), or **hero** (give at least 35% of your gains, keep unrest
