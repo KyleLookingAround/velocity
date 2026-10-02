@@ -11,7 +11,7 @@ function buildChrome(){
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
-  const tabs=isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  const tabs=isActivist()?[['campaign','Campaign'],['town','Town'],['story','Story']]:isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
@@ -19,7 +19,12 @@ const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
-  if(isUnion()){
+  if(isActivist()){
+    const a=G.ac;$('#nw').textContent=Math.round(a.support*100)+'% behind you';
+    $('#growth').innerHTML=a.campaign?'campaigning: <b>'+measure(a.campaign).name+'</b>':'funds <b>'+money(a.funds)+'</b> · no campaign';
+    $('#clock').innerHTML=`<b>${a.name}, ${age()}</b><br>Year ${yearNo()} of ${AC.years}`;
+    setMeter(1,'Votes won',String(a.passed.length));setMeter(2,'Public purse',money(G.fund||0));
+  }else if(isUnion()){
     const u=G.un;$('#nw').textContent=Math.round(u.members*100)+'% in';
     $('#growth').innerHTML=u.striking?'<b>On strike</b>: '+u.striking+' weeks to go':'strike fund <b>'+money(u.fund)+'</b> · '+u.wins+' won, '+u.losses+' lost';
     $('#clock').innerHTML=`<b>${u.name}, ${age()}</b><br>Year ${yearNo()} of ${UN.years}`;
@@ -72,7 +77,7 @@ function renderPane(force){
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   return `<div class="decide"><div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
-    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='union'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
+    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
 const PANES={
@@ -106,9 +111,9 @@ const PANES={
   },
   story(){
     const list=G.choices.slice().reverse().slice(0,30);
-    return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes the way that makes the most money, without asking you.</small></div>
+    return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes ${G.rung==='union'||G.rung==='activist'?'the easiest way for you':G.rung==='waiter'||G.rung==='out'?'the way that pays most this week':'the way that makes the most money'}, without asking you.</small></div>
       <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
@@ -157,6 +162,12 @@ function showPartnerIntro(){
     <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
 }
+function showActivistIntro(){
+  const a=G.ac,from=G.ladder.fromUnion;
+  showModal(`<h2>Climb: the activist</h2><p>You are ${a.name}. ${from==='fairpay'?'The union\u2019s wins brought people with you':from==='soldout'?'People remember the manager\u2019s job':'You start with the people you know'}: ${Math.round(a.support*100)}% of the town is behind you.</p>
+    <p>Campaign for changes the whole town votes on: taxing the estate, capping rents, and programmes paid from the public purse. Each campaign runs half a year before its vote. The estate\u2019s money pays for the other side.</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>${AC.years} years.</small></button></div>`);
+}
 function showUnionIntro(){
   const u=G.un;
   showModal(`<h2>Climb: the union organiser</h2><p>You are ${u.name}. ${Math.round(u.members*100)}% of the town\u2019s workers are with you so far.</p>
@@ -184,14 +195,26 @@ function showShopIntro(){
 }
 function showEnding(){
   const e=G.ending;
+  if(e.rung==='activist'){
+    const T0={changed:['The town changed','Three votes or more, and the town runs differently for it.'],
+      heard:['Heard','You won some. The town is a little fairer than you found it.'],
+      bought:['Bought','The foundation\u2019s money ran your campaigns. The estate was never taxed.'],
+      ignored:['Ignored','Ten years, and nothing on the ballot passed.']}[e.kind];
+    const names=e.passed.map(k=>measure(k).name.toLowerCase());
+    return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${e.passed.length} vote${e.passed.length===1?'':'s'} won</div>
+      <p>${e.name}, after ${Math.max(1,Math.round(e.week/WEEKS))} years${names.length?': '+names.join(', '):''}. ${e.lost?e.lost+' lost. ':''}The public purse holds ${money(e.purse)}.</p>
+      <p>Next rung up: <b>the mayor</b>. It isn\u2019t built yet.</p>
+      <div class="opts"><button class="main" data-replay7="1"><b>Campaign again</b><small>The same town, as the union left it</small></button>
+      <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
+  }
   if(e.rung==='union'){
     const T0={fairpay:['Fair wages','You won the fights that mattered, and the whole town is paid more for it.'],
       soldout:['Sold out','You took the manager\u2019s job. The union didn\u2019t last long without you.'],
       busted:['Crumbs from the table','Small deals, no wins. The town\u2019s pay barely moved.']}[e.kind];
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${(e.rise>=0?'+':'')+Math.round(e.rise*100)}% pay</div>
       <p>${e.name}, after ${Math.max(1,Math.round(e.week/WEEKS))} years: ${e.wins} strike${e.wins===1?'':'s'} won, ${e.losses} lost, ${Math.round(e.members*100)}% of workers in the union.</p>
-      <p>Next rung up: <b>the activist</b>. It isn\u2019t built yet.</p>
-      <div class="opts"><button class="main" data-replay6="1"><b>Organise again</b><small>The same town, as the bottom rung left it</small></button>
+      <div class="opts"><button class="main" data-rung="activist"><b>Climb: the activist</b><small>Campaign for the whole town, as ${e.name}</small></button>
+      <button data-replay6="1"><b>Organise again</b><small>The same town, as the bottom rung left it</small></button>
       <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   if(e.rung==='out'){
@@ -267,6 +290,8 @@ $('#box').addEventListener('click',e=>{
   if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true)} // cosmetic
   if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
   if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
+  if(g&&g.dataset.rung==='activist'){startActivist();R.stage={};buildTabs();save();renderPane(true);showActivistIntro()}
+  if(e.target.closest('[data-replay7]')){restartActivist();R.stage={};buildTabs();save();renderPane(true);showActivistIntro()}
   if(g&&g.dataset.rung==='union'){startUnion();R.stage={};buildTabs();save();renderPane(true);showUnionIntro()}
   if(e.target.closest('[data-replay6]')){restartUnion();R.stage={};buildTabs();save();renderPane(true);showUnionIntro()}
   if(g&&g.dataset.rung==='out'){startOut();R.stage={};buildTabs();save();renderPane(true);showOutIntro()}

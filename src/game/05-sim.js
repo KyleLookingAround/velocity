@@ -40,11 +40,14 @@ function yearEnd(){
   G.homePrice=rent*WEEKS/T.homeYield*G.priceMood;
   if(isLandlord()){landlordYearEnd();if(G.ending)return}
   if(isPartner()){partnerYearEnd();if(G.ending)return}
-  if(isShop()||isWaiter()||isOut()||isUnion()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
+  if(isShop()||isWaiter()||isOut()||isUnion()||isActivist()){const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,G.pt?G.pt.loopholes:0);if(tax>0){G.cash-=tax;G.fund=(G.fund||0)+tax}}
+  // a wealth tax the town voted for: 2% of the estate a year
+  if(G.pub&&G.pub.wealthtax&&G.cash>0){const w=G.cash*0.02;G.cash-=w;G.fund=(G.fund||0)+w}
   if(isShop()){shopYearEnd();if(G.ending)return}
   if(isWaiter()){waiterYearEnd();if(G.ending)return}
   if(isOut()){outYearEnd();if(G.ending)return}
   if(isUnion()){unionYearEnd();if(G.ending)return}
+  if(isActivist()){activistYearEnd();if(G.ending)return}
   reopenShops();
   // the purse holds at most two years of the whole town's wages: beyond that the town can't spend it
   G.fund=Math.min(G.fund||0,T.wage*grow(0.02)*G.res.length*WEEKS*2);
@@ -83,6 +86,12 @@ function fundWeek(){
 
 function endLife(kind){
   if(G.ending)return;
+  if(isActivist()){
+    const v=kind==='death'?activistVerdict():{kind};const a=G.ac;
+    G.ending={rung:'activist',kind:v.kind,week:rungWeek(),name:a.name,passed:a.passed.slice(),lost:a.lost.length,support:a.support,purse:G.fund||0,unrest:G.unrest};
+    G.ladder.best=Object.assign({},G.ladder.best,{activist:G.ending.kind});
+    return;
+  }
   if(isUnion()){
     const v=kind==='death'?unionVerdict():{kind};
     G.ending={rung:'union',kind:v.kind,week:rungWeek(),name:G.un.name,wins:G.un.wins,losses:G.un.losses,members:G.un.members,rise:wageRise(),unrest:G.unrest};
@@ -138,6 +147,7 @@ function step(){
   if(isWaiter()){waiterWeek();if(G.ending)return}
   if(isOut()){outWeek();if(G.ending)return}
   if(isUnion()){unionWeek();if(G.ending)return}
+  if(isActivist()){activistWeek();if(G.ending)return}
   G.week++;
   const nw=netWorth(),givenW=G.year.given-(G._yv||0),gainW=nw-(G._nw??nw)+givenW;
   G._nw=nw;G._yv=G.year.given;

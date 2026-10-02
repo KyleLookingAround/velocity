@@ -15,7 +15,7 @@ function pay(from,to,amt,kind){
 
 function economyWeek(){
   R.flows=[];
-  const res=G.res,gifts=G.gifts;
+  const res=G.res,gifts=giftsOn();
   for(const r of res){r.income=0;r.spent=0}
   // the mill sells outside town and pays its six; whatever's left goes to its owners elsewhere
   for(const r of millStaff())r.income+=pay('mill','r'+res.indexOf(r),wageFor(r,T.wage*grow(0.02)*(G.millMul||1)),'wage');
@@ -27,6 +27,7 @@ function economyWeek(){
     G.cash+=profit>0?pay('w'+i,'you',profit,'profit'):profit;
   });
   if(isUnion()){const p=unionPay(unMe());unMe().income+=pay('out','r'+G.un.i,p,'wage')}
+  if(isActivist()){const p=activistPay(acMe());acMe().income+=pay('out','r'+G.ac.i,p,'wage')}
   for(const r of res)if(r.role==='retiree')r.income+=pay('out','r'+res.indexOf(r),T.pension*grow(0.02),'pension');
   // shops pay their staff, and owners take their pay and last week's profit
   G.shops.forEach((s,i)=>{
@@ -44,8 +45,9 @@ function economyWeek(){
     const id='r'+i;
     if(r.role==='landlord')return;
     if(r.sheltered&&!gifts.shelter){r.sheltered=false;r.homeless=true}
+    if(r.homeless&&gifts.shelter){r.homeless=false;r.sheltered=true} // a shelter that reopens takes them back in
     if(r.sheltered)giveOut(T.rent*0.6*grow(0.02),'shelter',null);
-    if(r.homeless&&r.cash>4*r.rent){r.homeless=false;r.arrears=0} // back into a home once they can pay
+    if((r.homeless||r.sheltered&&G.pub&&G.pub.shelter)&&r.cash>4*r.rent){r.homeless=false;r.sheltered=false;r.arrears=0} // back into a home once they can pay (housing first moves the sheltered on too)
     let rent=r.homeless||r.sheltered||r.homeOwner==='self'?0:r.rent;
     if(rent&&gifts.vouchers&&r.income<T.wage*grow(0.02)*0.9){const v=rent/3;giveTo(i,v,'vouchers')}
     if(gifts.poverty){const short=T.povertyLine+rent-r.income;if(short>0)giveTo(i,short,'poverty')}
@@ -99,15 +101,19 @@ function economyWeek(){
   let stock=0;for(const r of res)if(r.role!=='landlord')stock+=Math.max(0,r.cash);for(const s of G.shops)if(s.open)stock+=Math.max(0,s.cash);
   G.year.stock+=stock;G.year.weeks++;
 }
-const wageFor=(r,w)=>waiterWage(r,r.parent&&!G.gifts.childcare?w*T.partTime:w);
+const wageFor=(r,w)=>waiterWage(r,r.parent&&!giftsOn().childcare?w*T.partTime:w);
 
 function evict(r){
   r.arrears=0;townEvent('evicted',r.name);
-  if(G.gifts.shelter){r.homeless=false;r.sheltered=true}else r.homeless=true;
+  if(giftsOn().shelter){r.homeless=false;r.sheltered=true}else r.homeless=true;
 }
-// the gifts you fund come out of your fortune and into the town
-function giveTo(i,amt,kind){gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;G.res[i].income+=amt;pay('you','r'+i,amt,'gift')}
-function giveOut(amt,kind,i){if(!(amt>0))return;gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;pay('you',i==null?'out':'r'+i,amt,'gift')}
+// the gifts you fund come out of your fortune and into the town; a public programme the town voted for comes out of
+// the public purse instead, while it has money
+function giftsOn(){const a=Object.assign({},G.gifts);if(G.fund>0)for(const k in G.pub||{})if(G.pub[k])a[k]=true;return a}
+const fromPurse=(kind,amt)=>{const p=Math.min(amt,G.fund||0);if(p>0){G.fund-=p;gc('pub-'+kind,p)}return p};
+function giveTo(i,amt,kind){
+  if(!G.gifts[kind]){const p=fromPurse(kind,amt);G.res[i].income+=p;pay('out','r'+i,p,'programme');return}gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;G.res[i].income+=amt;pay('you','r'+i,amt,'gift')}
+function giveOut(amt,kind,i){if(!(amt>0))return;if(!G.gifts[kind]){pay('out',i==null?'out':'r'+i,fromPurse(kind,amt),'programme');return}gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;pay('you',i==null?'out':'r'+i,amt,'gift')}
 
 // a busy shop hires from the figures out of work; one losing money lays staff off, then closes
 function staffing(){

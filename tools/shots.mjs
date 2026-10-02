@@ -30,7 +30,10 @@ const saves=[];
   until(S,()=>false,kind);saves.push(['out-ending',JSON.stringify(S.G),'days']);
   S.startUnion();S.G.seen.union=true;S.step();saves.push(['union-card',JSON.stringify(S.G),'union']);
   until(S,()=>S.G.week>=S.G.rungStart+4*52&&!S.G.card,kind);saves.push(['union',JSON.stringify(S.G),'union']);
-  until(S,()=>false,kind);saves.push(['union-ending',JSON.stringify(S.G),'union'])}
+  until(S,()=>false,kind);saves.push(['union-ending',JSON.stringify(S.G),'union']);
+  S.startActivist();S.G.seen.activist=true;until(S,()=>!!S.G.card,kind);saves.push(['activist-card',JSON.stringify(S.G),'campaign']);
+  until(S,()=>S.G.week>=S.G.rungStart+4*52&&!S.G.card,kind);saves.push(['activist',JSON.stringify(S.G),'campaign']);
+  until(S,()=>false,kind);saves.push(['activist-ending',JSON.stringify(S.G),'campaign'])}
 const browser=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'}).catch(()=>chromium.launch());
 let errors=0;
 for(const [name,w,h] of sizes){
@@ -40,7 +43,8 @@ for(const [name,w,h] of sizes){
   await page.goto('file://'+join(root,'dist/index.html'));
   await page.screenshot({path:join(out,name+'-intro.png')});
   await page.close();
-  for(const [scene,save,tab] of saves){
+  const only=process.argv[2];
+  for(const [scene,save,tab] of saves.filter(x=>!only||x[0].startsWith(only))){
     const p=await browser.newPage({viewport:{width:w,height:h},deviceScaleFactor:2});
     p.on('pageerror',e=>{errors++;console.error(name+' '+scene+': '+e.message)});
     await p.addInitScript(j=>{localStorage.setItem('money-makes-money-save-v1',JSON.stringify(Object.assign(JSON.parse(j),{speed:0})))},save);

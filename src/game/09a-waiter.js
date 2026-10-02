@@ -53,7 +53,7 @@ function waiterWeek(){
     else if(!(G.fund>0)&&!w.purseEmpty){w.purseEmpty=true;toast('The public purse is empty. Housing benefit stops')}}
   // (a training grant pays half the classes, if the purse can)
   if(w.classes>0){const grant=w.grant&&G.fund>WT.classes/2?WT.classes/2:0;G.fund-=grant;r.cash-=pay(id,'out',WT.classes-grant,'classes');w.classes--;if(w.classes===0){w.trained=true;toast('You finish the course. Your pay goes up')}}
-  w.health=Math.max(0,Math.min(1,w.health+WT.wear[w.shift]/WEEKS-(r.debt>0&&!G.gifts.medical?0.002:0)));
+  w.health=Math.max(0,Math.min(1,w.health+WT.wear[w.shift]/WEEKS-(r.debt>0&&!giftsOn().medical?0.002:0)));
   if(r.homeless)return endLife('evicted');
 }
 function waiterYearEnd(){

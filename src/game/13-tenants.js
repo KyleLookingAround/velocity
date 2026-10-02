@@ -79,3 +79,15 @@ PANES.union=function(){
     <div>Strikes won<b>${u.wins}</b></div><div>Strikes lost<b>${u.losses}</b></div>
     <div>Pay since you began<b>${(wageRise()>=0?'+':'')+pc(wageRise())}</b></div><div>Public purse<b>${money(G.fund||0)}</b></div></div>`;
 };
+
+// the activist's Campaign tab: support, the campaign under way, what has passed, and the purse that pays for it
+PANES.campaign=function(){
+  const a=G.ac,pc=v=>Math.round(v*100)+'%',k=a.campaign,left=k?Math.max(0,AC.campaignWeeks-(G.week-a.campaignStart)):0;
+  const running=['shelter','childcare','medical','vouchers'].filter(x=>G.pub[x]),cost=G.lastGiftCost||{};
+  const spent=running.reduce((s,x)=>s+(cost['pub-'+x]||0),0);
+  return `<p class="lead">${k?'<b>'+measure(k).name+'</b>: '+(left?'the vote is in '+left+' weeks.':'the vote is due.'):'No campaign under way.'} A vote passes on support, against the measure\u2019s opponents and the estate\u2019s money. What passes lasts.</p>
+    <div class="stats"><div>Behind you<b>${pc(a.support)}</b></div><div>Funds<b>${money(a.funds)}</b></div>
+    <div>Chance now<b>${k?pc(voteOdds(k)):'\u2013'}</b></div><div>With a push<b>${k?pc(voteOdds(k,adsBoost())):'\u2013'}</b></div>
+    <div>Purse<b>${money(G.fund||0)}</b></div><div>Paid out<b>${money(spent)}/yr</b></div></div>
+    ${MEASURES.map(m=>`<div class="card"><div class="txt"><b>${m.name}</b><small>${m.note}</small><small>${a.passed.includes(m.k)?'Passed':a.donor&&m.k==='wealthtax'?'Off the table':a.lost.includes(m.k)?'Lost '+a.lost.filter(x=>x===m.k).length+'\u00d7':'Not yet'}</small></div></div>`).join('')}`;
+};

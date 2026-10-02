@@ -12,7 +12,7 @@ const FIELDS={
   speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false,
   card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], borrowed:()=>false, senator:()=>false,
   arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
-  aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false, ow:()=>null, claimDue:()=>false, un:()=>null,
+  aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false, ow:()=>null, claimDue:()=>false, un:()=>null, ac:()=>null, pub:()=>({}),
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
 };
 const DEFAULT=()=>{const s={};for(const k in FIELDS)s[k]=FIELDS[k]();return s};
@@ -62,7 +62,7 @@ const jobless=()=>G.res.filter(r=>r.role==='worker'&&r.job==null);
 const homesOwned=()=>G.res.filter(r=>r.homeOwner==='you').length;
 const shopsOwned=()=>G.shops.filter(s=>s.ownedByYou).length;
 const age=()=>START_AGE+Math.floor((G.week-(G.rungStart||0))/WEEKS);
-const rungYears=()=>G.rung==='billionaire'?END_AGE-START_AGE:G.rung==='waiter'?15:G.rung==='out'?5:G.rung==='union'?10:20;
+const rungYears=()=>G.rung==='billionaire'?END_AGE-START_AGE:G.rung==='waiter'?15:G.rung==='out'?5:G.rung==='union'||G.rung==='activist'?10:20;
 const yearNo=()=>Math.min(Math.floor((G.week-(G.rungStart||0))/WEEKS)+1,rungYears());
 // what you're worth: the invested fortune, the homes at today's price and the shops and workshops at their price
 function netWorth(){

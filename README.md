@@ -27,7 +27,7 @@ scene and the camera follows them: the figure on the right of one scene is the f
 ## The ladder
 
 The game is a ladder of roles, one per rung: down by money, back up by votes. The whole way down is built, six rungs,
-and the first rung of the climb back up; each starts in the town the last one left.
+and the first two rungs of the climb back up; each starts in the town the last one left.
 
 - **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
@@ -62,6 +62,14 @@ and the first rung of the climb back up; each starts in the town the last one le
   A won strike raises a whole workplace's pay by 12%, and that pay is spent in town. The mill's managers will offer a
   small raise to call it off, and a manager's job for you. Endings: **fair wages**, **sold out**, or **crumbs from the
   table**.
+- **The activist** (10 years): the same person, campaigning for changes the whole town votes on. Supporters give a
+  little each week; each campaign runs half a year before its vote, against the measure's own opponents and the
+  estate's money. On the ballot: taxing the estate (2% a year into the public purse), capping rents (none above a
+  third of a wage), closing the partner's loopholes, and the billionaire's gifts as **public programmes** paid from
+  the purse (housing first, childcare, medical debt relief, housing vouchers). Once a programme runs, the state will
+  match the purse with a grant. Knocking on doors builds support that stays; a foundation will fund you if you drop
+  the wealth tax. What passes lasts. Endings: **the town changed** (three votes or more), **heard**, **bought**, or
+  **ignored**.
 
 **Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
 it would be at the start of the game: a century of the ladder inflates every price.
@@ -78,9 +86,11 @@ it would be at the start of the game: a century of the ladder inflates every pri
   75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the accountant's
   prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding → evicted)
   and three people out of work (organising → organiser, scrambling for work → back on your feet, taking nothing →
-  stuck). Then three union organisers: generous → fair wages, the accountant → sold out, doing nothing → crumbs.
+  stuck). Then three union organisers: generous → fair wages, the accountant → sold out, doing nothing → crumbs. Then three
+  activists: generous → the town changed, the easiest way → bought, never campaigning → ignored.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
-  from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, and the landlord.
+  from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
+  first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.
 - `npm run check` runs all three.
 
 Files `src/game/00-` to `09-` are the simulation (economy, fortune, landlord, cards): no DOM, so `tools/sim.mjs` can
