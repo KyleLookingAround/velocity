@@ -11,7 +11,7 @@ function buildChrome(){
   $('#pane').onclick=onPaneClick;
 }
 function buildTabs(){
-  const tabs=isMayor()?[['hall','Town hall'],['town','Town'],['story','Story']]:isActivist()?[['campaign','Campaign'],['town','Town'],['story','Story']]:isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
+  const tabs=isGovernor()?[['state','State'],['town','Town'],['story','Story']]:isMayor()?[['hall','Town hall'],['town','Town'],['story','Story']]:isActivist()?[['campaign','Campaign'],['town','Town'],['story','Story']]:isUnion()?[['union','Union'],['town','Town'],['story','Story']]:isOut()?[['days','Days'],['town','Town'],['story','Story']]:isWaiter()?[['budget','Budget'],['town','Town'],['story','Story']]:isShop()?[['cafe','Café'],['town','Town'],['story','Story']]:isPartner()?[['career','Career'],['town','Town'],['story','Story']]:isLandlord()?[['books','Books'],['tenants','Tenants'],['town','Town'],['story','Story']]:[['fortune','Fortune'],['commit','Commitments'],['town','Town'],['story','Story']];
   if(!tabs.some(t=>t[0]===R.tab))R.tab=tabs[0][0];
   $('#tabs').innerHTML=tabs.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join('');
 }
@@ -19,7 +19,12 @@ const weeklySpend=()=>G.res.reduce((a,r)=>a+r.spent,0);
 function setMeter(i,label,value){const m=$('#meters').children[i];m.firstChild.textContent=label+' ';m.querySelector('b').textContent=value}
 function refreshTop(){
   const u=G.unrest,lv=unrestLevel(u),last=G.history.at(-1);
-  if(isMayor()){
+  if(isGovernor()){
+    const g=G.gv;$('#nw').textContent=Math.round(g.approval*100)+'% approve';
+    $('#growth').innerHTML='state budget <b>'+money(g.budget)+'</b> · minimum wage '+(g.minWage>=1?'+':'')+Math.round((g.minWage-1)*100)+'%';
+    $('#clock').innerHTML=`<b>Governor ${g.name}, ${age()}</b><br>Year ${yearNo()} of ${GV.years}`;
+    setMeter(1,'Re-election',g.elections.length?(g.elections[0].won?'Won':'Lost'):'Year '+GV.term);setMeter(2,'Odds',g.elections.length?'\u2013':Math.round(gvElectionOdds()*100)+'%');
+  }else if(isMayor()){
     const m=G.my;$('#nw').textContent=Math.round(m.approval*100)+'% approve';
     $('#growth').innerHTML='purse <b>'+money(G.fund||0)+'</b> · '+m.council+' council home'+(m.council===1?'':'s');
     $('#clock').innerHTML=`<b>Mayor ${m.name}, ${age()}</b><br>Year ${yearNo()} of ${MY.years}`;
@@ -82,7 +87,7 @@ function renderPane(force){
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   return `<div class="decide"><div class="kicker">A decision · ${G.rung!=='billionaire'?'year '+yearNo():'age '+age()}</div><h3>${c.title(d)}</h3><p>${c.body(d)}</p>`+
-    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
+    c.options(d).map(o=>`<button class="opt ${o.acct?'acct':''}" data-card="${o.k}"><b>${o.label}</b>${o.acct?'<em>'+(G.rung==='mayor'||G.rung==='governor'?'Keeps the donors happy':G.rung==='union'||G.rung==='activist'?'Easiest for you':G.rung==='waiter'||G.rung==='out'?'Pays most this week':'Your accountant’s pick')+'</em>':''}
       <span><i>You</i>${o.you}</span><span><i>Town</i>${o.town}</span></button>`).join('')+`</div>`;
 }
 const PANES={
@@ -116,9 +121,9 @@ const PANES={
   },
   story(){
     const list=G.choices.slice().reverse().slice(0,30);
-    return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes ${G.rung==='mayor'?'the way the donors like':G.rung==='union'||G.rung==='activist'?'the easiest way for you':G.rung==='waiter'||G.rung==='out'?'the way that pays most this week':'the way that makes the most money'}, without asking you.</small></div>
+    return `<div class="card"><div class="txt"><b>Let your accountant decide</b><small>Every decision goes ${G.rung==='mayor'||G.rung==='governor'?'the way the donors like':G.rung==='union'||G.rung==='activist'?'the easiest way for you':G.rung==='waiter'||G.rung==='out'?'the way that pays most this week':'the way that makes the most money'}, without asking you.</small></div>
       <button class="toggle ${G.autoAcct?'on':''}" data-auto="1" aria-label="Let your accountant decide" aria-pressed="${G.autoAcct}"></button></div>`+
-      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
+      (list.length?list.map(c=>`<div class="story"><small>${c.rung==='landlord'?'Landlord':c.rung==='partner'?'Law firm partner':c.rung==='shop'?'Shop owner':c.rung==='waiter'?'Waiter':c.rung==='out'?'Out of work':c.rung==='union'?'Union organiser':c.rung==='activist'?'Activist':c.rung==='mayor'?'Mayor':c.rung==='governor'?'Governor':'Age '+(START_AGE+Math.floor(c.week/WEEKS))}</small><b>${c.title}</b><span>${c.label}</span></div>`).join(''):'<p class="lead">Your decisions will be listed here.</p>');
   },
 };
 function onPaneClick(e){
@@ -167,6 +172,12 @@ function showPartnerIntro(){
     <p>Each year you choose your hours. Clients come to you: the rich pay best, and the town can’t pay at all.</p>
     <div class="opts"><button class="main" data-start="1"><b>Start</b><small>You have ${PT.years} years.</small></button></div>`);
 }
+function showGovernorIntro(){
+  const g=G.gv;
+  showModal(`<h2>Climb: the governor</h2><p>You are Governor ${g.name}. The town is one of many now, and what reaches it comes from the state.</p>
+    <p>Set the minimum wage, decide whether the biggest fortunes pay, hand out the state\u2019s grants to towns, and choose what a recession and a chain\u2019s warehouse get. The state votes again in ${GV.term} years.</p>
+    <div class="opts"><button class="main" data-start="1"><b>Start</b><small>Two terms, if they re-elect you.</small></button></div>`);
+}
 function showMayorIntro(){
   const m=G.my;
   showModal(`<h2>Climb: the mayor</h2><p>You are Mayor ${m.name}. The public purse is yours to spend: ${money(G.fund||0)}.</p>
@@ -206,6 +217,17 @@ function showShopIntro(){
 }
 function showEnding(){
   const e=G.ending;
+  if(e.rung==='governor'){
+    const T0={newdeal:['A new deal','Higher wages, the biggest fortunes paying their share, and the money sent to the towns.'],
+      dealmaker:['The dealmaker','Tax breaks and donors. The state ran smoothly, for the people who paid for it.'],
+      steward:['The steward','Two terms. Steady hands, and not much changed.'],
+      unseated:['Unseated','The state chose someone else.']}[e.kind];
+    return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${(e.minWage>=1?'+':'')+Math.round((e.minWage-1)*100)}% minimum wage</div>
+      <p>Governor ${e.name}, ${e.terms} term${e.terms===1?'':'s'}. ${e.fortuneTax?'The biggest fortunes pay 1% a year. ':''}${e.granted} grants and schemes for the towns. ${Math.round(e.approval*100)}% approved of you at the end.</p>
+      <p>Next rung up: <b>the president</b>. It isn\u2019t built yet.</p>
+      <div class="opts"><button class="main" data-replay9="1"><b>Govern again</b><small>The same state, as the mayor left it</small></button>
+      <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
+  }
   if(e.rung==='mayor'){
     const T0={builder:['The builder','Two terms, homes the town can afford, and a calmer town for it.'],
       machine:['The machine','Re-elected on the donors\u2019 money. The landlords never had it so good.'],
@@ -213,8 +235,9 @@ function showEnding(){
       outvoted:['Voted out','The town chose someone else.']}[e.kind];
     return showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${e.council} council home${e.council===1?'':'s'}</div>
       <p>Mayor ${e.name}, ${e.terms} term${e.terms===1?'':'s'}. ${Math.round(e.approval*100)}% approved of you at the end. The purse holds ${money(e.purse)}.</p>
-      <p>Next rung up: <b>the governor</b>. It isn\u2019t built yet.</p>
-      <div class="opts"><button class="main" data-replay8="1"><b>Run the town again</b><small>The same town, as the activist left it</small></button>
+      ${e.kind==='outvoted'?'<p>A mayor the town voted out can\u2019t run for governor.</p>':''}
+      <div class="opts">${e.kind==='outvoted'?'':`<button class="main" data-rung="governor"><b>Climb: the governor</b><small>${e.name} runs for the state, and wins</small></button>`}
+      <button ${e.kind==='outvoted'?'class="main" ':''}data-replay8="1"><b>Run the town again</b><small>The same town, as the activist left it</small></button>
       <button data-again="1"><b>Live another billionaire life</b><small>A new town and $30M</small></button></div>`,true);
   }
   if(e.rung==='activist'){
@@ -312,6 +335,8 @@ $('#box').addEventListener('click',e=>{
   if(a){newGame(Math.random()*4294967296);G.seen.intro=true;R.stage={};hideModal();buildTabs();save();renderPane(true)} // cosmetic
   if(g&&g.dataset.rung==='landlord'){startLandlord();R.stage={};buildTabs();save();renderPane(true);showLandlordIntro()}
   if(g&&g.dataset.rung==='partner'){startPartner();R.stage={};buildTabs();save();renderPane(true);showPartnerIntro()}
+  if(g&&g.dataset.rung==='governor'){startGovernor();R.stage={};buildTabs();save();renderPane(true);showGovernorIntro()}
+  if(e.target.closest('[data-replay9]')){restartGovernor();R.stage={};buildTabs();save();renderPane(true);showGovernorIntro()}
   if(g&&g.dataset.rung==='mayor'){startMayor();R.stage={};buildTabs();save();renderPane(true);showMayorIntro()}
   if(e.target.closest('[data-replay8]')){restartMayor();R.stage={};buildTabs();save();renderPane(true);showMayorIntro()}
   if(g&&g.dataset.rung==='activist'){startActivist();R.stage={};buildTabs();save();renderPane(true);showActivistIntro()}

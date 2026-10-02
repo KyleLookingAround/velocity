@@ -101,3 +101,13 @@ PANES.hall=function(){
     <div>Council homes<b>${m.council}</b></div><div>A home costs<b>${money(G.homePrice)}</b></div>
     <div>Donors<b>${m.donors?m.donors:'None'}</b></div><div>The mill<b>${{paid:'Subsidised',stake:'Part the town\u2019s',refused:'Refused'}[m.mill]||'\u2013'}</b></div></div>`;
 };
+
+// the governor's State tab: approval, the minimum wage, the fortune tax, and the state's budget for the towns
+PANES.state=function(){
+  const g=G.gv,pc=v=>Math.round(v*100)+'%';
+  return `<p class="lead">No shop pays less than the minimum wage. The state\u2019s budget pays grants to the towns; a tax on the biggest fortunes fills it.</p>
+    <div class="stats"><div>Approval<b>${pc(g.approval)}</b></div><div>Re-election<b>${g.elections.length?(g.elections[0].won?'Won':'Lost'):pc(gvElectionOdds())}</b></div>
+    <div>Minimum wage<b>${(g.minWage>=1?'+':'')+pc(g.minWage-1)}</b></div><div>Fortune tax<b>${g.fortuneTax?'1% a year':'No'}</b></div>
+    <div>State budget<b>${money(g.budget)}</b></div><div>Town\u2019s purse<b>${money(G.fund||0)}</b></div>
+    <div>Grants<b>${g.granted}</b></div><div>Recession<b>${g.recession>0?Math.ceil(g.recession/4)+' months left':'No'}</b></div></div>`;
+};

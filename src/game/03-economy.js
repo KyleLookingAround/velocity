@@ -24,11 +24,13 @@ function economyWeek(){
     let paid=0,n=0;
     res.forEach((r,k)=>{if(r.job!=='w'+i)return;const a=wageFor(r,T.wage*grow(0.02));r.income+=pay('w'+i,'r'+k,a,'wage');paid+=a;n++});
     const profit=n*T.workshopOutput*grow(0.02)*(1-T.supplies)-paid;
-    G.cash+=profit>0?pay('w'+i,'you',profit,'profit'):profit;
+    // (a chain's warehouse sends its profit to its owners elsewhere)
+    if(w.outside)pay('w'+i,'out',Math.max(0,profit),'profit');else G.cash+=profit>0?pay('w'+i,'you',profit,'profit'):profit;
   });
   if(isUnion()){const p=unionPay(unMe());unMe().income+=pay('out','r'+G.un.i,p,'wage')}
   if(isActivist()){const p=activistPay(acMe());acMe().income+=pay('out','r'+G.ac.i,p,'wage')}
   if(isMayor()){const p=mayorPay(myMe());myMe().income+=pay('out','r'+G.my.i,p,'wage')}
+  if(isGovernor()){const p=governorPay(gvMe());gvMe().income+=pay('out','r'+G.gv.i,p,'wage')}
   for(const r of res)if(r.role==='retiree')r.income+=pay('out','r'+res.indexOf(r),T.pension*grow(0.02),'pension');
   // shops pay their staff, and owners take their pay and last week's profit
   G.shops.forEach((s,i)=>{

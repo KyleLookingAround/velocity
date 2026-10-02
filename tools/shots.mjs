@@ -36,7 +36,12 @@ const saves=[];
   until(S,()=>false,kind);saves.push(['activist-ending',JSON.stringify(S.G),'campaign']);
   S.startMayor();S.G.seen.mayor=true;until(S,()=>!!S.G.card,kind);saves.push(['mayor-card',JSON.stringify(S.G),'hall']);
   until(S,()=>S.G.week>=S.G.rungStart+2*52+20&&!S.G.card,kind);saves.push(['mayor',JSON.stringify(S.G),'hall']);
-  until(S,()=>false,kind);saves.push(['mayor-ending',JSON.stringify(S.G),'hall'])}
+  until(S,()=>false,kind);saves.push(['mayor-ending',JSON.stringify(S.G),'hall']);
+  // (the re-election is a gamble: replay the mayor until one wins it, so the governor gets screenshots too)
+  for(let n=0;n<6&&S.G.ending.kind==='outvoted';n++){S.restartMayor();until(S,()=>false,kind)}
+  if(S.G.ending.kind!=='outvoted'){S.startGovernor();S.G.seen.governor=true;until(S,()=>!!S.G.card,kind);saves.push(['governor-card',JSON.stringify(S.G),'state']);
+    until(S,()=>S.G.week>=S.G.rungStart+5*52+20&&!S.G.card,kind);saves.push(['governor',JSON.stringify(S.G),'state']);
+    until(S,()=>false,kind);saves.push(['governor-ending',JSON.stringify(S.G),'state'])}}
 const browser=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'}).catch(()=>chromium.launch());
 let errors=0;
 for(const [name,w,h] of sizes){

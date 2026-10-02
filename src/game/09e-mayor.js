@@ -50,7 +50,7 @@ function approvalTarget(){
 }
 // who runs against you: a challenger, with the estate's money behind them while it has plenty and you tax it; your
 // donors' money is behind you
-function challenger(tax){const m=G.my;tax=tax||m.tax;return 0.45+(tax==='high'?0.08:tax==='low'?-0.02:0)+(G.cash>1e9?0.04:G.cash>1e8?0.02:0)-0.03*m.donors}
+function challenger(tax){const m=G.my;tax=tax||m.tax;return 0.45+(tax==='high'?0.08:tax==='low'?-0.02:0)+(G.cash>1e9?0.04:G.cash>1e8?0.02:0)-0.03*Math.min(4,m.donors)}
 function electionOdds(tax){return Math.max(0.05,Math.min(0.95,0.5+(G.my.approval-challenger(tax))*3))}
 function holdElection(){
   const m=G.my,won=rnd()<electionOdds();

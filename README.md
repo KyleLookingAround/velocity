@@ -27,7 +27,7 @@ scene and the camera follows them: the figure on the right of one scene is the f
 ## The ladder
 
 The game is a ladder of roles, one per rung: down by money, back up by votes. The whole way down is built, six rungs,
-and the first three rungs of the climb back up; each starts in the town the last one left.
+and four rungs of the climb back up; each starts in the town the last one left.
 
 - **The billionaire** (40 years): $30M at 8% a year. Gifts you've been asked for can be started or stopped on the
   **Commitments** tab. Endings: **Lex Luthor**, **revolt**, or **hero** (give at least 35% of your gains, keep unrest
@@ -76,7 +76,14 @@ and the first three rungs of the climb back up; each starts in the town the last
   a subsidy for a share, or a call of its bluff), whether the developer's luxury flats go ahead, whether to take the
   donors' money, and whether to apply for the state's grants (doubled once the town builds its own homes). Approval
   follows the town's mood, jobs and homes; at year four the town votes, against a challenger the estate's money backs
-  harder the more you tax it. Endings: **the builder**, **the machine**, **the caretaker**, or **voted out**.
+  harder the more you tax it. Endings: **the builder**, **the machine**, **the caretaker**, or **voted out** (which
+  ends the climb there).
+- **The governor** (two four-year terms): the town is one of many now, and what reaches it comes from the state. Each
+  year you set the minimum wage (no shop pays less, and the mill follows it); you can tax the biggest fortunes 1% a
+  year (the estate's among them), hand the state's budget to the towns as grants, join a federal health scheme the
+  federal government mostly pays for, and decide what a chain's warehouse gets for its jobs and how to meet a
+  recession (spend, cut or wait). Donors' money helps at the re-election, up to a point. Endings: **a new deal**,
+  **the dealmaker**, **the steward**, or **unseated**.
 
 **Money in today's dollars.** The household-sized rungs (the waiter and out of work) show one household's money as
 it would be at the start of the game: a century of the ladder inflates every price.
@@ -96,7 +103,9 @@ it would be at the start of the game: a century of the ladder inflates every pri
   stuck). Then three union organisers: generous → fair wages, the accountant → sold out, doing nothing → crumbs. Then three
   activists: generous → the town changed, the easiest way → bought, never campaigning → ignored. Then three mayors
   (generous → the builder, the donors' way → the machine, doing nothing → the caretaker): the re-election is a
-  gamble, so any run may end voted out, but each ending must come up on at least two of the three seeds.
+  gamble, so any run may end voted out, but each ending must come up on at least two of the three seeds. Then three
+  governors under the same rule: generous → a new deal, the donors' way → the dealmaker, doing nothing → the
+  steward.
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
   first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.
