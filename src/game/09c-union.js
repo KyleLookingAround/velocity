@@ -48,7 +48,7 @@ function unionWeek(){
 function strikeOdds(target){
   const u=G.un,n=Math.max(1,workers().length),weeks=u.fund/Math.max(1,u.members*n*T.wage*grow(0.02)*0.4);
   const hold=target==='mill'?0.55:target==='estate'?0.6:0.4;
-  return Math.max(0.05,Math.min(0.95,u.members*0.8+Math.min(1,weeks/UN.strikeWeeks)*0.5-hold+0.2));
+  return Math.max(0.05,Math.min(0.95,u.members*0.8+Math.min(1,weeks/UN.strikeWeeks)*0.5-hold+0.2+(u.allies?0.05:0)));
 }
 // a strike needs a fund that can carry the members for its four weeks
 const strikeCost=()=>G.un.members*Math.max(1,workers().length)*T.wage*grow(0.02)*0.4*UN.strikeWeeks;

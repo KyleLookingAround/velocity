@@ -52,7 +52,7 @@ function governorYearEnd(){
   const g=G.gv;
   // the state's own taxes: on wages (a little of the town's), and, if you passed it, 1% of the biggest fortunes
   g.budget+=G.res.length*T.wage*grow(0.02)*WEEKS*0.15;
-  if(g.fortuneTax&&G.cash>0){const t=G.cash*GV.fortuneTax;G.cash-=t;g.budget+=t;g.year.tax+=t}
+  if(g.fortuneTax&&G.cash>0){const t=G.cash*(g.fortuneRate||GV.fortuneTax);G.cash-=t;g.budget+=t;g.year.tax+=t}
   g.history.push({year:(G.week-G.rungStart)/WEEKS,approval:g.approval,budget:g.budget,minWage:g.minWage,unrest:G.unrest});
   g.year={grants:0,tax:0};G.wageDue=true;
   if(rungWeek()>=GV.term*WEEKS&&g.elections.length===0){

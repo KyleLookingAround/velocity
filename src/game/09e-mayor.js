@@ -42,11 +42,13 @@ function mayorWeek(){
   const a=Math.min(agnes,Math.max(0,G.res[0].cash)),e=Math.min(estate,Math.max(0,G.cash));
   G.res[0].cash-=a;G.cash-=e;G.fund=(G.fund||0)+a+e;m.year.tax+=a+e;m.taxTaken+=a+e;
   if(a+e>0)pay('r0','out',a+e,'tax');
+  // free buses (or half fares) cost the purse each week, and each worker keeps the fare
+  if(m.buses){const c=G.res.length*T.wage*grow(0.02)*0.02*(m.buses==='free'?1:0.5);G.fund=Math.max(0,(G.fund||0)-c);for(const r of G.res)if(r.role==='worker')r.cash+=c/G.res.length}
   m.approval=Math.max(0.05,Math.min(0.9,m.approval+(approvalTarget()-m.approval)*0.02));
 }
 function approvalTarget(){
   const m=G.my,work=G.res.filter(r=>r.role==='worker'),jobs=work.filter(r=>r.job!=null).length/Math.max(1,work.length);
-  return 0.25+(100-G.unrest)/400+(jobs-0.8)*0.6+0.012*m.council+0.02*G.my.granted-(m.tax==='high'?0.04:m.tax==='low'?-0.02:0);
+  return 0.25+(100-G.unrest)/400+(jobs-0.8)*0.6+0.012*m.council+0.02*G.my.granted+(m.buses==='free'?0.03:m.buses?0.015:0)-(m.tax==='high'?0.04:m.tax==='low'?-0.02:0);
 }
 // who runs against you: a challenger, with the estate's money behind them while it has plenty and you tax it; your
 // donors' money is behind you

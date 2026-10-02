@@ -31,6 +31,10 @@ behind becomes a standing policy (changed on the Tenants tab) instead of a card 
 
 ## The ladder
 
+Every rung has eight to fourteen kinds of decision, and most offer three or four answers: the accountant's (or the
+easiest, or the donors'), the generous one, doing nothing, and often a middle way or an unusual choice no tag
+recommends (some rare endings need those).
+
 The game is a ladder of roles, one per rung: six down by money, five back up by votes, each starting in the town the
 last one left. At the top, the laws a president passes become the law in every billionaire life after.
 
