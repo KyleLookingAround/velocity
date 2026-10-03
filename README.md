@@ -100,11 +100,12 @@ leaves the life you're in, so a life under way asks once more first.
   there); tap one of yours to fix it up from your savings, cut its rent by a twentieth or give a tenant who's behind
   time, each once a year, without waiting for a card. Endings: **fair**, **rentier**, or **bankrupt**.
 - **The law firm partner** (20 years): you play Theo, on $2,400 an hour, the top of the video's pay table (a billion
-  takes about 200 years). Agnes runs the homes the way you did. Each year you set your hours, and burnout follows
-  them. The rich pay best: loopholes for the estate (which starve the town's public works), Agnes's evictions, the
-  mill against its union. The town can't pay: a tenant facing eviction, the union itself. The Career tab keeps your
-  docket: the cases you took, newest first, each marked for the rich or for the town, under the scales your ending is
-  weighed on. Endings: **hired gun**, **counsel for the town**, or **burnt out**.
+  takes about 200 years). Agnes runs the homes the way you did. Each year you set your hours, and can change them any
+  week on the Career tab; burnout follows the year's average. The rich pay best: loopholes for the estate (which
+  starve the town's public works), Agnes's evictions, the mill against its union. The town can't pay: a tenant facing
+  eviction, the union itself. The Career tab keeps your docket: the cases you took, newest first, each marked for the
+  rich or for the town, under the scales your ending is weighed on. Endings: **hired gun**, **counsel for the town**,
+  or **burnt out**.
 - **The shop owner** (20 years): you play Bea, who runs the café. Its customers spend the town's wages, including the
   ones you pay; rent on the premises goes to Agnes. You set prices (every rise sends customers to the megastore), pay,
   and where supplies come from (the megastore is cheaper, but that money leaves town). The estate may offer to buy you
@@ -112,8 +113,10 @@ leaves the life you're in, so a life under way asks once more first.
   job, and sends its profit out of town), and the next life is either the waiter at that café, with head office's cuts
   and transfers instead of Bea's offers, or straight to the bottom as the one let go. Late on, investors may offer to
   make you a **founder**: the shortcut straight back to a billionaire life, which changes nothing. The Café tab's menu
-  splits the takings into coffee, lunches and cakes, each with what it pays its supplier and what it keeps. Endings:
-  **pillar of the high street**, **kept the lights on**, **closed**, **sold**, or **founder**.
+  splits the takings into coffee, lunches and cakes, each with what it pays its supplier and what it keeps, and each
+  can be priced from 10% under the café's price to 20% over: a dearer line keeps more of each sale and loses customers
+  to the megastore (coffee drinkers soonest, cake buyers last). Endings: **pillar of the high street**, **kept the
+  lights on**, **closed**, **sold**, or **founder**.
 - **The waiter** (15 years): you play one of the café's staff, on whatever Bea paid, renting from Agnes. Each year you
   choose your shifts (extra shifts pay, and wear your health down); when you're short there's a payday lender; the
   union organises and later strikes; evening classes cost now and pay later. Endings: **getting ahead**, **getting

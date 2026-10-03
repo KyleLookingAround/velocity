@@ -39,7 +39,9 @@ PANES.career=function(){
     <div>Home<b>${p.home==='own'?'Your own':'Rented from Agnes'}</b></div><div>Partner share<b>${p.partnerShare>1?'Equity':'Salaried'}</b></div>
     <div>Loopholes written<b>${p.loopholes}</b></div><div>Evictions fought free<b>${p.proBono}</b></div>
     <div>Agnes’s retainers<b>${p.evictionWork}</b></div><div>The mill’s union<b>${{mill:'Against it',union:'For it',none:'Stayed out'}[p.unionSide]||'–'}</b></div>
-    <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>`+docketHTML();
+    <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>
+    <div class="card"><div class="txt"><b>Hours this week</b><small>Change them any week. Above 55 you burn out; below 45 you recover. The year is judged on its average.</small>
+      <div class="seg">${HOURS.map(x=>`<button class="${p.hours===x?'on':''}" data-hours="${x}">${x}</button>`).join('')}</div></div></div>`+docketHTML();
 };
 // the docket: the cases you've taken this life, newest first, each by whose side it served, under the scales your
 // ending is weighed on (work for the rich against work for the town)
@@ -63,14 +65,15 @@ PANES.cafe=function(){
     <div>Supplies<b>${sh.supply==='local'?'The local store':'The megastore'}</b></div><div>Staff<b>${staffOf(CAFE).map(r=>r.name).join(', ')||'None'}</b></div>
     <div>Café cash<b>${money(s.cash)}</b></div><div>Your savings<b>${money(bea().cash)}</b></div></div>`+menuHTML();
 };
-// the menu: the café's takings line by line, what each pays its suppliers and what it keeps. Coffee is cheap to make,
-// lunches dear, cakes in between; the supplier (and so where that money goes) is the one you chose for the café
-const MENU=[{name:'Coffee and tea',share:0.4,cost:0.6},{name:'Lunches',share:0.35,cost:1.2},{name:'Cakes',share:0.25,cost:1.36}];
+// the menu: the café's takings line by line, what each pays its supplier and what it keeps, and its price against the
+// café's (a dearer line keeps more of each sale and loses more of its customers)
 function menuHTML(){
-  const rev=G.shops[CAFE].rev*WEEKS,sup=cafeSupplies(),local=G.sh.supply==='local';
-  const rows=MENU.map(m=>{const r=rev*m.share,c=Math.min(r,r*sup*m.cost),keep=r-c;
-    return `<div class="front ro"><span><b>${m.name}</b><small>${money(r)} a year \u00b7 ${money(c)} to ${local?'the local store':'the megastore'}</small></span><i><u style="width:${r>0?Math.round(keep/r*100):0}%"></u></i><em>${r>0?Math.round(keep/r*100):0}%</em></div>`}).join('');
-  return `<div class="cap" style="margin:12px 0 4px;text-align:left">The menu</div><p class="lead">What each line keeps after its supplies (before pay and rent). ${local?'Supplies come from the town\u2019s store, so that money stays in town.':'Supplies come from the megastore: cheaper, and the money leaves town.'}</p>`+rows;
+  const s=G.shops[CAFE],rev=s.rev*WEEKS,sup=T.supplies*SH.supply[G.sh.supply]/G.sh.price,local=G.sh.supply==='local';
+  const ws=MENU.map(m=>m.share*(1-Math.min(1,lineLeak(m)))),wt=ws.reduce((a,x)=>a+x,0)||1;
+  const rows=MENU.map((m,i)=>{const r=rev*ws[i]/wt,off=lineOff(m.k),c=Math.min(r,r*sup*m.cost/(1+off)),keep=r-c,lost=Math.round(Math.min(1,lineLeak(m))*100);
+    const seg=LINE_STEPS.map(v=>`<button class="${v===off?'on':''}" data-line="${m.k}" data-off="${v}">${v?(v>0?'+':'')+Math.round(v*100)+'%':'Same'}</button>`).join('');
+    return `<div class="front ro"><span><b>${m.name}</b><small>${money(r)} a year \u00b7 ${money(c)} to ${local?'the local store':'the megastore'}${lost?' \u00b7 '+lost+'% of its customers lost':''}</small></span><i><u style="width:${r>0?Math.round(keep/r*100):0}%"></u></i><em>${r>0?Math.round(keep/r*100):0}%</em></div><div class="seg lines">${seg}</div>`}).join('');
+  return `<div class="cap" style="margin:12px 0 4px;text-align:left">The menu</div><p class="lead">What each line keeps after its supplies (before pay and rent), and its price against the caf\u00e9\u2019s. Coffee drinkers are quickest to go to the megastore; cake buyers the slowest. ${local?'Supplies come from the town\u2019s store, so that money stays in town.':'Supplies come from the megastore: cheaper, and the money leaves town.'}</p>`+rows;
 }
 
 // the waiter's Budget tab (per household)
