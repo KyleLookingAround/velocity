@@ -14,7 +14,7 @@ sessions). The owner decides what moves up.
   events.
 - **Second-loop twists** (M, done). On a second time round, the same cards come with a twist line ("Last time you said no";
   "the loophole you wrote is still law"), and three or four cards exist only on later loops.
-- **Scenarios by law** (S). The president's laws already shape the next billionaire life; show the difference on the
+- **Scenarios by law** (S, done). The president's laws already shape the next billionaire life; show the difference on the
   intro card ("In this country the biggest fortunes pay 2% a year") and a What-changed strip at each rung's start.
 
 ## 2. Depth per rung (play)

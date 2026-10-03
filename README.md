@@ -67,7 +67,9 @@ easiest, or the donors'), the generous one, doing nothing, and often a middle wa
 recommends (some rare endings need those).
 
 The game is a ladder of roles, one per rung: six down by money, five back up by votes, each starting in the town the
-last one left. At the top, the laws a president passes become the law in every billionaire life after.
+last one left. At the top, the laws a president passes become the law in every billionaire life after. The
+Fortune tab shows them at work: what the taxes took, what that money would have grown to, and what each programme paid;
+the final card adds it up.
 
 **Three towns.** The first lives are in Millbrook, a mill town. At 3 achievements a port opens (Saltby: the cannery
 pays better, rents are higher, and more of what people buy comes off the ships), and at 6 a suburb (Elm Park: dear
