@@ -22,7 +22,7 @@ says how each rung plays; this file is the short core every session needs.
 ## Shipping
 
 1. Work on a branch from `main`, one change per branch.
-2. Prove it locally: `npm run build`, then `npm run bot` (all seven groups in parallel, about two minutes) for
+2. Prove it locally: `npm run build`, then `npm run bot` (all eight groups in parallel, about two minutes) for
    anything that touches `src/game/00-` to `09-`, and screenshots (`node tools/shots.mjs <scene>`, or a small
    Playwright script in `build/`) for anything a player sees, at phone and desktop sizes at least.
 3. Push and open a pull request with a plain title and description. The Checks workflow runs every bot group and
@@ -34,6 +34,10 @@ says how each rung plays; this file is the short core every session needs.
 6. Read a failure, don't rerun it: every run is seeded, so a failure repeats. Fix the cause; never loosen a bot
    expectation to get green unless the game's behaviour is right and the expectation was too strict, and then say
    so in the PR.
+7. A change a player would notice adds a line to the newest entry in `UPDATES` (`src/game/01b-version.js`), which the
+   What's new panel shows. A release raises `VERSION`, starts a new entry, and runs `node tools/fixtures.mjs` to add
+   that version's saves to `tools/saves/`; the bot's saves group loads every one of them, so old saves keep loading.
+   Never delete a save there.
 
 ## The UI and UX review
 
