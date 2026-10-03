@@ -213,6 +213,7 @@ function onPaneClick(e){
   if(g){const on=!G.gifts[g.dataset.gift];setGift(g.dataset.gift,on);if(on)queueScenes('give','gift-'+g.dataset.gift,{title:'You fund: '+GIFTS.find(x=>x.k===g.dataset.gift).name.toLowerCase()});save();renderPane(true)}
   if(e.target.closest('[data-skip]')){R.skip=!R.skip;renderPane(true)}
   const adv=e.target.closest('[data-adv]');if(adv){G.adviser=G.adviser===adv.dataset.adv?null:adv.dataset.adv;save();renderPane(true)}
+  const sd=e.target.closest('[data-side]');if(sd&&G.ac&&setSide(sd.dataset.side)){save();renderPane(true)}
   const hr=e.target.closest('[data-hours]');if(hr&&setHours(+hr.dataset.hours)){save();renderPane(true);refreshTop()}
   const ln=e.target.closest('[data-line]');if(ln&&isShop()&&setLine(ln.dataset.line,+ln.dataset.off)){save();renderPane(true)}
   const fr=e.target.closest('[data-front]');if(fr&&G.un&&setFocus(fr.dataset.front)){save();renderPane(true)}

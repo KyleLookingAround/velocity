@@ -89,11 +89,12 @@ leaves the life you're in, so a life under way asks once more first.
   calm, then a boom (borrow and ride it, sell a third at the top, or sit tight), then a crash that takes more from
   those who rode it on borrowed money and half as much from those who sold (buy what everyone else must sell, hold, or
   keep the town's shops afloat for a quarter), then two years of recovery that win most of a held fortune back. The
-  Fortune tab says where the market is. Also a superyacht, the town's newspaper for sale, and a museum wing or the
-  school. Gifts you've been asked for can be started or stopped on the **Commitments** tab. Endings: **Lex Luthor**,
-  **revolt**, **gave it all away** (generous past what the fortune earns, ending poorer than it began), or **hero**
-  (give at least 35% of your gains, keep unrest low, still finish richer than $30M). Giving from the start costs you;
-  growing first and giving later pays.
+  town feels it too: a boom puts home prices up 5%, and a crash puts the mill on short time (5% less pay) for the bust
+  year unless you keep the town afloat; both show on the stage. The Fortune tab says where the market is. Also a
+  superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be
+  started or stopped on the **Commitments** tab. Endings: **Lex Luthor**, **revolt**, **gave it all away** (generous
+  past what the fortune earns, ending poorer than it began), or **hero** (give at least 35% of your gains, keep unrest
+  low, still finish richer than $30M). Giving from the start costs you; growing first and giving later pays.
 - **The landlord** (20 years): you play Agnes in the town the billionaire left. Its homes and shops pass to its
   estate, which raises rents 7% a year; a hero's gifts carry on as a foundation. You decide the yearly rent, what to
   do about each tenant who falls six weeks behind, repairs, buying homes from the estate, and the tenants' union. Home
@@ -141,8 +142,9 @@ leaves the life you're in, so a life under way asks once more first.
   the purse (housing first, childcare, medical debt relief, housing vouchers). Once a programme runs, the state will
   match the purse with a grant. Knocking on doors builds support that stays; a foundation will fund you if you drop
   the wealth tax. What passes lasts. The Campaign tab's ballot paper lists every measure open to you with its odds as
-  things stand, so you can see which fight is worth picking next. Endings: **the town changed** (three votes or more),
-  **heard**, **bought**, or **ignored**.
+  things stand, so you can see which fight is worth picking next, and lets you lay groundwork for one other measure
+  while you campaign (up to five points of support for it over half a year, while the running campaign builds support
+  half as fast). Endings: **the town changed** (three votes or more), **heard**, **bought**, or **ignored**.
 - **The mayor** (two four-year terms): the activist runs and wins, and the public purse is yours to spend. Each year
   you set the property tax on the landlords' rents; you buy homes for the town and let them at a quarter of a wage
   (they never evict, and the rent comes back to the purse); and you decide what the mill gets for staying (a subsidy,
@@ -302,26 +304,28 @@ Saves stay on the device.
 - `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html` (and copies the
   fonts next to it). It fails,
   naming the file and line, on a slip, and rejects `Math.random()` in anything that changes the game (use `rnd()`).
-- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in seven groups at once (`down`, `climb`,
-  `mayor`, `governor`, `president`, `hunt`, `towns`; one process each, as many at a time as there are cores: about two minutes
-  on four), and `node tools/bot.mjs --group <name>` plays one. It answers every card by a strategy, and checks each reaches
-  its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its means → hero and still
-  richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair and a gouging landlord
-  in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair. Then
-  three partners in the towns those landlords leave: always the accountant → hired gun, always the town → counsel,
-  75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the accountant's
-  prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding → evicted,
-  or just getting by under a fair landlord's rent)
-  and three people out of work (organising → organiser, scrambling for work → back on your feet, taking nothing →
-  stuck). Then three union organisers: generous → fair wages, the accountant → sold out, doing nothing → crumbs. Then three
-  activists: generous → the town changed, the easiest way → bought, never campaigning → ignored. Then three mayors
-  (generous → the builder, the donors' way → the machine, doing nothing → the caretaker): the re-election is a
-  gamble, so any run may end voted out, but each ending must come up on at least two of the three seeds. Then three
-  governors under the same rule: generous → a new deal, the donors' way → the dealmaker, doing nothing → the
-  steward. Then three presidents: generous → the ladder, rebuilt, the donors' way → owned, sending nothing →
-  gridlock; and a passive billionaire born after the rebuilt president must pay the tax on fortunes. Then a hero's
-  heir on each seed, which must reach an ending and the heir milestone, and a rare-ending hunter that must still reach
-  the co-op, thriving, the general strike and a landslide on purpose. It lists the rare endings the runs reached.
+- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in seven groups at once (`down`,
+  `climb`, `mayor`, `governor`, `president`, `hunt`, `towns`; one process each, as many at a time as there are cores:
+  about two minutes on four), and `node tools/bot.mjs --group <name>` plays one. It answers every card by a strategy,
+  and checks each reaches its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its
+  means → hero and still richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair
+  and a gouging landlord in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger
+  → never fair. Then three partners in the towns those landlords leave: always the accountant → hired gun, always the
+  town → counsel, 75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the
+  accountant's prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding
+  → evicted, or just getting by under a fair landlord's rent) and three people out of work (organising → organiser,
+  scrambling for work → back on your feet, taking nothing → stuck). Then three union organisers: generous → fair
+  wages, the accountant → sold out, doing nothing → crumbs. Then three activists: generous → the town changed, the
+  easiest way → bought, never campaigning → ignored. Then three mayors (generous → the builder, the donors' way → the
+  machine, doing nothing → the caretaker): the re-election is a gamble, so any run may end voted out, but each ending
+  must come up on at least two of the three seeds. Then three governors under the same rule: generous → a new deal,
+  the donors' way → the dealmaker, doing nothing → the steward. Then three presidents: generous → the ladder, rebuilt,
+  the donors' way → owned, sending nothing → gridlock; and a passive billionaire born after the rebuilt president must
+  pay the tax on fortunes. Then a hero's heir on each seed, which must reach an ending and the heir milestone, and a
+  rare-ending hunter that must still reach the co-op, thriving, the general strike and a landslide on purpose. It
+  lists the rare endings the runs reached. It also checks pacing: every money figure and age in the tables must stay
+  within 15% of the last accepted run, kept in `tools/baseline/<group>.json` (`node tools/bot-all.mjs --baseline`
+  rewrites them when the economy is meant to move).
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
   first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.
