@@ -185,6 +185,9 @@ The Story tab has settings, kept on the device: **larger text** in the panel and
 (no passers-by, weather, drift or confetti; on by itself when the device asks for reduced motion), **sound** (soft
 chimes made in the browser: a decision arriving, an answer, an achievement, the end of a life) and, on a phone,
 **a buzz** when a decision arrives. Sound and buzz are off until turned on.
+**Colour-blind safe colours** swap green and red for blue and vermillion, on the panel, the charts and the stage.
+Nothing relies on colour alone: homes behind on rent are striped, an eviction is crossed, and growth points up or down.
+Muted text meets the contrast guidelines, and goes darker when the device asks for more contrast.
 
 ## Why it moved
 

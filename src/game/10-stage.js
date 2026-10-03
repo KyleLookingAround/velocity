@@ -7,7 +7,9 @@ const $=s=>document.querySelector(s);
 const cv=$('#cv'),ctx=cv.getContext('2d');
 const PW=480,PH=300,SCENE_SECS=6,CT=70; // (CT: the sky a stacked phone pane does without)
 const V={k:1,dpr:1,panes:[]};
-const INK='#151515',GREY='#8b8b8b',GREEN='#4c9a5d',GREEN2='#5aa86b',RED='#b23a3a';
+// (GREEN, GREEN2 and RED turn blue and vermillion under the colour-blind setting)
+const INK='#151515',GREY='#8b8b8b';let GREEN='#4c9a5d',GREEN2='#5aa86b',RED='#b23a3a';
+function stageColours(cb){GREEN=cb?'#3d86c0':'#4c9a5d';GREEN2=cb?'#4f97cf':'#5aa86b';RED=cb?'#c2500a':'#b23a3a'}
 function fitMap(){
   const r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
   cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);V.dpr=dpr;

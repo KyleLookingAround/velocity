@@ -239,7 +239,7 @@ function drawChart(){
   rows.forEach((y,i)=>{const now=i===rows.length-1,x=i*bw+Math.max(1,bw*0.12),w=Math.max(2,bw*0.76),yy=yOf(y.v),bh=Math.max(2,H-yy);
     const g=c.createLinearGradient(0,yy,0,H);g.addColorStop(0,now?'#2f7a44':'#5ca56d');g.addColorStop(1,now?'#3c8a50':'#8cc497');c.fillStyle=g;
     c.beginPath();c.roundRect(x,yy,w,bh,[Math.min(4,w/2),Math.min(4,w/2),0,0]);c.fill();
-    if(y.v<0){c.fillStyle='#b23a3a';c.fillRect(x,H-3,w,3)}
+    if(y.v<0){c.fillStyle=RED;c.fillRect(x,H-3,w,3)}
     if(y.g>0){c.fillStyle='#d4a72c';c.fillRect(x,H+2,w,Math.min(10,2+y.g/max*400))}
     if(now&&rows.length>1){c.fillStyle='#1c1b18';c.font='700 11px system-ui';c.textAlign=x+w/2>W-40?'right':'center';c.fillText(money(y.v),Math.min(W-2,x+w/2),Math.max(10,yy-5))}});
   c.fillStyle='#8a8478';c.font='11px system-ui';c.textAlign='left';c.fillText(L||P?'year 1':'age 40',2,H+16);c.textAlign='right';c.fillText(L||P?String(rungYears()):'80',W-2,H+16);
