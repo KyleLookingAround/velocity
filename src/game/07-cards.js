@@ -106,7 +106,7 @@ const CARDS=[
         do:()=>{G.crashed=true;crashHits(0.75);let n=can;for(const r of G.res){if(n<=0)break;if(r.homeOwner==='local'){r.homeOwner='you';G.cash-=cheap;n--}}G.rate+=0.004}},
       {k:'hold',label:'Hold your nerve',none:true,you:'Most of it comes back, in time',town:'The town takes the hit alone',scene:'desk',then:'laidoff',do:()=>{G.crashed=true;crashHits(0.85)}},
       {k:'town',label:'Keep the town\u2019s shops afloat',kind:true,you:'A quarter of a year of their wages, from your fortune',town:'Nobody loses their job or their hours to the crash',scene:'give',then:'chain',
-        do:()=>{G.crashed=true;crashHits(0.8);if(G.mkt&&G.mkt.cut){G.millMul=(G.millMul||1)/MKT.millCut;G.mkt.cut=false}let a=0;for(const s of G.shops)if(s.open){const w=s.wage*13;s.cash+=w;a+=w}G.cash-=a;G.given+=a;G.year.given+=a}}]}},
+        do:()=>{G.crashed=true;crashHits(0.8);if(G.mkt)G.mkt.cut=false;let a=0;for(const s of G.shops)if(s.open){const w=s.wage*13;s.cash+=w;a+=w}G.cash-=a;G.given+=a;G.year.given+=a}}]}},
   {id:'yacht',rung:'billionaire',cool:1e6,when:()=>netWorth()>START_FORTUNE*2&&G.week>5*WEEKS,
     title:()=>'A shipyard abroad offers you a superyacht',
     body:()=>money(netWorth()*0.03)+'. It would be the biggest in the harbour.',

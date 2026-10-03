@@ -19,13 +19,14 @@ function marketWeek(){
   if(--m.left>0)return;
   if(m.phase==='calm'){m.phase='boom';m.left=mktSpell('boom',103+m.n);boomHitsTown()}
   else if(m.phase==='boom'){m.phase='bust';m.left=MKT.bust*WEEKS;crashHitsTown()}
-  else{m.phase='calm';m.n++;m.left=mktSpell('calm',107+m.n);G.boom=null;if(m.cut){G.millMul=(G.millMul||1)/MKT.millCut;m.cut=false}}
+  else{m.phase='calm';m.n++;m.left=mktSpell('calm',107+m.n);G.boom=null;m.cut=false}
 }
 // the market reaches the town: a boom puts home prices up (a home further out of reach), and a crash puts the mill on
 // short time for the bust year, unless the billionaire keeps the town afloat
 function boomHitsTown(){G.homePrice*=1+MKT.boomHomes;townEvent('boomhomes','')}
-function crashHitsTown(){const m=G.mkt;G.millMul=(G.millMul||1)*MKT.millCut;m.cut=true;
-  townEvent('shorttime','')}
+function crashHitsTown(){G.mkt.cut=true;townEvent('shorttime','')}
+// short time is its own factor on mill pay, so it ends with the bust (or the life) and never sticks to the mill's wage
+const shortTime=()=>G.rung==='billionaire'&&G.mkt&&G.mkt.cut?MKT.millCut:1;
 // the market in a word, for the Fortune tab
 const marketWord=()=>{const m=G.mkt;if(!m)return 'Calm';return m.phase==='boom'?'Booming'+(G.boom==='rode'?', on borrowed money':G.boom==='sold'?', a third sold':''):m.phase==='bust'?'Crashed':m.rec>0?'Recovering':'Calm'};
 // how much of a boom you ride: borrowed to the hilt, a third sold at the top, or as you were
