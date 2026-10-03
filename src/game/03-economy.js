@@ -18,7 +18,7 @@ function economyWeek(){
   const res=G.res,gifts=giftsOn();
   for(const r of res){r.income=0;r.spent=0}
   // the mill sells outside town and pays its six; whatever's left goes to its owners elsewhere
-  for(const r of millStaff())r.income+=pay('mill','r'+res.indexOf(r),wageFor(r,T.wage*grow(0.02)*(G.millMul||1)),'wage');
+  for(const r of millStaff())r.income+=pay('mill','r'+res.indexOf(r),wageFor(r,T.wage*grow(0.02)*(G.millMul||1)*shortTime()),'wage');
   // your workshops do the same: each worker's output sells outside town, and the profit comes to you
   G.workshops.forEach((w,i)=>{
     let paid=0,n=0;
