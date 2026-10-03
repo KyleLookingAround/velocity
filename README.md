@@ -79,6 +79,9 @@ the start: the town is part of the life you're dealt. A town changes a few numbe
 (the mill, the cannery or the depot); the ladder, the cards and the endings are the same. The port is the hardest town
 for a hero: gifts cost more where wages are higher. The Story tab lists the towns you've opened.
 
+**The chronicle.** The Story tab keeps a page per run: every life in order, its ending, what it left the town and the
+names it touched. The newest run saves as one picture.
+
 **Today's life.** The Story tab offers one billionaire life a day, the same for everyone on that date: its seed is the
 date, it's always in Millbrook, and it starts without the laws an earlier president made. Play it as often as you like;
 your best result for each day stays on the device (a better ending wins, then more given for the hero and the giver, or
