@@ -23,7 +23,7 @@ sessions). The owner decides what moves up.
   exists, make it a cycle you can ride or hedge, and a "sell at the top" rare ending.
 - **Landlord: the portfolio** (S, done). A map of your homes on the Tenants tab, each with its condition and tenant, tap to
   act (repair, raise, give time) instead of waiting for the card.
-- **Partner: the cases** (S, done as the docket and its scales; the weekly hours choice is open). A docket of two
+- **Partner: the cases** (S, done as the docket and its scales, and hours set any week). A docket of two
   or three live cases with a clock; the hours card becomes a weekly choice
   of which to work.
 - **Shop: the menu** (S, done, with a price per line). Three or four menu lines with their own margin and
@@ -32,7 +32,7 @@ sessions). The owner decides what moves up.
   becomes something you see, not a number.
 - **Union: workplaces as targets** (S, done as the fronts). The mill, the high street and the estate's shops as three fronts with their
   own membership and odds; pick where to organise this quarter.
-- **Activist: the ballot paper** (S, done as a view of every measure's odds; one campaign at a time still). Several
+- **Activist: the ballot paper** (S, done: every measure's odds, and groundwork for a second while you campaign). Several
   measures live at once with a bar each; spend your campaign weeks across them.
 - **Mayor, governor, president: the budget** (M, done). A visible budget pie each year (what came in, what it paid for), and
   one "spend it on" card a year that lets you move a slice.
