@@ -1,6 +1,6 @@
 # The UI and UX review
 
-A regular look at how the game looks and works, from a player's side. Each review picks a few improvements, ships them
+A look at how the game looks and works, from a player's side, run when the owner asks. Each review picks a few improvements, ships them
 the usual way (branch, bot, screenshots, PR, green `check`, squash merge), and leaves a short note in `docs/ux/`.
 
 ## 1. Look

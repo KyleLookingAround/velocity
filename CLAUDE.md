@@ -41,7 +41,7 @@ says how each rung plays; this file is the short core every session needs.
 
 ## The UI and UX review
 
-A scheduled session looks at the game regularly from a player's side, following `docs/UX-REVIEW.md`. It ships one to
+When the owner asks, a session looks at the game from a player's side, following `docs/UX-REVIEW.md`. It ships one to
 three small improvements, proposes bigger ones in the roadmap, and leaves a note in `docs/ux/`.
 
 ## Rules every change keeps

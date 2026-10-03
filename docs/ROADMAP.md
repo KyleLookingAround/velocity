@@ -84,6 +84,9 @@ sessions). The owner decides what moves up.
 - **Colour and contrast** (S, done): colour-blind safe colours as a setting, shapes as well as colour on the map of
   homes, and muted text that meets the contrast guidelines (darker still when the device asks for more contrast).
 
+- **Settings in one place** (S, proposed): Settings, the save and the version move from the bottom of the long Story tab
+  into one Settings pop-up behind a gear in the header.
+
 ## 7. Platform
 
 - **Cloud save** (M, done): optional sign-in-free sync via a share code (export/import the save as a string or QR).

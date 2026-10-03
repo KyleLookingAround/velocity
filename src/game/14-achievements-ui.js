@@ -14,7 +14,7 @@ function achSummary(){
     ${chronHTML()}${dailyHTML()}${townsHTML()}
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${deckSize()} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>
-    ${prefsHTML()}<div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>${versionHTML()}`;
+    ${prefsHTML()}${fullHTML()}<div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>${versionHTML()}`;
 }
 // today's life: play it, and your best on each of the last seven days you played
 const todayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
@@ -178,7 +178,7 @@ addEventListener('keydown',e=>{
   if(modal)return;
   // the arrows move between tabs; ? lists the keys
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){const t=[...document.querySelectorAll('#tabs [data-t]')],i=t.findIndex(b=>b.dataset.t===R.tab),n=t[(i+(e.key==='ArrowRight'?1:t.length-1))%t.length];if(n){n.click();e.preventDefault()}return}
-  if(e.key==='?'){const i=$('#info');i.innerHTML='<b>Keys</b> \u00b7 1\u20135 answer a decision, or set the speed when none waits \u00b7 space pauses \u00b7 \u2190 \u2192 change tab \u00b7 Enter takes a pop-up\u2019s main answer \u00b7 Esc closes it';i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),7000);return}
+  if(e.key==='?'){const i=$('#info');i.innerHTML='<b>Keys</b> \u00b7 1\u20135 answer a decision, or set the speed when none waits \u00b7 space pauses \u00b7 F full screen \u00b7 \u2190 \u2192 change tab \u00b7 Enter takes a pop-up\u2019s main answer \u00b7 Esc closes it';i.classList.add('show');clearTimeout(R.infoT);R.infoT=setTimeout(()=>i.classList.remove('show'),7000);return}
   if(e.key===' '){G.speed=G.speed?0:(R.lastSpeed||1);if(G.speed)R.lastSpeed=G.speed;refreshTop();e.preventDefault();return}
   const n=+e.key;if(!(n>=1&&n<=5))return;
   if(G.card){if(R.tab!=='decide'){R.tab='decide';renderPane(true)}const b=document.querySelectorAll('#pane [data-card]')[n-1];if(b)b.click();return}
@@ -197,7 +197,7 @@ function moments(){
 }
 
 // the grip, and what each meter in the top bar means
-$('#grip').addEventListener('click',()=>{$('#app').classList.toggle('expanded');setTimeout(fitMap,260)});
+$('#grip').addEventListener('click',()=>{$('#app').classList.toggle('expanded');R.autoOpen=false;setTimeout(fitMap,260)});
 const METER_INFO={
   'Unrest':'How angry the town is: calm, grumbling, protests, strikes, revolt. A billionaire who keeps it at revolt too long is driven out.',
   'Jobs':'How many of the town\u2019s working figures (each a hundred households) have a job.',

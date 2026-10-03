@@ -142,6 +142,10 @@ function renderPane(force){
   // a new decision opens its tab; once answered, you're back where you were
   const cid=G.card?G.card.id+':'+G.card.week:null;
   if(cid&&cid!==R.cardSeen){R.cardSeen=cid;if(R.tab!=='decide')R.prevTab=R.tab;R.tab='decide';force=true;if(typeof sfx==='function')sfx('card',[18])}
+  // (on a phone held upright the panel opens for a decision, so its choices aren't below the fold, and closes after)
+  const grip=$('#grip'),app=$('#app');
+  if(G.card&&grip&&grip.offsetParent&&!app.classList.contains('expanded')){app.classList.add('expanded');R.autoOpen=true;setTimeout(fitMap,260)}
+  else if(!G.card&&R.autoOpen){R.autoOpen=false;app.classList.remove('expanded');setTimeout(fitMap,260)}
   if(!!G.card!==R.decideTab){if(!G.card&&R.tab==='decide')R.tab=R.prevTab||'';buildTabs();force=true}
   for(const b of $('#tabs').children)b.classList.toggle('on',b.dataset.t===R.tab);
   const waiting=G.card&&R.tab!=='decide'?`<button class="waiting" data-t-go="decide"><span class="w"><b>A decision is waiting</b><span>${cardDef(G.card.id).title(G.card.d||{})}</span></span><i>Decide \u203a</i></button>`:'';
@@ -158,7 +162,7 @@ function renderPane(force){
 function cardHTML(){
   const c=cardDef(G.card.id),d=G.card.d||{};
   // (the first decision ever explains itself, once)
-  const tip=G.ladder.tipCard?'':`<div class="tip"><span>\u261d</span><span><b>The game waits for you.</b> Each choice shows what it does for you and for the town. The tagged one is the easy way. You can still look round the other tabs; this one brings you back.</span></div>`;
+  const tip=G.ladder.tipCard?'':`<div class="tip"><span>\u261d</span><span><b>Your turn: the game waits.</b> Each choice shows what it does for you and for the town; the tagged one is the easy way.</span></div>`;
   const col=G.ladder.cards&&G.ladder.cards[cardKey(c)],rare=cardRare(c);
   // (a card met in an earlier life says how you answered it then)
   const last=col&&(col.life!==(G.ladder.lives||0)?col.label:col.before);

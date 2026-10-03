@@ -9,7 +9,7 @@ const sizes=[['phone-320',320,568],['phone',390,844],['phone-landscape',844,390]
 const out=join(root,'build/shots');mkdirSync(out,{recursive:true});
 const acct=S=>{const o=S.cardOptions();return (o.find(o=>o.acct)||o[0]).k};
 const until=(S,f,pick)=>{while(!f()&&!S.G.ending){if(S.G.card)S.answerCard(pick(S));else S.step()}};
-const saves=[];
+const saves=[],VERSION=loadSim(1).VERSION;
 // (the accountant running a life, and its record on the Story tab)
 {const S=loadSim(15);S.G.seen.intro=true;S.G.ladder.achieved={'billionaire:luthor':1,'billionaire:revolt':1,'landlord:fair':1,'landlord:rentier':1};S.G.adviser='acct';
   while(!(S.G.week>=12*52&&!S.G.card)){if(S.G.card){const k=S.adviserAnswer(),o=S.cardOptions().find(x=>x.k===k);S.answerCard(k);S.adviserAnswered(o)}else S.step()}
@@ -24,6 +24,7 @@ for(const [town,seed,tab] of [['port',12,'town'],['suburb',13,'story']]){const S
   until(S,()=>S.G.week>=8*52&&!S.G.card,acct);saves.push([town,JSON.stringify(S.G),tab])}
 {const S=loadSim(5);S.G.seen.intro=true;until(S,()=>!!S.G.card,acct);saves.push(['card',JSON.stringify(S.G),'fortune'])}
 {const S=loadSim(6);S.G.seen.intro=true;until(S,()=>S.G.week>=22*52&&!S.G.card,acct);saves.push(['hoarder',JSON.stringify(S.G),'town'])}
+saves.push(['whatsnew',saves.at(-1)[1],'fortune']);
 {const S=loadSim(7);S.G.seen.intro=true;until(S,()=>S.G.week>=20*52&&!S.G.card,S=>{const o=S.cardOptions();return (o.find(o=>o.kind)||o[0]).k});saves.push(['giver',JSON.stringify(S.G),'commit'])}
 {const S=loadSim(8);S.G.seen.intro=true;until(S,()=>false,S=>{const o=S.cardOptions();return (o.find(o=>o.none)||o[0]).k});saves.push(['ending',JSON.stringify(S.G),'fortune']);
   S.startLandlord();S.G.seen.landlord=true;S.step();saves.push(['landlord-card',JSON.stringify(S.G),'books']);
@@ -78,9 +79,12 @@ for(const [name,w,h] of sizes.filter(s=>!wanted||wanted.includes(s[0]))){
   for(const [scene,save,tab] of saves.filter(x=>!only||x[0].startsWith(only))){
     const p=await browser.newPage({viewport:{width:w,height:h},deviceScaleFactor:2});
     p.on('pageerror',e=>{errors++;console.error(name+' '+scene+': '+e.message)});
-    await p.addInitScript(j=>{localStorage.setItem('money-makes-money-save-v1',JSON.stringify(Object.assign(JSON.parse(j),{speed:0})))},save);
+    // (every scene but whatsnew has already seen this version's What's new)
+    await p.addInitScript(([j,v])=>{localStorage.setItem('money-makes-money-save-v1',JSON.stringify(Object.assign(JSON.parse(j),{speed:0})));
+      if(v)localStorage.setItem('money-makes-money-prefs',JSON.stringify({seenVersion:v}))},[save,scene==='whatsnew'?null:VERSION]);
     await p.goto('file://'+join(root,'dist/index.html'));await p.waitForTimeout(300);
-    if(!JSON.parse(save).card)await p.click('#tabs [data-t="'+tab+'"]').catch(()=>{}); // (a waiting decision shows its own tab)await p.waitForTimeout(2200);
+    if(!JSON.parse(save).card)await p.click('#tabs [data-t="'+tab+'"]').catch(()=>{}); // (a waiting decision shows its own tab)
+    await p.waitForTimeout(2200);
     await p.screenshot({path:join(out,name+'-'+scene+'.png')});
     await p.close();
   }
