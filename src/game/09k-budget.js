@@ -13,3 +13,7 @@ function purseWeekEnd(f0){
   if(Math.abs(d)>1){G.pyear=G.pyear||{};G.pyear.other=(G.pyear.other||0)+d}
 }
 function purseYearEnd(){G.plast=G.pyear||{};G.pyear={}}
+// your laws at work, over a life: what the taxes on fortunes took, what that money would have grown to had it stayed
+// in the fortune, and what the purse paid for each programme (fromPurse adds those)
+function lawTax(w){const t=G.lawTally||(G.lawTally={});t.tax=(t.tax||0)+w;t.forgone=(t.forgone||0)*(1+G.rate)+w}
+const lawsOn=()=>Object.keys(G.pub||{}).filter(k=>G.pub[k]&&typeof lawOf==='function'&&lawOf(k));

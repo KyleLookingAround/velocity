@@ -178,7 +178,7 @@ const PANES={
       <div>Given so far<b>${money(G.given)}</b></div><div>Share of gains<b>${share}%</b></div>
       <div>The market<b>${marketWord()}</b></div><div>Crashes so far<b>${(G.mkt&&G.mkt.falls)||0}</b></div>
       <div>Taxes paid<b>${money(G.taxPaid)}</b></div><div>Next tax vote<b>${G.ending?'–':G.nextTax>G.week?'age '+(START_AGE+Math.floor(G.nextTax/WEEKS)):'now'}</b></div></div>
-      <p class="lead" style="margin-top:8px">A hero gives at least ${Math.round(T.heroGiveShare*100)}% of what they gain, keeps the town calm, and still dies richer than $30M.</p>`;
+      <p class="lead" style="margin-top:8px">A hero gives at least ${Math.round(T.heroGiveShare*100)}% of what they gain, keeps the town calm, and still dies richer than $30M.</p>`+lawsHTML();
   },
   commit(){
     const seen=GIFTS.filter(g=>G.seenGifts[g.k]||G.gifts[g.k]),cost=giftCosts();
@@ -296,7 +296,21 @@ function showPresidentIntro(){
     <p>Now the law itself can change: tax gains like wages, end buy-borrow-die, tax the biggest fortunes, and pay for the whole programme list. Bills go to Congress; the lobby pays for the other side. What you pass lasts into the next billionaire life.</p>`,`Two terms, if they re-elect you.`));
 }
 // a billionaire life in a country a president changed
+// your laws at work: what each law a president of yours passed has done in this life, with the fortune it cost you
+const taxShare=()=>Math.round(((G.pub.wealthtax?0.02:0)+(G.pub.gains?0.01:0)+(G.pub.stepup?0.01:0))*100);
+function lawEffect(k){const t=G.lawTally||{},paid=t[k]?money(t[k])+' paid from the purse':'nothing paid yet',n=f=>G.res.filter(f).length*HH;
+  return {shelter:paid+' \u00b7 '+n(r=>r.sheltered)+' households in a shelter, not on the street',childcare:paid+' \u00b7 '+n(r=>r.parent&&r.job!=null)+' parents working full time',
+    vouchers:paid+' towards rents',medical:paid+' of medical debt cleared',poverty:paid+' topping households up to the poverty line'}[k]||paid}
+function lawsHTML(){
+  const ls=lawsOn();if(!ls.length||G.rung!=='billionaire')return '';const t=G.lawTally||{},tax=ls.filter(k=>!lawOf(k).programme),prog=ls.filter(k=>lawOf(k).programme);
+  return `<div class="cap" style="margin:12px 0 4px;text-align:left">Your laws at work</div>`+
+    (tax.length?`<div class="card"><div class="txt"><b>${tax.map(k=>lawOf(k).name).join(' \u00b7 ')}</b><small>Your fortune pays ${taxShare()}% a year into the purse: ${money(t.tax||0)} so far. Kept, it would have grown to ${money(t.forgone||0)}.</small></div></div>`:'')+
+    prog.map(k=>`<div class="card"><div class="txt"><b>${lawOf(k).name}</b><small>${lawEffect(k)}</small></div></div>`).join('');
+}
+// (a life under your laws opens with their scenes on the town's side of the stage)
+function lawScenes(){for(const k of lawsOn())if(lawOf(k).programme&&GIFT_SCENE[k]&&!R.townQ.includes(GIFT_SCENE[k]))R.townQ.push(GIFT_SCENE[k]);if(R.townQ.length>3)R.townQ.length=3}
 function showLawsIntro(){
+  lawScenes();
   const laws=Object.keys(G.pub||{}).filter(k=>G.pub[k]&&lawOf(k)),t=townOf(),away=G.town&&G.town!=='mill';
   if(!laws.length&&!away)return;
   // (a new town says where you are; the country's laws, if you made any, come with you)
@@ -466,6 +480,7 @@ function showEndingCore(){
     revolt:['Revolt','The town has had enough. Signs fill the streets and your name is on them.']}[e.kind];
   showModal(`<h2>${T0[0]}</h2><p>${T0[1]}</p><div class="big">${money(e.nw)}</div>
     <p>Age ${40+Math.floor(e.week/WEEKS)}. You gave away ${money(e.given)}, ${share}% of everything you gained.</p>
+    ${lawsOn().length&&G.lawTally&&(G.lawTally.forgone||Object.keys(G.lawTally).length)?`<div class="twist">Under your laws: ${G.lawTally.forgone?'the taxes cost your fortune about '+money(G.lawTally.forgone)+', and ':''}the purse paid ${money(lawsOn().filter(k=>lawOf(k).programme).reduce((a,k)=>a+(G.lawTally[k]||0),0))} for the programmes.</div>`:''}
     ${G.daily&&!(G.heir>0)&&G.ladder.daily&&G.ladder.daily[G.daily]?`<div class="twist">${G.daily===todayKey()?'Today\u2019s life':'The life of '+dayName(G.daily)}: ${R.dailyBest?'your best yet':'your best is still <b>'+dailyLine(G.ladder.daily[G.daily])+'</b>'}, after ${G.ladder.daily[G.daily].tries} ${G.ladder.daily[G.daily].tries===1?'try':'tries'}</div>`:''}
     ${e.kind!=='hero'?`<p>The hero ending needs you to give at least ${Math.round(T.heroGiveShare*100)}% of your gains, keep unrest low, and still finish richer than $30M.</p>`:''}
     <div class="opts"><button class="main" data-rung="landlord"><b>Step down: the landlord</b><small>Play Agnes, in the town you leave behind</small></button>
