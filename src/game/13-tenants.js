@@ -173,8 +173,9 @@ function ballotHTML(){
   const rank=m=>a.campaign===m.k?0:a.passed.includes(m.k)?3:a.donor&&m.k==='wealthtax'?2:1;
   const ms=MEASURES.filter(m=>!m.when||m.when()||a.passed.includes(m.k)).sort((x,y)=>rank(x)-rank(y)||voteOdds(y.k)-voteOdds(x.k));
   return `<div class="cap" style="margin:12px 0 4px;text-align:left">The ballot paper</div>`+ms.map(m=>{const [c,l]=st(m),done=c==='won'||c==='off',o=voteOdds(m.k);
-    return `<div class="front ro${a.campaign===m.k?' on':''}"><span><b>${m.name}<span class="won st-${c||'none'}">${l}</span></b><small>${m.note}</small></span>${done?'<span></span><span></span>':`<i><u style="width:${Math.round(o*100)}%"></u></i><em>${pc(o)}</em>`}</div>`}).join('')+
-    `<p class="lead">Odds as things stand, before a final push. A measure you\u2019ve lost before is a little easier the next time.</p>`;
+    const g=groundOf(m.k),side=a.side===m.k,can=!done&&sideOk(m.k);
+    return `<div class="front ro${a.campaign===m.k?' on':''}"><span><b>${m.name}<span class="won st-${c||'none'}">${l}</span></b><small>${m.note}${g?' \u00b7 groundwork +'+Math.round(g*100)+' support':''}</small>${can?`<button class="side${side?' on':''}" data-side="${m.k}">${side?'Laying groundwork \u00b7 stop':'Lay groundwork'}</button>`:''}</span>${done?'<span></span><span></span>':`<i><u style="width:${Math.round(o*100)}%"></u></i><em>${pc(o)}</em>`}</div>`}).join('')+
+    `<p class="lead">Odds as things stand, before a final push. A measure you\u2019ve lost before is a little easier the next time. Lay groundwork for one other measure while you campaign: up to five points of support for it over half a year, while your campaign builds support half as fast.</p>`;
 }
 
 // the mayor's Town hall tab: approval and the next election, the purse and the tax, and the town's own homes

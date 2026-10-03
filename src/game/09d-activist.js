@@ -47,7 +47,13 @@ const opposition=k=>measure(k).opp+(G.cash>1e9?0.05:G.cash>1e8?0.03:0);
 const adsBoost=()=>0.12*Math.min(1,G.ac.funds/Math.max(1,G.res.length*T.wage*grow(0.02)*0.15));
 // the chance a vote passes, given support and the final push
 // (a measure fought before is easier the next time: people remember the fight, four points for each lost vote)
-function voteOdds(k,boost){return Math.max(0.05,Math.min(0.95,0.5+(G.ac.support+(boost||0)+0.04*G.ac.lost.filter(x=>x===k).length-opposition(k)-0.45)*2.5))}
+function voteOdds(k,boost){return Math.max(0.05,Math.min(0.95,0.5+(G.ac.support+(boost||0)+0.04*G.ac.lost.filter(x=>x===k).length+groundOf(k)-opposition(k)-0.45)*2.5))}
+// groundwork: while one campaign runs you can spend some of your weeks on another measure, which builds it up to five
+// points of support over half a year, at the cost of the running campaign building support half as fast
+const GROUND={max:0.05,weeks:26};
+const groundOf=k=>Math.min(GROUND.max,(G.ac&&G.ac.ground&&G.ac.ground[k])||0);
+const sideOk=k=>{const a=G.ac;return !!measure(k)&&a.campaign!==k&&!a.passed.includes(k)&&!(a.donor&&k==='wealthtax')};
+function setSide(k){const a=G.ac;if(!isActivist())return false;if(a.side===k){a.side=null;return true}if(!sideOk(k))return false;a.side=k;return true}
 // a week: supporters give, and support drifts towards what the town's mood and your record say (the doors you've
 // knocked on build a base that stays)
 function activistWeek(){
@@ -55,7 +61,9 @@ function activistWeek(){
   a.funds+=a.support*n*T.wage*grow(0.02)*AC.give;
   if(a.youth)a.support=Math.min(0.9,a.support+0.0004);
   // a campaign under way is itself knocking on doors: support builds week by week until the vote
-  if(a.campaign)a.support=Math.min(0.9,a.support+0.002);
+  const side=a.side&&sideOk(a.side)?a.side:null;
+  if(a.campaign)a.support=Math.min(0.9,a.support+(side?0.001:0.002));
+  if(side){a.ground=a.ground||{};a.ground[side]=Math.min(GROUND.max,(a.ground[side]||0)+GROUND.max/GROUND.weeks)}
   const target=0.22+G.unrest/250+(a.base||0)+0.03*a.passed.length-(a.donor?0.1:0)-0.02*a.arrests;
   a.support=Math.max(0.05,Math.min(0.9,a.support+(target-a.support)*0.01));
 }
