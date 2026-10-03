@@ -42,7 +42,7 @@ sessions). The owner decides what moves up.
 - **Rung-specific passers-by** (S, done): the landlord's agent with a clipboard, a food-delivery rider, a leafleter, a
   police car when unrest is high, a removal van after an eviction.
 - **Night and weather** (S, done): a few scenes at dusk, rain in autumn with the umbrellas, snow already there.
-- **Crowd scale** (S): the number of figures in chain, protest and tents following the town's real numbers.
+- **Crowd scale** (S, done): the number of figures in chain, protest and tents following the town's real numbers.
 - **A map view** (M): a top-down town (the video's map) as a third pane or a tab, with homes coloured by owner and
   shops by whether their money stays; the camera's "one long town" becomes a real place.
 - **Sound** (S, done): a few soft sounds (coins, a till, a crowd, rain) and haptics on a phone for a new card; off by
