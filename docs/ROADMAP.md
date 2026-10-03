@@ -69,6 +69,8 @@ sessions). The owner decides what moves up.
 - ~~**Daily ladder** (M): a seeded daily life with a leaderboard kept on the device (best ending, fewest years to the
   top).~~ Done as today's life: a seeded billionaire life, best of each day on the device.
 - **Share card** (S, done): an ending card as an image to save or share (the stage scene plus the verdict), drawn on canvas.
+- **A chronicle** (M, done): a page per run on the Story tab, each life in order with its ending, what it left the town
+  and the names it touched; the newest run saves as one picture.
 
 ## 6. Onboarding and clarity
 

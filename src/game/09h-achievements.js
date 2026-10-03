@@ -72,6 +72,7 @@ function endLife(kind){
   // (a daily life's billionaire ending goes on that day's board; an heir's doesn't count)
   if(G.daily&&e.rung==='billionaire'&&!(G.heir>0))recordDaily(e);
   e.newAch=R.newAch.slice();
+  chronNote(e);
 }
 // the rare role: the heir of a hero, a second billionaire life in the same town, from the fortune it left
 function startHeir(){
