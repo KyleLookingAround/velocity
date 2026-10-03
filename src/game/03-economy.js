@@ -116,7 +116,7 @@ function evict(r){
 // the gifts you fund come out of your fortune and into the town; a public programme the town voted for comes out of
 // the public purse instead, while it has money
 function giftsOn(){const a=Object.assign({},G.gifts);if(G.fund>0)for(const k in G.pub||{})if(G.pub[k])a[k]=true;return a}
-const fromPurse=(kind,amt)=>{const p=Math.min(amt,G.fund||0);if(p>0){purse('programme',-p);gc('pub-'+kind,p)}return p};
+const fromPurse=(kind,amt)=>{const p=Math.min(amt,G.fund||0);if(p>0){purse('programme',-p);gc('pub-'+kind,p);const t=G.lawTally||(G.lawTally={});t[kind]=(t[kind]||0)+p}return p};
 function giveTo(i,amt,kind){
   if(!G.gifts[kind]){const p=fromPurse(kind,amt);G.res[i].income+=p;pay('out','r'+i,p,'programme');return}gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;G.res[i].income+=amt;pay('you','r'+i,amt,'gift')}
 function giveOut(amt,kind,i){if(!(amt>0))return;if(!G.gifts[kind]){pay('out',i==null?'out':'r'+i,fromPurse(kind,amt),'programme');return}gc(kind,amt);G.cash-=amt;G.year.given+=amt;G.given+=amt;pay('you',i==null?'out':'r'+i,amt,'gift')}

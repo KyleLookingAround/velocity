@@ -14,7 +14,7 @@ sessions). The owner decides what moves up.
   events.
 - **Second-loop twists** (M, done). On a second time round, the same cards come with a twist line ("Last time you said no";
   "the loophole you wrote is still law"), and three or four cards exist only on later loops.
-- **Scenarios by law** (S). The president's laws already shape the next billionaire life; show the difference on the
+- **Scenarios by law** (S, done). The president's laws already shape the next billionaire life; show the difference on the
   intro card ("In this country the biggest fortunes pay 2% a year") and a What-changed strip at each rung's start.
 
 ## 2. Depth per rung (play)
@@ -42,7 +42,7 @@ sessions). The owner decides what moves up.
 - **Rung-specific passers-by** (S, done): the landlord's agent with a clipboard, a food-delivery rider, a leafleter, a
   police car when unrest is high, a removal van after an eviction.
 - **Night and weather** (S, done): a few scenes at dusk, rain in autumn with the umbrellas, snow already there.
-- **Crowd scale** (S): the number of figures in chain, protest and tents following the town's real numbers.
+- **Crowd scale** (S, done): the number of figures in chain, protest and tents following the town's real numbers.
 - **A map view** (M): a top-down town (the video's map) as a third pane or a tab, with homes coloured by owner and
   shops by whether their money stays; the camera's "one long town" becomes a real place.
 - **Sound** (S, done): a few soft sounds (coins, a till, a crowd, rain) and haptics on a phone for a new card; off by
