@@ -46,8 +46,18 @@ function sellCafe(){
   const st=staffOf(CAFE);if(st.length){const r=st[st.length-1];r.job=null;G.sh.letGo=G.res.indexOf(r);townEvent('laidoff',r.name);remember('letgo',r)}
 }
 // what the café's choices do to the week: price sends some customers to the megastore, pay and supplies cost more or less
-const cafeLeak=()=>Math.max(0,(G.sh.price-1)*1.4)+(G.sh.counter&&!G.sh.loyal?0.08:0);
-const cafeSupplies=()=>T.supplies*SH.supply[G.sh.supply]/G.sh.price;
+// The menu: three lines with their own share of the takings, cost to make (coffee is cheap, lunches dear) and how quickly
+// a dearer price sends customers to the megastore (coffee most, cakes least). Each line can be priced up or down from
+// the café's price; with every line at the café's price the café works exactly as one price did
+const MENU=[{k:'coffee',name:'Coffee and tea',share:0.4,cost:0.6,e:1.8},{k:'lunch',name:'Lunches',share:0.35,cost:1.2,e:1.2},{k:'cake',name:'Cakes',share:0.25,cost:1.36,e:0.9}];
+const MENU_E=MENU.reduce((a,m)=>a+m.share*m.e,0),LINE_STEPS=[-0.1,0,0.1,0.2];
+const lineOff=k=>(G.sh&&G.sh.lines&&G.sh.lines[k])||0;
+const linesSet=()=>MENU.some(m=>lineOff(m.k));
+function setLine(k,v){if(!G.sh||!MENU.some(m=>m.k===k)||!LINE_STEPS.includes(v))return false;G.sh.lines=Object.assign({},G.sh.lines,{[k]:v});return true}
+// the share of a line's customers lost to the megastore at its price
+const lineLeak=m=>1.4*m.e/MENU_E*Math.max(0,G.sh.price*(1+lineOff(m.k))-1);
+const cafeLeak=()=>(linesSet()?MENU.reduce((a,m)=>a+m.share*lineLeak(m),0):Math.max(0,(G.sh.price-1)*1.4))+(G.sh.counter&&!G.sh.loyal?0.08:0);
+const cafeSupplies=()=>T.supplies*SH.supply[G.sh.supply]*(linesSet()?MENU.reduce((a,m)=>a+m.share*m.cost/(1+lineOff(m.k)),0):1)/G.sh.price;
 const cafeWageMul=()=>SH.pay[G.sh.pay];
 // a week of rent on the premises, to Agnes
 function shopWeek(){

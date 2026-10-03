@@ -112,8 +112,10 @@ leaves the life you're in, so a life under way asks once more first.
   job, and sends its profit out of town), and the next life is either the waiter at that café, with head office's cuts
   and transfers instead of Bea's offers, or straight to the bottom as the one let go. Late on, investors may offer to
   make you a **founder**: the shortcut straight back to a billionaire life, which changes nothing. The Café tab's menu
-  splits the takings into coffee, lunches and cakes, each with what it pays its supplier and what it keeps. Endings:
-  **pillar of the high street**, **kept the lights on**, **closed**, **sold**, or **founder**.
+  splits the takings into coffee, lunches and cakes, each with what it pays its supplier and what it keeps, and each
+  can be priced from 10% under the café's price to 20% over: a dearer line keeps more of each sale and loses customers
+  to the megastore (coffee drinkers soonest, cake buyers last). Endings: **pillar of the high street**, **kept the
+  lights on**, **closed**, **sold**, or **founder**.
 - **The waiter** (15 years): you play one of the café's staff, on whatever Bea paid, renting from Agnes. Each year you
   choose your shifts (extra shifts pay, and wear your health down); when you're short there's a payday lender; the
   union organises and later strikes; evening classes cost now and pay later. Endings: **getting ahead**, **getting
