@@ -26,7 +26,7 @@ sessions). The owner decides what moves up.
 - **Partner: the cases** (S, done as the docket and its scales; the weekly hours choice is open). A docket of two
   or three live cases with a clock; the hours card becomes a weekly choice
   of which to work.
-- **Shop: the menu** (S, done as a view; price per line is open). Three or four menu lines with their own margin and
+- **Shop: the menu** (S, done, with a price per line). Three or four menu lines with their own margin and
   local/megastore supply; price per line.
 - **Waiter & out of work: the week** (M, done). A seven-day strip showing shifts, rent day, the lender's day; the budget
   becomes something you see, not a number.
