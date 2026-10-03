@@ -39,7 +39,9 @@ PANES.career=function(){
     <div>Home<b>${p.home==='own'?'Your own':'Rented from Agnes'}</b></div><div>Partner share<b>${p.partnerShare>1?'Equity':'Salaried'}</b></div>
     <div>Loopholes written<b>${p.loopholes}</b></div><div>Evictions fought free<b>${p.proBono}</b></div>
     <div>Agnes’s retainers<b>${p.evictionWork}</b></div><div>The mill’s union<b>${{mill:'Against it',union:'For it',none:'Stayed out'}[p.unionSide]||'–'}</b></div>
-    <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>`+docketHTML();
+    <div>Tax to the town last year<b>${h?money(h.taxToTown):'–'}</b></div><div></div></div>
+    <div class="card"><div class="txt"><b>Hours this week</b><small>Change them any week. Above 55 you burn out; below 45 you recover. The year is judged on its average.</small>
+      <div class="seg">${HOURS.map(x=>`<button class="${p.hours===x?'on':''}" data-hours="${x}">${x}</button>`).join('')}</div></div></div>`+docketHTML();
 };
 // the docket: the cases you've taken this life, newest first, each by whose side it served, under the scales your
 // ending is weighed on (work for the rich against work for the town)

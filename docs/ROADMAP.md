@@ -23,7 +23,7 @@ sessions). The owner decides what moves up.
   exists, make it a cycle you can ride or hedge, and a "sell at the top" rare ending.
 - **Landlord: the portfolio** (S, done). A map of your homes on the Tenants tab, each with its condition and tenant, tap to
   act (repair, raise, give time) instead of waiting for the card.
-- **Partner: the cases** (S, done as the docket and its scales; the weekly hours choice is open). A docket of two
+- **Partner: the cases** (S, done as the docket and its scales, and hours set any week). A docket of two
   or three live cases with a clock; the hours card becomes a weekly choice
   of which to work.
 - **Shop: the menu** (S, done as a view; price per line is open). Three or four menu lines with their own margin and
