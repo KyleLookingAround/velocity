@@ -39,6 +39,11 @@ says how each rung plays; this file is the short core every session needs.
    that version's saves to `tools/saves/`; the bot's saves group loads every one of them, so old saves keep loading.
    Never delete a save there.
 
+## The UI and UX review
+
+A scheduled session looks at the game regularly from a player's side, following `docs/UX-REVIEW.md`. It ships one to
+three small improvements, proposes bigger ones in the roadmap, and leaves a note in `docs/ux/`.
+
 ## Rules every change keeps
 
 - `G` is the saved state, `R` is runtime only. New saved state gets its line in `FIELDS` (`02-state.js`) with its
