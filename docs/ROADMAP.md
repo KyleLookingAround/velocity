@@ -32,7 +32,7 @@ sessions). The owner decides what moves up.
   becomes something you see, not a number.
 - **Union: workplaces as targets** (S, done as the fronts). The mill, the high street and the estate's shops as three fronts with their
   own membership and odds; pick where to organise this quarter.
-- **Activist: the ballot paper** (S, done as a view of every measure's odds; one campaign at a time still). Several
+- **Activist: the ballot paper** (S, done: every measure's odds, and groundwork for a second while you campaign). Several
   measures live at once with a bar each; spend your campaign weeks across them.
 - **Mayor, governor, president: the budget** (M, done). A visible budget pie each year (what came in, what it paid for), and
   one "spend it on" card a year that lets you move a slice.
