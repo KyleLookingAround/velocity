@@ -11,7 +11,7 @@ function achSummary(){
   const all=allAchievements(),n=found().length,cards=Object.keys(G.ladder.cards||{}).length;
   return `<div class="card"><div class="txt"><b>Achievements</b><small>${n} of ${all.length} found${n<all.length?', some of them rare':''}</small></div>
     <button class="act" data-ach="1">The ladder</button></div>
-    ${dailyHTML()}${townsHTML()}
+    ${chronHTML()}${dailyHTML()}${townsHTML()}
     <div class="card"><div class="txt"><b>Your cards</b><small>${cards} of ${deckSize()} collected: every kind of decision is one</small></div>
     <button class="act" data-deck="1">The deck</button></div>
     ${prefsHTML()}<div class="card"><div class="txt"><b>Your save</b><small>Carry this game to another device</small></div><button class="act" data-savebox="1">Move it</button></div>${versionHTML()}`;

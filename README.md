@@ -79,6 +79,9 @@ the start: the town is part of the life you're dealt. A town changes a few numbe
 (the mill, the cannery or the depot); the ladder, the cards and the endings are the same. The port is the hardest town
 for a hero: gifts cost more where wages are higher. The Story tab lists the towns you've opened.
 
+**The chronicle.** The Story tab keeps a page per run: every life in order, its ending, what it left the town and the
+names it touched. The newest run saves as one picture.
+
 **Versions.** The Story tab shows the version and what's new in it, and a returning player sees What's new once
 after an update. Saves from every version are kept in `tools/saves/` and the bot loads each one, so old saves keep
 working.

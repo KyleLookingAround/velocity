@@ -42,7 +42,7 @@ sessions). The owner decides what moves up.
 - **Rung-specific passers-by** (S, done): the landlord's agent with a clipboard, a food-delivery rider, a leafleter, a
   police car when unrest is high, a removal van after an eviction.
 - **Night and weather** (S, done): a few scenes at dusk, rain in autumn with the umbrellas, snow already there.
-- **Crowd scale** (S): the number of figures in chain, protest and tents following the town's real numbers.
+- **Crowd scale** (S, done): the number of figures in chain, protest and tents following the town's real numbers.
 - **A map view** (M): a top-down town (the video's map) as a third pane or a tab, with homes coloured by owner and
   shops by whether their money stays; the camera's "one long town" becomes a real place.
 - **Sound** (S, done): a few soft sounds (coins, a till, a crowd, rain) and haptics on a phone for a new card; off by
@@ -69,6 +69,8 @@ sessions). The owner decides what moves up.
 - ~~**Daily ladder** (M): a seeded daily life with a leaderboard kept on the device (best ending, fewest years to the
   top).~~ Done as today's life: a seeded billionaire life, best of each day on the device.
 - **Share card** (S, done): an ending card as an image to save or share (the stage scene plus the verdict), drawn on canvas.
+- **A chronicle** (M, done): a page per run on the Story tab, each life in order with its ending, what it left the town
+  and the names it touched; the newest run saves as one picture.
 
 ## 6. Onboarding and clarity
 
