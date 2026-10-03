@@ -116,6 +116,8 @@ function tree(c,x,y){c.fillStyle='#8a8a8a';c.fillRect(x-3,y-40,6,40);c.fillStyle
 function truck(c,x,y,label){c.fillStyle='#8a8a8a';c.fillRect(x-60,y-56,84,46);c.fillStyle='#6d6d6d';c.fillRect(x+24,y-40,30,30);c.fillStyle='#d9d9d9';c.fillRect(x+30,y-36,16,12);
   c.fillStyle='#333';c.beginPath();c.arc(x-40,y-8,8,0,7);c.arc(x+36,y-8,8,0,7);c.fill();if(label)txt(c,label,x-18,y-28,11,'#fff',800)}
 function counter(c,x,y,label){c.fillStyle='#2b2b2b';c.fillRect(x-36,y-44,72,44);c.fillStyle='#555';c.fillRect(x+2,y-62,26,18);if(label)txt(c,label,x,y-18,11,'#fff',800)}
+// a sign as wide as its words
+function board(c,x,y,t){c.font='800 10px Inter,system-ui,sans-serif';const w=c.measureText(t).width+14;c.fillStyle='#f7f7f7';c.fillRect(x-w/2,y-12,w,24);c.strokeStyle='#999';c.lineWidth=1;c.strokeRect(x-w/2,y-12,w,24);txt(c,t,x,y+4,10,RED,800)}
 function letter(c,x,y,t){c.fillStyle='#f7f7f7';c.fillRect(x-24,y-16,48,32);c.strokeStyle='#999';c.lineWidth=1;c.strokeRect(x-24,y-16,48,32);txt(c,t,x,y+4,9,RED,800)}
 function bench(c,x,y){c.fillStyle='#8a8a8a';c.fillRect(x-40,y-26,80,6);c.fillRect(x-36,y-20,5,20);c.fillRect(x+31,y-20,5,20)}
 function building(c,x,y,label,w){w=w||130;c.fillStyle='#ababab';c.fillRect(x-w/2,y-90,w,90);c.fillStyle='#e6e6e6';for(let k=0;k<3;k++)c.fillRect(x-w/2+14+k*((w-28)/3),y-70,(w-28)/3-10,20);
@@ -229,6 +231,13 @@ const SCENES={
     person(c,x,236,{pose:'sit',s:0.9});c.fillStyle='#4c9a5d';c.fillRect(x-24,178,20,20)}},
   organising:{cap:()=>'Organising',draw(c,t){
     person(c,240,250,{pose:loopT(t,2)<0.5?'raise':'stand'});for(let k=0;k<5;k++){const a=Math.PI*(0.15+k*0.175);person(c,240-Math.cos(a)*170,250,{dir:k<2?1:-1,col:['#444','#555','#333','#666','#444'][k],pose:loopT(t+k*0.2,1)>0.8?'raise':'stand'})}}},
+  // the market reaching the town: the mill on short time after a crash, and homes dearer in a boom
+  shorttime:{cap:()=>'Shares crash, and the mill goes on short time: pay is down '+Math.round((1-MKT.millCut)*100)+'%',draw(c,t){
+    c.fillStyle='#8f8f8f';c.fillRect(330,130,10,120);c.fillRect(430,130,10,120);c.fillRect(330,130,110,10);board(c,385,168,'SHORT TIME');
+    for(let k=0;k<3;k++){const u=Math.max(0,Math.min(1,(t-k*0.2)*2));person(c,370-u*190-k*12,250,{pose:u<1?'walk':'slump',t:t*4+k,dir:-1,col:['#333','#444','#555'][k]})}}},
+  boomhomes:{cap:()=>'Shares boom, and a home costs '+Math.round(MKT.boomHomes*100)+'% more',draw(c,t){
+    house(c,230,250,{});c.fillStyle='#8f8f8f';c.fillRect(118,190,4,60);board(c,120,182,'FOR SALE $'+Math.round(G.homePrice/HH/1000*(1-MKT.boomHomes*(1-Math.min(1,t*1.5))))+'k');person(c,360,250,{pose:'slump',col:'#444'});
+    for(let k=0;k<2;k++)flyBill(c,PW+20,120,250,200,loopT(t+k/2,1),30)}},
   rally:{cap:()=>'Signing people up at the gate',draw(c,t){
     c.fillStyle='#8f8f8f';c.fillRect(330,130,10,120);c.fillRect(430,130,10,120);c.fillRect(330,130,110,10);
     person(c,200,250,{pose:loopT(t,2)<0.5?'raise':'give'});for(let k=0;k<4;k++){const u=Math.max(0,Math.min(1,(t-k*0.18)*2.5));person(c,400-u*130-k*10,250,{pose:u<1?'walk':'stand',t:t*5+k,dir:-1,col:['#333','#444','#555','#3a3a3a'][k]})}}},
