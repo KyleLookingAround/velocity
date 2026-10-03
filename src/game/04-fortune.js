@@ -3,12 +3,34 @@
 // gifts spend it on the town. Prices of everything grow a little each year (grow()).
 const grow=(r)=>Math.pow(1+r,Math.floor(G.week/WEEKS));
 // the crash takes a share of the fortune: more if you rode the boom on borrowed money, half as much if you sold at the top
-function crashHits(keep){if(G.boom==='rode'){keep-=0.1;G.rate-=0.006}else if(G.boom==='sold')keep=1-(1-keep)*0.5;G.cash*=keep}
+function crashHits(keep){const m=G.mkt;if(G.boom==='rode'){keep-=0.1;G.rate-=0.006}else if(G.boom==='sold'){keep=1-(1-keep)*0.5;if(m)m.tops=(m.tops||0)+1}G.cash*=keep;
+  if(m){m.hit=m.n;m.falls=(m.falls||0)+1;m.rec=MKT.recover[1]*WEEKS}}
+// the share market, in a billionaire life: a long calm, then a boom (shares fly, and borrowing to ride them pays for a
+// while), then a crash, then calm again: two or three times a life. The boom brings the "shares are flying" card and
+// the crash its card, once each a cycle. A boom adds to the fortune's growth (more if you borrowed, less if you sold a
+// third); the crash takes it back and more. How long each spell lasts comes from the life's seed, read without moving
+// it, so the market doesn't reshuffle the rest of the life.
+// (after a crash the market climbs back for two years: most of a held fortune's fall comes back)
+const MKT={firstCalm:[14,3],calm:[10,3],boom:[4,1],bust:1,boomGain:0.004,recover:[0.05,2]};
+const mktSpell=(k,salt)=>Math.round((MKT[k][0]+peek(salt)*MKT[k][1])*WEEKS);
+function marketWeek(){
+  const m=G.mkt;if(!m||G.rung!=='billionaire')return;
+  if(m.left==null)m.left=mktSpell('firstCalm',101);
+  if(--m.left>0)return;
+  if(m.phase==='calm'){m.phase='boom';m.left=mktSpell('boom',103+m.n)}
+  else if(m.phase==='boom'){m.phase='bust';m.left=MKT.bust*WEEKS}
+  else{m.phase='calm';m.n++;m.left=mktSpell('calm',107+m.n);G.boom=null}
+}
+// the market in a word, for the Fortune tab
+const marketWord=()=>{const m=G.mkt;if(!m)return 'Calm';return m.phase==='boom'?'Booming'+(G.boom==='rode'?', on borrowed money':G.boom==='sold'?', a third sold':''):m.phase==='bust'?'Crashed':m.rec>0?'Recovering':'Calm'};
+// how much of a boom you ride: borrowed to the hilt, a third sold at the top, or as you were
+const boomShare=()=>G.boom==='rode'?1.5:G.boom==='sold'?0.5:1;
 function fortuneWeek(){
-  if(G.boom==='sold'&&!G.crashed){G.cash*=Math.pow(1-0.004,1/WEEKS)}
+  const m=G.mkt,bil=G.rung==='billionaire'&&m,booming=bil&&m.phase==='boom',rec=bil&&m.rec>0;if(rec)m.rec--;
   const before=G.cash;
-  G.cash*=Math.pow(1+G.rate,1/WEEKS);
+  G.cash*=Math.pow(1+G.rate+(G.cash>0?(booming?MKT.boomGain*boomShare():0)+(rec?MKT.recover[0]:0):0),1/WEEKS);
   G.year.gains+=G.cash-before;
+  marketWeek();
 }
 
 // buy the homes of the next figure renting from the local landlord
