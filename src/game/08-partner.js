@@ -43,7 +43,9 @@ function partnerWeek(){
 // the end of each year: burnout follows your hours, and the town collects its share of the estate (less your loopholes)
 function partnerYearEnd(){
   const p=G.pt;
-  p.burn=Math.max(0,Math.min(1,p.burn+(p.hours>55?(p.hours-55)/10*PT.burnUp*2:p.hours<45?-PT.burnDown:-0.02)));
+  // (a year whose hours changed week to week is judged on its average)
+  const h=p.year.varied?p.year.hours/WEEKS:p.hours;
+  p.burn=Math.max(0,Math.min(1,p.burn+(h>55?(h-55)/10*PT.burnUp*2:h<45?-PT.burnDown:-0.02)));
   if(p.burn>=1)return endLife('burnout');
   const tax=Math.max(0,G.cash)*PT.taxShare/Math.pow(2,p.loopholes);
   if(tax>0){G.cash-=tax;purse('tax',tax)}
@@ -54,4 +56,7 @@ function partnerVerdict(){
   const p=G.pt,forRich=p.loopholes+p.evictionWork+(p.unionSide==='mill'?1:0),forTown=p.proBono+(p.unionSide==='union'?1:0);
   return {kind:forRich>forTown?'hiredgun':'counsel',forRich,forTown};
 }
+// the hours can be changed any week on the Career tab, not only at the yearly review
+const HOURS=[40,50,60,75];
+function setHours(h){const p=G.pt;if(!isPartner()||!HOURS.includes(h)||p.hours===h)return false;p.hours=h;p.year.varied=true;return true}
 function feeOf(hours){return hours*PT.rate} // a case's fee: so many billable hours
