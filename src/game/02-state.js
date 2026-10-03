@@ -12,7 +12,7 @@ const FIELDS={
   speed:()=>1, seen:()=>({intro:false}), autoAcct:()=>false, adviser:()=>null, town:()=>'mill', daily:()=>null,
   card:()=>null, nextCard:()=>12, cool:()=>({}), choices:()=>[], threads:()=>[], boom:()=>null, offshore:()=>false, ageAt:()=>START_AGE, pyear:()=>({}), plast:()=>null, borrowed:()=>false, senator:()=>false,
   arrearsQ:()=>[], seenGifts:()=>({}), rentDue:()=>false, freezeUntil:()=>0,
-  aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false, ow:()=>null, claimDue:()=>false, un:()=>null, ac:()=>null, pub:()=>({}), my:()=>null, levyDue:()=>false, gv:()=>null, wageDue:()=>false, pr:()=>null, heir:()=>0, startNW:()=>0, nwLog:()=>[], giftAsked:()=>-1e9, crashed:()=>false, paperFoundation:()=>false, paper:()=>null, miles:()=>({}),
+  aiLandlord:()=>null, pt:()=>null, hoursDue:()=>false, millMul:()=>1, sh:()=>null, priceDue:()=>false, wt:()=>null, shiftsDue:()=>false, ow:()=>null, claimDue:()=>false, un:()=>null, ac:()=>null, pub:()=>({}), my:()=>null, levyDue:()=>false, gv:()=>null, wageDue:()=>false, pr:()=>null, heir:()=>0, startNW:()=>0, nwLog:()=>[], giftAsked:()=>-1e9, crashed:()=>false, mkt:()=>({phase:'calm',left:null,n:0}), paperFoundation:()=>false, paper:()=>null, miles:()=>({}),
   rung:()=>'billionaire', rungStart:()=>0, ladder:()=>({unlocked:{}}), ll:()=>null, foundation:()=>false,
 };
 // the town's big employer by name: the mill, the cannery or the depot (text only; the code still calls it the mill)

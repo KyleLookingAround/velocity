@@ -83,12 +83,15 @@ your best result for each day stays on the device (a better ending wins, then mo
 a bigger fortune for the others), with how many tries it took, and the board shows your last seven days. Starting it
 leaves the life you're in, so a life under way asks once more first.
 
-- **The billionaire** (40 years): $30M at 8% a year. Along the way: a boom (borrow and ride it, sell a third at the
-  top, or sit tight), then a market crash that takes more from those who rode it on borrowed money (buy what everyone else must sell,
-  hold, or keep the town's shops afloat), a superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be started or stopped on the
-  **Commitments** tab. Endings: **Lex Luthor**, **revolt**, **gave it all away** (generous past what the fortune
-  earns, ending poorer than it began), or **hero** (give at least 35% of your gains, keep unrest
-  low, still finish richer than $30M). Giving from the start costs you; growing first and giving later pays.
+- **The billionaire** (40 years): $30M at 8% a year. Along the way the share market turns two or three times: a long
+  calm, then a boom (borrow and ride it, sell a third at the top, or sit tight), then a crash that takes more from
+  those who rode it on borrowed money and half as much from those who sold (buy what everyone else must sell, hold, or
+  keep the town's shops afloat for a quarter), then two years of recovery that win most of a held fortune back. The
+  Fortune tab says where the market is. Also a superyacht, the town's newspaper for sale, and a museum wing or the
+  school. Gifts you've been asked for can be started or stopped on the **Commitments** tab. Endings: **Lex Luthor**,
+  **revolt**, **gave it all away** (generous past what the fortune earns, ending poorer than it began), or **hero**
+  (give at least 35% of your gains, keep unrest low, still finish richer than $30M). Giving from the start costs you;
+  growing first and giving later pays.
 - **The landlord** (20 years): you play Agnes in the town the billionaire left. Its homes and shops pass to its
   estate, which raises rents 7% a year; a hero's gifts carry on as a foundation. You decide the yearly rent, what to
   do about each tenant who falls six weeks behind, repairs, buying homes from the estate, and the tenants' union. Home
@@ -110,8 +113,10 @@ leaves the life you're in, so a life under way asks once more first.
   job, and sends its profit out of town), and the next life is either the waiter at that café, with head office's cuts
   and transfers instead of Bea's offers, or straight to the bottom as the one let go. Late on, investors may offer to
   make you a **founder**: the shortcut straight back to a billionaire life, which changes nothing. The Café tab's menu
-  splits the takings into coffee, lunches and cakes, each with what it pays its supplier and what it keeps. Endings:
-  **pillar of the high street**, **kept the lights on**, **closed**, **sold**, or **founder**.
+  splits the takings into coffee, lunches and cakes, each with what it pays its supplier and what it keeps, and each
+  can be priced from 10% under the café's price to 20% over: a dearer line keeps more of each sale and loses customers
+  to the megastore (coffee drinkers soonest, cake buyers last). Endings: **pillar of the high street**, **kept the
+  lights on**, **closed**, **sold**, or **founder**.
 - **The waiter** (15 years): you play one of the café's staff, on whatever Bea paid, renting from Agnes. Each year you
   choose your shifts (extra shifts pay, and wear your health down); when you're short there's a payday lender; the
   union organises and later strikes; evening classes cost now and pay later. Endings: **getting ahead**, **getting
@@ -250,7 +255,8 @@ co-op**, and a waiter later thriving there; striking the estate's own shops (whi
 leaves behind) makes **the general strike**; defending tenants against the rentier you once were makes **the people's
 lawyer**; a town with no private landlord, built without state money, is **the commons**; a governor who keeps raising
 the minimum wage past where anyone advises, and still balances the budget, wins **a landslide**; a clean sweep needs a
-partner who once wrote the loopholes; full circle and utopia need the loop.  A few
+partner who once wrote the loopholes; a billionaire who sells a third at the top of two booms is **sold at the
+top**; full circle and utopia need the loop. A few
 milestones count too: all the way down, all the way up, every rung, the country you made.
 
 The **heir** is a rare role: when a billionaire dies a hero, you can play its heir, a second billionaire life in the

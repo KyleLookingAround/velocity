@@ -232,8 +232,9 @@ if(on('hunt')){const hunted=new Set(),k2=S=>opt(S,o=>o.kind);
   const pick={shop:S=>S.G.card.id==='staffbuy'?'sell':k2(S),waiter:S=>S.G.card.id==='shifts'?(S.G.wt.health<0.95?'fewer':'regular'):k2(S),
     union:S=>{if(S.G.card.id==='strikevote'){const won=S.G.un.wonAt||{};const o=S.cardOptions().find(o=>o.k!=='wait'&&!won[o.k]&&S.strikeOdds(o.k)>=0.4);return o?o.k:'wait'}return k2(S)},
     governor:S=>S.G.card.id==='minwage'?'raise':k2(S)};
-  // (its billionaire passes on homes and buys every shop it can, so the estate has shops to strike)
-  const shopper=S=>S.G.card.id==='homes'?'pass':S.G.card.id==='shop'?'cut':opt(S,o=>o.acct);
+  // (its billionaire passes on homes and buys every shop it can, so the estate has shops to strike; it sits out the
+  // share market, since buying streets of homes cheap in every crash leaves a town no governor can win in a landslide)
+  const shopper=S=>S.G.card.id==='homes'?'pass':S.G.card.id==='shop'?'cut':S.G.card.id==='crash'?'hold':S.G.card.id==='bubble'?'stay':opt(S,o=>o.acct);
   for(const seed of [1,2,3]){const S=loadSim(seed);live(S,shopper);
     for(const r of ['Landlord','Partner','Shop','Waiter','Out','Union','Activist','Mayor','Governor']){if(S.G.ending.kind==='outvoted')break;S['start'+r]();live(S,pick[r.toLowerCase()]||k2);
       // (a mayor voted out can run the town again, as a player would)

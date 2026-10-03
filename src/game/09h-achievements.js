@@ -19,6 +19,7 @@ const ENDINGS={
 // the rare forms: a rung's ending, played unusually well (or on a later loop), with its own title
 const RARE={
   billionaire:[{k:'fullcircle',name:'Full circle',note:'Die a hero in a country a president of yours remade',when:e=>e.kind==='hero'&&G.pub&&G.pub.wealthtax},
+    {k:'top',name:'Sold at the top',note:'Sell a third at the top of two booms in one life, before each crash',when:e=>!!(G.mkt&&G.mkt.tops>=2)},
     {k:'dynasty',name:'Dynasty',note:'Three generations of heroes: play the heir of a hero\u2019s heir, and die a hero too',when:e=>e.kind==='hero'&&G.heir>=2}],
   landlord:[{k:'goodlandlord',name:'The good landlord',note:'A fair landlord with homes kept nearly perfect and rents a quarter of income',when:e=>e.kind==='fair'&&e.cond>=0.9&&e.burden<=0.25}],
   partner:[{k:'peoples',name:'The people\u2019s lawyer',note:'Defend the town against the rentier landlord you once were, and never take a rich client\u2019s side',when:e=>e.kind==='counsel'&&e.forRich===0&&e.forTown>=4&&G.ladder.fromLandlord==='rentier'}],

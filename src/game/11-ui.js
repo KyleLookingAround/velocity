@@ -176,6 +176,7 @@ const PANES={
       <div>Really growing<b>${(growthNow()*100).toFixed(1)}% a year</b></div><div>Invested<b>${money(G.cash)}</b></div>
       <div>Homes owned<b>${homesOwned()} of 19</b></div><div>Shops owned<b>${shopsOwned()} of 4</b></div>
       <div>Given so far<b>${money(G.given)}</b></div><div>Share of gains<b>${share}%</b></div>
+      <div>The market<b>${marketWord()}</b></div><div>Crashes so far<b>${(G.mkt&&G.mkt.falls)||0}</b></div>
       <div>Taxes paid<b>${money(G.taxPaid)}</b></div><div>Next tax vote<b>${G.ending?'–':G.nextTax>G.week?'age '+(START_AGE+Math.floor(G.nextTax/WEEKS)):'now'}</b></div></div>
       <p class="lead" style="margin-top:8px">A hero gives at least ${Math.round(T.heroGiveShare*100)}% of what they gain, keeps the town calm, and still dies richer than $30M.</p>`;
   },
@@ -213,6 +214,7 @@ function onPaneClick(e){
   if(e.target.closest('[data-skip]')){R.skip=!R.skip;renderPane(true)}
   const adv=e.target.closest('[data-adv]');if(adv){G.adviser=G.adviser===adv.dataset.adv?null:adv.dataset.adv;save();renderPane(true)}
   const hr=e.target.closest('[data-hours]');if(hr&&setHours(+hr.dataset.hours)){save();renderPane(true);refreshTop()}
+  const ln=e.target.closest('[data-line]');if(ln&&isShop()&&setLine(ln.dataset.line,+ln.dataset.off)){save();renderPane(true)}
   const fr=e.target.closest('[data-front]');if(fr&&G.un&&setFocus(fr.dataset.front)){save();renderPane(true)}
   const hs=e.target.closest('[data-hsel]');if(hs&&!e.target.closest('[data-home]')){const i=+hs.dataset.hsel;R.homeSel=R.homeSel===i?null:i;renderPane(true);if(R.homeSel!=null){const row=$('#pane .row[data-hsel="'+i+'"]');if(row)row.scrollIntoView({block:'nearest'})}}
   const ha=e.target.closest('[data-home]');if(ha&&homeAct(+ha.dataset.home,ha.dataset.act)){if(typeof sfx==='function')sfx('coin');save();renderPane(true);refreshTop()}
