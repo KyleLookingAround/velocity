@@ -79,6 +79,10 @@ the start: the town is part of the life you're dealt. A town changes a few numbe
 (the mill, the cannery or the depot); the ladder, the cards and the endings are the same. The port is the hardest town
 for a hero: gifts cost more where wages are higher. The Story tab lists the towns you've opened.
 
+**Versions.** The Story tab shows the version and what's new in it, and a returning player sees What's new once
+after an update. Saves from every version are kept in `tools/saves/` and the bot loads each one, so old saves keep
+working.
+
 **Today's life.** The Story tab offers one billionaire life a day, the same for everyone on that date: its seed is the
 date, it's always in Millbrook, and it starts without the laws an earlier president made. Play it as often as you like;
 your best result for each day stays on the device (a better ending wins, then more given for the hero and the giver, or
@@ -304,8 +308,8 @@ Saves stay on the device.
 - `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html` (and copies the
   fonts next to it). It fails,
   naming the file and line, on a slip, and rejects `Math.random()` in anything that changes the game (use `rnd()`).
-- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in seven groups at once (`down`,
-  `climb`, `mayor`, `governor`, `president`, `hunt`, `towns`; one process each, as many at a time as there are cores:
+- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in eight groups at once (`down`,
+  `climb`, `mayor`, `governor`, `president`, `hunt`, `towns`, `saves`; one process each, as many at a time as there are cores:
   about two minutes on four), and `node tools/bot.mjs --group <name>` plays one. It answers every card by a strategy,
   and checks each reaches its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its
   means → hero and still richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair

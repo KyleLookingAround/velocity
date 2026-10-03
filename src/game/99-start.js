@@ -5,9 +5,9 @@
 const YEAR_SECS={billionaire:24,landlord:30,partner:30,shop:30,waiter:30,out:60,union:36,activist:36,mayor:45,governor:45,president:45};
 const weekSecs=()=>(YEAR_SECS[G.rung]||30)/WEEKS;
 function start(){
-  if(!load())newGame();
-  buildChrome();fitMap();refreshTop();renderPane(true);
-  if(!G.seen.intro)showIntro();else if(isLandlord()&&!G.seen.landlord&&!G.ending)showLandlordIntro();else if(isPartner()&&!G.seen.partner&&!G.ending)showPartnerIntro();else if(isShop()&&!G.seen.shop&&!G.ending)showShopIntro();else if(isWaiter()&&!G.seen.waiter&&!G.ending)showWaiterIntro();else if(isOut()&&!G.seen.out&&!G.ending)showOutIntro();else if(isUnion()&&!G.seen.union&&!G.ending)showUnionIntro();else if(isActivist()&&!G.seen.activist&&!G.ending)showActivistIntro();else if(isMayor()&&!G.seen.mayor&&!G.ending)showMayorIntro();else if(isGovernor()&&!G.seen.governor&&!G.ending)showGovernorIntro();else if(isPresident()&&!G.seen.president&&!G.ending)showPresidentIntro();else if(G.ending)showEnding();
+  const fresh=!load();if(fresh)newGame();
+  buildChrome();if(fresh)setPref('seenVersion',VERSION);fitMap();refreshTop();renderPane(true);
+  if(!G.seen.intro)showIntro();else if(isLandlord()&&!G.seen.landlord&&!G.ending)showLandlordIntro();else if(isPartner()&&!G.seen.partner&&!G.ending)showPartnerIntro();else if(isShop()&&!G.seen.shop&&!G.ending)showShopIntro();else if(isWaiter()&&!G.seen.waiter&&!G.ending)showWaiterIntro();else if(isOut()&&!G.seen.out&&!G.ending)showOutIntro();else if(isUnion()&&!G.seen.union&&!G.ending)showUnionIntro();else if(isActivist()&&!G.seen.activist&&!G.ending)showActivistIntro();else if(isMayor()&&!G.seen.mayor&&!G.ending)showMayorIntro();else if(isGovernor()&&!G.seen.governor&&!G.ending)showGovernorIntro();else if(isPresident()&&!G.seen.president&&!G.ending)showPresidentIntro();else if(G.ending)showEnding();else if(whatsNewDue())showWhatsNew();
   let last=performance.now(),acc=0,ui=0,autoT=0;
   function frame(now){
     const dt=Math.min(0.1,(now-last)/1000);last=now;

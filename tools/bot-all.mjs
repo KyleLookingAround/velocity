@@ -10,7 +10,7 @@ import {fileURLToPath} from 'node:url';
 
 const here=dirname(fileURLToPath(import.meta.url));
 // (the slowest first, so the long ones aren't left running alone at the end)
-const ALL=['hunt','towns','president','governor','mayor','climb','down'];
+const ALL=['saves','hunt','towns','president','governor','mayor','climb','down'];
 // (flags such as --baseline pass through to every group)
 const args=process.argv.slice(2),flags=args.filter(a=>a.startsWith('--')),named=args.filter(a=>!a.startsWith('--'));
 const groups=named.length?named:ALL;
