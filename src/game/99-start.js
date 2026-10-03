@@ -4,11 +4,14 @@
 // and the panels refresh a few times a second. A decision card or an ending pauses the game until it's answered.
 const YEAR_SECS={billionaire:24,landlord:30,partner:30,shop:30,waiter:30,out:60,union:36,activist:36,mayor:45,governor:45,president:45};
 const weekSecs=()=>(YEAR_SECS[G.rung]||30)/WEEKS;
+// the adviser in charge answers the waiting card, if it's one of theirs: true when they did
+function adviserTakes(){const k=adviserAnswer();if(!k)return false;const o=cardOptions().find(x=>x.k===k),a=ADVISERS.find(a=>a.k===G.adviser);answerCard(k);adviserAnswered(o);
+  R.lastChoice={label:a.name+': '+o.label,town:o.town,quote:adviserLine(a),at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true);return true}
 function start(){
   const fresh=!load();if(fresh)newGame();
   buildChrome();if(fresh)setPref('seenVersion',VERSION);fitMap();refreshTop();renderPane(true);
   if(!G.seen.intro)showIntro();else if(isLandlord()&&!G.seen.landlord&&!G.ending)showLandlordIntro();else if(isPartner()&&!G.seen.partner&&!G.ending)showPartnerIntro();else if(isShop()&&!G.seen.shop&&!G.ending)showShopIntro();else if(isWaiter()&&!G.seen.waiter&&!G.ending)showWaiterIntro();else if(isOut()&&!G.seen.out&&!G.ending)showOutIntro();else if(isUnion()&&!G.seen.union&&!G.ending)showUnionIntro();else if(isActivist()&&!G.seen.activist&&!G.ending)showActivistIntro();else if(isMayor()&&!G.seen.mayor&&!G.ending)showMayorIntro();else if(isGovernor()&&!G.seen.governor&&!G.ending)showGovernorIntro();else if(isPresident()&&!G.seen.president&&!G.ending)showPresidentIntro();else if(G.ending)showEnding();else if(whatsNewDue())showWhatsNew();
-  let last=performance.now(),acc=0,ui=0,autoT=0;
+  let last=performance.now(),acc=0,ui=0;
   function frame(now){
     const dt=Math.min(0.1,(now-last)/1000);last=now;
     const modal=$('#modal').classList.contains('show');
@@ -20,13 +23,13 @@ function start(){
         if(G.ending){R.skip=false;R.stage={};R.endSoon=true;break}}
       if(R.townQ.length>3)R.townQ.splice(0,R.townQ.length-3);
     }
-    // with an adviser in charge, a waiting card is answered after a moment (one they can't answer waits for you)
-    if(G.card&&G.adviser&&!modal){autoT+=dt;if(autoT>1.2){autoT=0;const k=adviserAnswer();if(k){const o=cardOptions().find(x=>x.k===k),a=ADVISERS.find(a=>a.k===G.adviser);answerCard(k);adviserAnswered(o);
-        R.lastChoice={label:a.name+': '+o.label,town:o.town,quote:adviserLine(a),at:performance.now(),fresh:!!(R.lastCard&&R.lastCard.fresh),n:Object.keys(G.ladder.cards||{}).length};save();renderPane(true)}}}
+    // with an adviser in charge, a card they can answer is answered at once and never shown (one they can't answer waits
+    // for you); the result strip says what they picked
+    if(G.card&&G.adviser&&!modal&&!R.skip)for(let n=0;n<5&&G.card&&adviserTakes();n++);
     if(!modal&&!G.ending&&!G.card&&G.speed>0){
       acc+=dt*G.speed;
       while(acc>=weekSecs()){acc-=weekSecs();step();
-        if(G.week%WEEKS===0){adviserYear();save()}if(G.card){renderPane(true);break}if(G.ending){R.stage={};R.endSoon=true;break}}
+        if(G.week%WEEKS===0){adviserYear();save()}if(G.adviser)for(let n=0;n<5&&G.card&&adviserTakes();n++);if(G.ending){R.stage={};R.endSoon=true;break}if(G.card){renderPane(true);break}}
     }
     // an ending shows its card: at once when the weeks brought it, and once the deal's scene has played when a decision
     // did (selling the café, founding the chain, taking the manager's job); again, if a menu was opened over it

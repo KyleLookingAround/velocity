@@ -92,6 +92,7 @@ h2,h3{font-family:var(--display);letter-spacing:-.02em;line-height:1.1}
 #ticker{flex:1;min-width:0;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #ticker b{color:var(--ink)}#ticker.dec,#ticker.dec b{color:var(--amber);font-weight:800}
 #ticker .short{display:none}
+#fs{flex:none;width:30px;height:28px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink-2);display:grid;place-items:center;padding:0}#fs.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 #grip{display:none;flex:none;width:30px;height:28px;border:1px solid var(--line);border-radius:8px;background:var(--card);position:relative}
 #grip::before{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-left:2px solid var(--ink);border-top:2px solid var(--ink);transform:translate(-50%,-30%) rotate(45deg);transition:transform .2s}
 #app.expanded #grip::before{transform:translate(-50%,-70%) rotate(225deg)}
@@ -240,6 +241,8 @@ html.cb .day i.out{background:#f8e3d3;color:#8a3a06}
 #box .big{font-family:var(--display);font-size:34px;font-weight:800;letter-spacing:-.03em;margin:6px 0;line-height:1.05}
 #box.ending h2{font-size:28px}#box.ending .big{color:var(--green)}
 #box .opts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+/* a pop-up that ends in a single main button keeps it in reach while the text above scrolls (the intro on a small phone) */
+#box>.opts:last-child:has(>button.main:only-child){position:sticky;bottom:-14px;margin:12px -18px -14px;padding:12px 18px 14px;background:linear-gradient(rgba(247,243,234,0),var(--paper) 12px)}
 #box .opts button{text-align:left;border:1px solid var(--line-2);background:var(--card);border-radius:var(--r);padding:11px 13px;box-shadow:var(--sh-1);transition:transform .12s,box-shadow .15s}
 #box .opts button:hover{box-shadow:var(--sh-2)}
 #box .opts button b{display:block;font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:-.01em}

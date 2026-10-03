@@ -13,5 +13,7 @@ const UPDATES=[
     'Under a president’s laws, the Fortune tab shows what the taxes took and what the programmes paid.',
     'Crowds on the stage follow the town’s numbers: tents, marchers and the money in the air.',
     'The chronicle on the Story tab: every life of every run, and a picture of the whole run.',
-    'Colour-blind safe colours in Settings, and clearer, higher-contrast text in the panel.']},
+    'Colour-blind safe colours in Settings, and clearer, higher-contrast text in the panel.',
+    'Full screen: the button beside the speeds, F, or Settings.',
+    'An adviser in charge answers their cards at once, without showing them; on a phone, the panel opens for a decision you make.']},
 ];

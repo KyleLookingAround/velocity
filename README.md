@@ -23,7 +23,8 @@ memory (7) answers each card the way you did last time and brings a new one to y
 has its own adviser too, unlocked by that rung's best ending and playing for it on that rung only: the foundation
 director (gives what the fortune can carry, year by year), the managing agent, the clerk, the head waiter, the shop
 steward, the caseworker, the branch secretary, the campaign manager, the chief of staff, the state treasurer and the
-whip. Each answers in its own voice on the result strip ("Numbers don't vote"), and the one in charge can be left
+whip. A card the adviser in charge can answer never appears: they answer it the moment it arrives, in their own voice
+on the result strip ("Numbers don't vote"), and the one in charge can be left
 to finish the rung: the years go by fast with their answers, and a card they leave to you, or pause, stops it.
 Advisers aren't perfect: about one money-first answer in sixteen backfires (the town notices, and unrest rises), and
 about one kind answer in sixteen costs a billionaire more than they said. Each adviser keeps a record across your
@@ -49,7 +50,7 @@ roughly when the next decision is due; and a **panel** of tabs for your role, th
 decision gets a tab of its own and the others stay open while you think; after you answer, the result stays in view
 for a moment. On a phone the chevron in the transport bar gives the panel more of the screen. The whole game plays from
 a keyboard: space pauses, 1 to 5 pick an answer (or set the speed when no decision waits), the left and right arrows
-change tab, Enter takes a pop-up's main answer, Escape closes the ladder or the deck, and ? lists the keys. Tab moves
+change tab, Enter takes a pop-up's main answer, Escape closes the ladder or the deck, F goes full screen (also a button beside the speeds, and a row in Settings), and ? lists the keys. Tab moves
 through the buttons, with a gold outline on the one in focus.
 
 **Pacing.** At most two decisions a year, half a year apart, on every rung: the yearly review (rent, hours, prices,
