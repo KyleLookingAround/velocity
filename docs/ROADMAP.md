@@ -79,6 +79,8 @@ sessions). The owner decides what moves up.
   video's framing.
 - ~~**Accessibility** (S): reduced-motion mode (no parallax, no walkers), larger text setting, full keyboard play.~~ Done:
   the calm stage, larger text, and keys for every action.
+- **Colour and contrast** (S, done): colour-blind safe colours as a setting, shapes as well as colour on the map of
+  homes, and muted text that meets the contrast guidelines (darker still when the device asks for more contrast).
 
 ## 7. Platform
 

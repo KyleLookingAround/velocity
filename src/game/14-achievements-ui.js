@@ -217,10 +217,10 @@ $('#meters').addEventListener('click',e=>{const m=e.target.closest('.meter');if(
 const PREFS_KEY='money-makes-money-prefs';
 function prefs(){try{return JSON.parse(localStorage.getItem(PREFS_KEY)||'{}')}catch(e){return {}}}
 function setPref(k,v){const p=prefs();p[k]=v;try{localStorage.setItem(PREFS_KEY,JSON.stringify(p))}catch(e){}applyPrefs()}
-function applyPrefs(){const p=prefs();document.documentElement.classList.toggle('bigtext',!!p.big);R.calm=!!p.calm||matchMedia('(prefers-reduced-motion: reduce)').matches;if(R.calm)R.confetti=[]}
+function applyPrefs(){const p=prefs();document.documentElement.classList.toggle('bigtext',!!p.big);document.documentElement.classList.toggle('cb',!!p.cb);stageColours(!!p.cb);R.calm=!!p.calm||matchMedia('(prefers-reduced-motion: reduce)').matches;if(R.calm)R.confetti=[]}
 applyPrefs();
 function prefsHTML(){const p=prefs();const row=(k,name,note)=>`<div class="card"><div class="txt"><b>${name}</b><small>${note}</small></div><button class="toggle ${p[k]?'on':''}" data-pref="${k}" aria-label="${name}" aria-pressed="${!!p[k]}"></button></div>`;
-  return row('big','Larger text','The panel\u2019s text a size up')+row('calm','A calm stage','No passers-by, weather, drifting or confetti')+row('sound','Sound','Soft chimes for a decision, an answer and an achievement')+(navigator.vibrate?row('buzz','Buzz on a phone','A short buzz when a decision arrives'):'');}
+  return row('big','Larger text','The panel\u2019s text a size up')+row('cb','Colour-blind safe colours','Blue for good and orange for bad, on the panel and the stage')+row('calm','A calm stage','No passers-by, weather, drifting or confetti')+row('sound','Sound','Soft chimes for a decision, an answer and an achievement')+(navigator.vibrate?row('buzz','Buzz on a phone','A short buzz when a decision arrives'):'');}
 // moving a game between devices: the save as a block of text to copy, and a box to paste one in
 function saveCode(){save();const j=localStorage.getItem(SAVE_KEY)||JSON.stringify(G);return 'MMM1:'+btoa(unescape(encodeURIComponent(j)))}
 function showSaveBox(msg){

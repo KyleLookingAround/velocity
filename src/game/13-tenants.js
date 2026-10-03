@@ -187,7 +187,8 @@ function budgetHTML(){
   const y=G.plast,cur=G.pyear||{};const src=y&&Object.keys(y).length?y:cur,label=y&&Object.keys(y).length?'Last year':'This year so far';
   const ins=Object.entries(src).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]),outs=Object.entries(src).filter(([k,v])=>v<0).map(([k,v])=>[k,-v]).sort((a,b)=>b[1]-a[1]);
   const tin=ins.reduce((a,x)=>a+x[1],0),tout=outs.reduce((a,x)=>a+x[1],0),max=Math.max(tin,tout,1);
-  const COLS=['#2f8a4b','#5ca56d','#8cc497','#b8d9bf','#d4a72c','#e2c36b'],COLS2=['#b23a3a','#cf6b5a','#e09a8a','#8a8478','#b5ac9b','#d0c9bb'];
+  const cb=document.documentElement.classList.contains('cb'),COLS=cb?['#0b6aa6','#3d86c0','#7fb0d9','#b9d4ea','#d4a72c','#e2c36b']:['#2f8a4b','#5ca56d','#8cc497','#b8d9bf','#d4a72c','#e2c36b'],
+    COLS2=cb?['#c2500a','#d9783d','#e9a77c','#8a8478','#b5ac9b','#d0c9bb']:['#b23a3a','#cf6b5a','#e09a8a','#8a8478','#b5ac9b','#d0c9bb'];
   const bar=(xs,t,cols)=>`<div class="bbar">${xs.map(([k,v],i)=>`<i style="width:${(v/max*100).toFixed(1)}%;background:${cols[i%cols.length]}" title="${PURSE_NAMES[k]||k}: ${money(v)}"></i>`).join('')}</div>`;
   const legend=(xs,cols)=>xs.slice(0,4).map(([k,v],i)=>`<span><b style="background:${cols[i%cols.length]}"></b>${PURSE_NAMES[k]||k} ${money(v)}</span>`).join('');
   if(!ins.length&&!outs.length)return '';
