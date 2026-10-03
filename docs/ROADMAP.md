@@ -19,7 +19,7 @@ sessions). The owner decides what moves up.
 
 ## 2. Depth per rung (play)
 
-- **Billionaire: the market** (M). A simple share market with two or three booms and crashes a life; the crash card
+- **Billionaire: the market** (M, done). A simple share market with two or three booms and crashes a life; the crash card
   exists, make it a cycle you can ride or hedge, and a "sell at the top" rare ending.
 - **Landlord: the portfolio** (S, done). A map of your homes on the Tenants tab, each with its condition and tenant, tap to
   act (repair, raise, give time) instead of waiting for the card.
