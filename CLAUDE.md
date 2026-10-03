@@ -28,7 +28,10 @@ says how each rung plays; this file is the short core every session needs.
 3. Push and open a pull request with a plain title and description. The Checks workflow runs every bot group and
    the screenshots as parallel jobs; `check` is green only when all of them are. A newer push cancels the older run.
 4. Squash-merge once `check` is green. Merging publishes.
-5. Read a failure, don't rerun it: every run is seeded, so a failure repeats. Fix the cause; never loosen a bot
+5. The bot also checks pacing: every money figure and age in its tables must stay within 15% of
+   `tools/baseline/<group>.json`. A change meant to move the economy runs `node tools/bot-all.mjs --baseline`, commits
+   the new files and says in the PR what moved and why; any other change leaves them alone.
+6. Read a failure, don't rerun it: every run is seeded, so a failure repeats. Fix the cause; never loosen a bot
    expectation to get green unless the game's behaviour is right and the expectation was too strict, and then say
    so in the PR.
 

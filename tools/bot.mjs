@@ -109,6 +109,11 @@ const prRows=[];
 const want={passive:'luthor',hoarder:'revolt',hero:'hero',patient:'hero',giver:'giver'};
 const llWant={fair:(k,after)=>after==='hoarder'?k!=='bankrupt':k==='fair',gouger:k=>k!=='fair'};
 const rares=new Set();
+// (the money and age figures each table shows, keyed by table, row and column, for the pacing check at the end)
+const paced={};
+function pace(name,t){t.forEach((row,i)=>{const id=[name,row.strategy||row.after||row.town||'',row.seed??'',row.landlord||row.partner||row.shop||row.waiter||row.out||row.union||row.activist||row.mayor||row.governor||row.president||'',i].join('|');
+  for(const [k,v] of Object.entries(row)){if(k==='ok')continue;const m=typeof v==='string'&&v.match(/\$(-?[\d.]+)(M?)/);
+    if(m)paced[id+'|'+k+(m[2]?':M':':$')]=+m[1];else if((k==='age'||k==='years')&&typeof v==='number')paced[id+'|'+k]=v}})}
 function live(S,pick,each){while(!S.G.ending){if(S.G.card)S.answerCard(pick(S));else{S.step();if(each&&S.G.week%S.WEEKS===1)each(S)}}if(S.G.ending.rare)rares.add(S.G.ending.rung+':'+S.G.ending.rare)}
 const showYears=process.argv.includes('--years');
 let bad=0;const rows=[],llRows=[];
@@ -222,7 +227,8 @@ if(on('president'))for(const seed of [1,2,3]){
   S.startHeir();const start=S.netWorth();live(S,BILLIONAIRE.hero,yearly.hero);const e=S.G.ending,ok=!!e&&e.heir===1&&S.G.ladder.achieved['m:heir'];if(!ok)bad++;
   heirRows.push({seed,inherited:'$'+(start/1e6).toFixed(0)+'M',ending:e.kind,rare:e.rare||'',worth:'$'+(e.nw/1e6).toFixed(0)+'M',ok:ok?'yes':'NO'});
 }
-for(const t of [rows,llRows,ptRows,shRows,wtRows,owRows,unRows,acRows,myRows,gvRows,prRows,heirRows])if(t.length)console.table(t);
+const TABLES={rows,llRows,ptRows,shRows,wtRows,owRows,unRows,acRows,myRows,gvRows,prRows,heirRows};
+for(const [n,t] of Object.entries(TABLES))if(t.length){console.table(t);pace(n,t)}
 
 // (an idle mayor or governor, or a president who lets Congress drift, is at the voters' mercy: one seed of three is enough)
 // the rare endings that need a deliberate route must stay reachable: a hunter that goes for them on purpose (its
@@ -254,11 +260,21 @@ if(on('towns')){const twRows=[],k2=S=>opt(S,o=>o.kind);
         S.startUnion();live(S,UNION.steady);S.startActivist();live(S,ACTIVIST.steady);
         const o=S.G.ending.kind;row.activist=o;if(!o)bad++;row.purse='$'+((S.G.fund||0)/1e6).toFixed(0)+'M'}}
     twRows.push(row)}
-  console.table(twRows);
+  console.table(twRows);pace('twRows',twRows);
   // the daily life: the same date plays the same life, a second try counts as a try, and the best of the two stays
   {const S=loadSim(1),day='2026-10-02';S.startDaily(day);live(S,BILLIONAIRE.passive);const a=S.G.ending.nw;
     S.startDaily(day);live(S,BILLIONAIRE.hero,yearly.hero);const b=S.G.ending.nw,d=S.G.ladder.daily[day];
     S.startDaily(day);live(S,BILLIONAIRE.passive);const c=S.G.ending.nw;
     const ok=a===c&&d.kind==='hero'&&S.G.ladder.daily[day].kind==='hero'&&S.G.ladder.daily[day].tries===3;if(!ok)bad++;
     console.log('daily life '+day+': passive '+(a/1e6).toFixed(1)+'M twice '+(a===c?'the same':'DIFFERENT')+', best kept: '+S.G.ladder.daily[day].kind+' after '+S.G.ladder.daily[day].tries+' tries'+(ok?'':' NO'))}}
+// pacing: every money figure and age in the tables against tools/baseline/<group>.json, which holds the last accepted
+// run. A figure may move up to 15% (or $10M on a fortune in millions, $5,000 on a household's) before the run fails, so
+// a change meant to leave the economy alone can't drift it unseen. --baseline writes the file from this run instead.
+if(GROUP){const file=new URL('./baseline/'+GROUP+'.json',import.meta.url),fs=await import('node:fs');
+  if(process.argv.includes('--baseline')){fs.mkdirSync(new URL('./baseline/',import.meta.url),{recursive:true});fs.writeFileSync(file,JSON.stringify(paced,null,0).replace(/,"/g,',\n"')+'\n');console.log('baseline written: '+Object.keys(paced).length+' figures')}
+  else if(fs.existsSync(file)){const base=JSON.parse(fs.readFileSync(file,'utf8')),off=[];
+    for(const [k,b] of Object.entries(base)){const v=paced[k];if(v==null){off.push(k+': missing');continue}
+      const floor=k.endsWith(':M')?10:k.endsWith(':$')?5000:1;if(Math.abs(v-b)>Math.max(0.15*Math.abs(b),floor))off.push(k+': '+b+' -> '+v)}
+    if(off.length){bad++;console.error('pacing moved more than 15% from tools/baseline/'+GROUP+'.json:\n  '+off.join('\n  '))}
+    else console.log('pacing within 15% of the baseline ('+Object.keys(base).length+' figures)')}}
 if(bad){console.error(bad+' runs missed their ending');process.exit(1)}

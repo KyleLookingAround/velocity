@@ -301,26 +301,28 @@ Saves stay on the device.
 - `npm run build` joins `src/shell.html` and the numbered files in `src/game/` into `dist/index.html` (and copies the
   fonts next to it). It fails,
   naming the file and line, on a slip, and rejects `Math.random()` in anything that changes the game (use `rnd()`).
-- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in seven groups at once (`down`, `climb`,
-  `mayor`, `governor`, `president`, `hunt`, `towns`; one process each, as many at a time as there are cores: about two minutes
-  on four), and `node tools/bot.mjs --group <name>` plays one. It answers every card by a strategy, and checks each reaches
-  its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its means → hero and still
-  richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair and a gouging landlord
-  in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger → never fair. Then
-  three partners in the towns those landlords leave: always the accountant → hired gun, always the town → counsel,
-  75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the accountant's
-  prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding → evicted,
-  or just getting by under a fair landlord's rent)
-  and three people out of work (organising → organiser, scrambling for work → back on your feet, taking nothing →
-  stuck). Then three union organisers: generous → fair wages, the accountant → sold out, doing nothing → crumbs. Then three
-  activists: generous → the town changed, the easiest way → bought, never campaigning → ignored. Then three mayors
-  (generous → the builder, the donors' way → the machine, doing nothing → the caretaker): the re-election is a
-  gamble, so any run may end voted out, but each ending must come up on at least two of the three seeds. Then three
-  governors under the same rule: generous → a new deal, the donors' way → the dealmaker, doing nothing → the
-  steward. Then three presidents: generous → the ladder, rebuilt, the donors' way → owned, sending nothing →
-  gridlock; and a passive billionaire born after the rebuilt president must pay the tax on fortunes. Then a hero's
-  heir on each seed, which must reach an ending and the heir milestone, and a rare-ending hunter that must still reach
-  the co-op, thriving, the general strike and a landslide on purpose. It lists the rare endings the runs reached.
+- `npm run bot` (`tools/bot-all.mjs`) plays whole lives headless on seeds 1–3, in seven groups at once (`down`,
+  `climb`, `mayor`, `governor`, `president`, `hunt`, `towns`; one process each, as many at a time as there are cores:
+  about two minutes on four), and `node tools/bot.mjs --group <name>` plays one. It answers every card by a strategy,
+  and checks each reaches its ending: takes nothing → Lex Luthor, always the accountant → revolt, generous within its
+  means → hero and still richer, patient (generous after 15 years) → hero and at least four times richer. Then a fair
+  and a gouging landlord in the town each billionaire leaves: fair → fair (or at least solvent after a revolt), gouger
+  → never fair. Then three partners in the towns those landlords leave: always the accountant → hired gun, always the
+  town → counsel, 75-hour weeks → burnt out. Then three shop owners: generous → pillar, the accountant → sold, the
+  accountant's prices, pay and supplies without selling → closed. Then two waiters (careful → getting ahead, grinding
+  → evicted, or just getting by under a fair landlord's rent) and three people out of work (organising → organiser,
+  scrambling for work → back on your feet, taking nothing → stuck). Then three union organisers: generous → fair
+  wages, the accountant → sold out, doing nothing → crumbs. Then three activists: generous → the town changed, the
+  easiest way → bought, never campaigning → ignored. Then three mayors (generous → the builder, the donors' way → the
+  machine, doing nothing → the caretaker): the re-election is a gamble, so any run may end voted out, but each ending
+  must come up on at least two of the three seeds. Then three governors under the same rule: generous → a new deal,
+  the donors' way → the dealmaker, doing nothing → the steward. Then three presidents: generous → the ladder, rebuilt,
+  the donors' way → owned, sending nothing → gridlock; and a passive billionaire born after the rebuilt president must
+  pay the tax on fortunes. Then a hero's heir on each seed, which must reach an ending and the heir milestone, and a
+  rare-ending hunter that must still reach the co-op, thriving, the general strike and a landslide on purpose. It
+  lists the rare endings the runs reached. It also checks pacing: every money figure and age in the tables must stay
+  within 15% of the last accepted run, kept in `tools/baseline/<group>.json` (`node tools/bot-all.mjs --baseline`
+  rewrites them when the economy is meant to move).
 - `npm run shots` takes screenshots at 320 px, phone, phone landscape, tablet and desktop into `build/shots/`, each
   from a save made headless: a card waiting, a hoarder's town, a giver's commitments, an ending, then each rung's
   first card, a few years in, and its ending. `node tools/shots.mjs activist` takes one rung's alone.
