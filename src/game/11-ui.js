@@ -123,6 +123,21 @@ function refreshTop(){
 let paneKey='';
 // the town's employer by name in what's on screen: text only, so a button's data-*="mill" still works
 function townDom(el){if(!el||townOf().mill==='mill')return;const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))if(/\b[Mm]ill\b/.test(n.nodeValue))n.nodeValue=townText(n.nodeValue)}
+// bring a live element in line with new markup, touching only the parts that differ
+function patchPane(el,html){const t=document.createElement('div');t.innerHTML=html;townDom(t);morphKids(el,t)}
+function morphKids(a,b){
+  const ak=[...a.childNodes],bk=[...b.childNodes];
+  for(let i=0;i<bk.length;i++){const x=ak[i],y=bk[i];
+    if(!x){a.appendChild(y.cloneNode(true));continue}
+    if(x.nodeType!==y.nodeType||x.nodeName!==y.nodeName||x.nodeName==='CANVAS'&&x.id!==y.id){a.replaceChild(y.cloneNode(true),x);continue}
+    if(x.nodeType===3||x.nodeType===8){if(x.nodeValue!==y.nodeValue)x.nodeValue=y.nodeValue;continue}
+    if(x.nodeName==='CANVAS')continue; // (a chart keeps its drawing; it's redrawn with the pane)
+    for(const at of [...x.attributes])if(!y.hasAttribute(at.name))x.removeAttribute(at.name);
+    for(const at of [...y.attributes])if(x.getAttribute(at.name)!==at.value)x.setAttribute(at.name,at.value);
+    if(x.innerHTML!==y.innerHTML)morphKids(x,y);
+  }
+  for(let i=ak.length-1;i>=bk.length;i--)a.removeChild(ak[i]);
+}
 function renderPane(force){
   // a new decision opens its tab; once answered, you're back where you were
   const cid=G.card?G.card.id+':'+G.card.week:null;
@@ -134,6 +149,9 @@ function renderPane(force){
   const result=R.lastChoice&&performance.now()-R.lastChoice.at<6000?`<div class="result"><b>${R.lastChoice.label}</b><span>${R.lastChoice.town}</span>${R.lastChoice.quote?`<q>${R.lastChoice.quote}</q>`:''}${R.lastChoice.fresh?`<i class="newcard">\u2605 New card \u00b7 ${R.lastChoice.n} of ${deckSize()}</i>`:''}</div>`:'';
   const html=R.tab==='decide'&&G.card?cardHTML():waiting+result+PANES[R.tab]();
   $('#sheet').classList.toggle('deciding',R.tab==='decide'&&!!G.card);
+  // (a forced render rebuilds the pane; the refresh a few times a second patches only what changed, so a button you're
+  // pressing stays put, the scroll stays where it is and nothing animates in again)
+  if(!force&&html!==paneKey){paneKey=html;$('#pane').classList.remove('fresh');patchPane($('#pane'),html);if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart();return}
   if(force||html!==paneKey){paneKey=html;$('#pane').innerHTML=html;townDom($('#pane'));$('#pane').classList.toggle('fresh',!!force);$('#pane').scrollTop=0;if(['fortune','books','career','cafe','budget'].includes(R.tab))drawChart()}
 }
 // the decision card: what's happened, and each option's cost to you and to the town
