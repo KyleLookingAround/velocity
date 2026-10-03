@@ -52,7 +52,7 @@
 // node tools/bot.mjs [--years] prints the billionaire's year-by-year table for seed 1 too.
 import {loadSim} from './sim.mjs';
 // --group <name> plays one group only (down: the billionaire to out of work; climb: the union and activist; mayor;
-// governor; president, with the heir; hunt: the rare endings; towns: the port and the suburb). tools/bot-all.mjs plays every group at once, in parallel.
+// governor; president, with the heir; hunt: the rare endings; towns: the port and the suburb; saves: every old save). tools/bot-all.mjs plays every group at once, in parallel.
 const gi=process.argv.indexOf('--group'),GROUP=gi>0?process.argv[gi+1]:null,on=g=>!GROUP||GROUP===g;
 const opt=(S,f)=>{const o=S.cardOptions();return (o.find(f)||o.find(o=>o.none)||o[0]).k};
 const budget=S=>S.netWorth()*S.G.rate*0.65; // what a hero lets itself give a year
@@ -267,6 +267,15 @@ if(on('towns')){const twRows=[],k2=S=>opt(S,o=>o.kind);
     S.startDaily(day);live(S,BILLIONAIRE.passive);const c=S.G.ending.nw;
     const ok=a===c&&d.kind==='hero'&&S.G.ladder.daily[day].kind==='hero'&&S.G.ladder.daily[day].tries===3;if(!ok)bad++;
     console.log('daily life '+day+': passive '+(a/1e6).toFixed(1)+'M twice '+(a===c?'the same':'DIFFERENT')+', best kept: '+S.G.ladder.daily[day].kind+' after '+S.G.ladder.daily[day].tries+' tries'+(ok?'':' NO'))}}
+// old saves: every save in tools/saves/ (one set per version, from tools/fixtures.mjs) loads into this version and
+// plays two more years, or to its ending, without an error
+if(on('saves')){const fs=await import('node:fs'),dir=new URL('./saves/',import.meta.url),svRows=[];
+  for(const f of fs.readdirSync(dir).filter(f=>f.endsWith('.json')).sort()){const S=loadSim(1);let err='';
+    const s=JSON.parse(fs.readFileSync(new URL(f,dir),'utf8'));let w0=0;
+    try{S.restore(s);w0=S.G.week;const end=w0+2*S.WEEKS;let n=0;while(!S.G.ending&&S.G.week<end&&n++<1e6){if(S.G.card)S.answerCard(S.cardOptions()[0].k);else S.step()}}catch(e){err=e.message}
+    const ok=!err&&(S.G.ending||S.G.week>=w0+2*S.WEEKS);if(!ok)bad++;
+    svRows.push({save:f,from:s.ver||'?',rung:S.G.rung,years:Math.round((S.G.week-w0)/S.WEEKS),ending:S.G.ending?S.G.ending.kind:'',error:err,ok:ok?'yes':'NO'})}
+  console.table(svRows)}
 // pacing: every money figure and age in the tables against tools/baseline/<group>.json, which holds the last accepted
 // run. A figure may move up to 15% (or $10M on a fortune in millions, $5,000 on a household's) before the run fails, so
 // a change meant to leave the economy alone can't drift it unseen. --baseline writes the file from this run instead.
