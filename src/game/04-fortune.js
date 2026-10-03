@@ -21,8 +21,8 @@ function marketWeek(){
   else if(m.phase==='boom'){m.phase='bust';m.left=MKT.bust*WEEKS;crashHitsTown()}
   else{m.phase='calm';m.n++;m.left=mktSpell('calm',107+m.n);G.boom=null;if(m.cut){G.millMul=(G.millMul||1)/MKT.millCut;m.cut=false}}
 }
-// the market reaches the town: a boom puts home prices up (a home further out of reach); a crash puts the mill on short time for the bust
-// year and costs one of its workers their job
+// the market reaches the town: a boom puts home prices up (a home further out of reach), and a crash puts the mill on
+// short time for the bust year, unless the billionaire keeps the town afloat
 function boomHitsTown(){G.homePrice*=1+MKT.boomHomes;townEvent('boomhomes','')}
 function crashHitsTown(){const m=G.mkt;G.millMul=(G.millMul||1)*MKT.millCut;m.cut=true;
   townEvent('shorttime','')}
