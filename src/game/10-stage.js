@@ -111,6 +111,10 @@ function vault(c,x,y,fill){
   c.strokeStyle='#777';c.lineWidth=3;c.beginPath();c.arc(x,y,49,0,7);c.stroke();
   for(let k=0;k<5;k++){c.strokeStyle='rgba(90,90,90,.5)';c.lineWidth=2;c.beginPath();c.moveTo(x-38+k*19,y-44);c.lineTo(x-38+k*19,y+44);c.stroke()}
 }
+// the crowd follows the town: households out of work, sleeping rough, in medical debt or paying over half their income in
+// rent march; at least four figures, at most ten
+const aggrieved=()=>G.res.filter(r=>r.role!=='landlord'&&(r.homeless||(r.role==='worker'&&r.job==null)||r.debt>0||(r.rent>0&&r.income>0&&r.rent>r.income*0.5))).length;
+const marchers=()=>Math.max(4,Math.min(10,aggrieved()+Math.floor(G.unrest/25)));
 function tent(c,x,y){c.fillStyle='#7a7a7a';c.beginPath();c.moveTo(x-30,y);c.lineTo(x,y-38);c.lineTo(x+30,y);c.fill();c.fillStyle='#5e5e5e';c.beginPath();c.moveTo(x-6,y);c.lineTo(x,y-14);c.lineTo(x+6,y);c.fill()}
 function tree(c,x,y){c.fillStyle='#8a8a8a';c.fillRect(x-3,y-40,6,40);c.fillStyle='#a9b5a9';c.beginPath();c.arc(x,y-52,20,0,7);c.fill()}
 function truck(c,x,y,label){c.fillStyle='#8a8a8a';c.fillRect(x-60,y-56,84,46);c.fillStyle='#6d6d6d';c.fillRect(x+24,y-40,30,30);c.fillStyle='#d9d9d9';c.fillRect(x+30,y-36,16,12);
@@ -254,22 +258,26 @@ const SCENES={
     c.fillStyle='#555';c.fillRect(196,206,26,8);c.fillRect(205,214,8,36);person(c,212,250,{pose:'sit',dir:-1});person(c,248,250,{dir:-1,col:'#444',pose:'hammer',t});
     c.fillStyle='#8f8f8f';c.fillRect(312,214,64,5);c.fillRect(342,219,4,31);person(c,300,250,{pose:'sit'});person(c,390,250,{pose:'sit',dir:-1});person(c,420,250,{dir:-1,col:'#444'});
     const leak=G.history.length?Math.min(0.6,G.history.at(-1).mega/Math.max(1,weeklySpend()*WEEKS)):0.2;
-    const pts=[[110,180],[220,180],[350,180],[430,175]];for(let k=0;k<5;k++){const u=loopT(t*1.2+k/5,1),seg=Math.floor(u*3),f=u*3-seg;flyBill(c,pts[seg][0],pts[seg][1],pts[seg+1][0],pts[seg+1][1],f,30)}
+    // a bill in the air for each time a dollar changes hands in a year (two to eight)
+    const nb=G.history.length?Math.max(2,Math.min(8,Math.round(G.history.at(-1).vel))):5;
+    const pts=[[110,180],[220,180],[350,180],[430,175]];for(let k=0;k<nb;k++){const u=loopT(t*1.2+k/nb,1),seg=Math.floor(u*3),f=u*3-seg;flyBill(c,pts[seg][0],pts[seg][1],pts[seg+1][0],pts[seg+1][1],f,30)}
     if(leak>0.25)for(let k=0;k<2;k++)flyBill(c,130,180,PW+30,120,loopT(t+k/2,1),20)}},
   evicted:{cap:()=>(R.recent.evicted?R.recent.evicted+'\u2019s family':'A family')+' is put out on the street',draw(c,t){
     house(c,140,250,{sign:'EVICTED'});const u=t*0.8;person(c,260+u*60,250,{pose:'box',t:t*4});person(c,300+u*60,250,{pose:'walk',t:t*4,s:0.62})}},
   tents:{cap:()=>{const n=G.res.filter(r=>r.homeless).length,who=threadWho(['evicted'],r=>r.homeless);return who?who+'\u2019s family, whom you evicted, in the park':n?n*HH+' households sleeping in the park':'The park'},draw(c){
-    tree(c,60,250);tree(c,430,250);const n=Math.max(1,G.res.filter(r=>r.homeless).length);
-    for(let k=0;k<Math.min(6,n);k++){tent(c,120+k*55,250)}person(c,140,250,{pose:'slump',col:'#555'});person(c,300,250,{pose:'slump',col:'#555',dir:-1})}},
+    // one tent for every hundred households sleeping rough, squeezed closer as the park fills
+    tree(c,60,250);tree(c,430,250);const n=Math.min(9,Math.max(1,G.res.filter(r=>r.homeless).length)),gap=Math.min(55,280/n);
+    for(let k=0;k<n;k++)tent(c,120+k*gap+(n<5?(5-n)*20:0),250);
+    for(let k=0;k<Math.min(3,Math.ceil(n/2));k++)person(c,140+k*110,250,{pose:'slump',col:'#555',dir:k%2?-1:1})}},
   closed:{cap:()=>{const n=R.recent.closed||(G.shops.find(s=>!s.open)||{}).name;return n?'The '+n+' has closed':'A shop closes'},draw(c,t){
     const s=G.shops.find(s=>s.name===R.recent.closed)||G.shops.find(s=>!s.open);shop(c,220,250,(s?s.name:'SHOP').toUpperCase(),{shutter:Math.min(1,t*1.6)});person(c,330+Math.max(0,t-0.6)*300,250,{pose:t>0.6?'slump':'stand',col:'#444'})}},
   laidoff:{cap:()=>{const n=jobless().length;return (R.recent.laidoff?R.recent.laidoff+' is out of work':'Jobs are cut')+(n?'. '+n*HH+' households without a job':'')},draw(c,t){
     const s=G.shops.find(s=>s.ownedByYou&&s.open);shop(c,140,250,(s?s.name:'SHOP').toUpperCase(),{awn:GREEN});person(c,230+t*200,250,{pose:'box',t:t*5})}},
   strike:{cap:()=>isLandlord()?'Rent strike':G.rung==='billionaire'?'Strike at your shops':'On strike',draw(c,t){
     shop(c,120,250,'STRIKE',{awn:GREEN});for(let k=0;k<4;k++){const x=210+((k*60+t*120)%240);person(c,x,250,{pose:'sign',march:true,t:t*4+k,text:'STRIKE'})}}},
-  protest:{cap:()=>['waiter','out','union','activist'].includes(G.rung)?'You march with the town':G.rung==='billionaire'||G.rung==='landlord'?'The town marches against you':'The town marches',draw(c,t){
+  protest:{cap:()=>(['waiter','out','union','activist'].includes(G.rung)?'You march with the town':G.rung==='billionaire'||G.rung==='landlord'?'The town marches against you':'The town marches')+(aggrieved()?': '+aggrieved()*HH+' households':''),draw(c,t){
     const words=isLandlord()?['RENT','FAIR','HOMES','RENT','FIX IT','FAIR']:['TAX','FAIR','PAY','TAX US','RENT','FAIR'];
-    const n=Math.min(10,4+Math.floor(G.unrest/18)),gap=(PW+80)/n;
+    const n=marchers(),gap=(PW+80)/n;
     for(let k=0;k<n;k++){const x=((k*gap+t*160)%(PW+80))-40;person(c,x,250,{pose:'sign',march:true,t:t*4+k*0.3,text:words[k%6],col:k%2?'#333':INK})}}},
   nursery:{cap:()=>'Childcare: parents work full time',draw(c,t){
     building(c,330,250,'NURSERY',130);const u=Math.min(1,t*1.6);person(c,60+u*180,250,{pose:'walk',t:t*5});if(u<1)person(c,90+u*180,250,{pose:'walk',t:t*5,s:0.62});
