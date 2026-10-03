@@ -87,11 +87,12 @@ leaves the life you're in, so a life under way asks once more first.
   calm, then a boom (borrow and ride it, sell a third at the top, or sit tight), then a crash that takes more from
   those who rode it on borrowed money and half as much from those who sold (buy what everyone else must sell, hold, or
   keep the town's shops afloat for a quarter), then two years of recovery that win most of a held fortune back. The
-  Fortune tab says where the market is. Also a superyacht, the town's newspaper for sale, and a museum wing or the
-  school. Gifts you've been asked for can be started or stopped on the **Commitments** tab. Endings: **Lex Luthor**,
-  **revolt**, **gave it all away** (generous past what the fortune earns, ending poorer than it began), or **hero**
-  (give at least 35% of your gains, keep unrest low, still finish richer than $30M). Giving from the start costs you;
-  growing first and giving later pays.
+  town feels it too: a boom puts home prices up 5%, and a crash puts the mill on short time (5% less pay) for the bust
+  year unless you keep the town afloat; both show on the stage. The Fortune tab says where the market is. Also a
+  superyacht, the town's newspaper for sale, and a museum wing or the school. Gifts you've been asked for can be
+  started or stopped on the **Commitments** tab. Endings: **Lex Luthor**, **revolt**, **gave it all away** (generous
+  past what the fortune earns, ending poorer than it began), or **hero** (give at least 35% of your gains, keep unrest
+  low, still finish richer than $30M). Giving from the start costs you; growing first and giving later pays.
 - **The landlord** (20 years): you play Agnes in the town the billionaire left. Its homes and shops pass to its
   estate, which raises rents 7% a year; a hero's gifts carry on as a foundation. You decide the yearly rent, what to
   do about each tenant who falls six weeks behind, repairs, buying homes from the estate, and the tenants' union. Home

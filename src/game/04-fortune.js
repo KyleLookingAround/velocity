@@ -11,16 +11,22 @@ function crashHits(keep){const m=G.mkt;if(G.boom==='rode'){keep-=0.1;G.rate-=0.0
 // third); the crash takes it back and more. How long each spell lasts comes from the life's seed, read without moving
 // it, so the market doesn't reshuffle the rest of the life.
 // (after a crash the market climbs back for two years: most of a held fortune's fall comes back)
-const MKT={firstCalm:[14,3],calm:[10,3],boom:[4,1],bust:1,boomGain:0.004,recover:[0.05,2]};
+const MKT={firstCalm:[14,3],calm:[10,3],boom:[4,1],bust:1,boomGain:0.004,recover:[0.05,2],boomHomes:0.05,millCut:0.95};
 const mktSpell=(k,salt)=>Math.round((MKT[k][0]+peek(salt)*MKT[k][1])*WEEKS);
 function marketWeek(){
   const m=G.mkt;if(!m||G.rung!=='billionaire')return;
   if(m.left==null)m.left=mktSpell('firstCalm',101);
   if(--m.left>0)return;
-  if(m.phase==='calm'){m.phase='boom';m.left=mktSpell('boom',103+m.n)}
-  else if(m.phase==='boom'){m.phase='bust';m.left=MKT.bust*WEEKS}
-  else{m.phase='calm';m.n++;m.left=mktSpell('calm',107+m.n);G.boom=null}
+  if(m.phase==='calm'){m.phase='boom';m.left=mktSpell('boom',103+m.n);boomHitsTown()}
+  else if(m.phase==='boom'){m.phase='bust';m.left=MKT.bust*WEEKS;crashHitsTown()}
+  else{m.phase='calm';m.n++;m.left=mktSpell('calm',107+m.n);G.boom=null;m.cut=false}
 }
+// the market reaches the town: a boom puts home prices up (a home further out of reach), and a crash puts the mill on
+// short time for the bust year, unless the billionaire keeps the town afloat
+function boomHitsTown(){G.homePrice*=1+MKT.boomHomes;townEvent('boomhomes','')}
+function crashHitsTown(){G.mkt.cut=true;townEvent('shorttime','')}
+// short time is its own factor on mill pay, so it ends with the bust (or the life) and never sticks to the mill's wage
+const shortTime=()=>G.rung==='billionaire'&&G.mkt&&G.mkt.cut?MKT.millCut:1;
 // the market in a word, for the Fortune tab
 const marketWord=()=>{const m=G.mkt;if(!m)return 'Calm';return m.phase==='boom'?'Booming'+(G.boom==='rode'?', on borrowed money':G.boom==='sold'?', a third sold':''):m.phase==='bust'?'Crashed':m.rec>0?'Recovering':'Calm'};
 // how much of a boom you ride: borrowed to the hilt, a third sold at the top, or as you were
